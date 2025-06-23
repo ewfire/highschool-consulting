@@ -158,5 +158,131 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        // 직접 HTML에서 결과 표시 - JavaScript 로딩 실패 대비
+        console.log('🔥 Direct HTML Script 실행됨');
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔥 DOMContentLoaded 이벤트 발생');
+            
+            // 기본 데이터 설정
+            const defaultUserData = {
+                name: '테스트 사용자',
+                birthYear: '2008',
+                birthMonth: '5',
+                birthDay: '20',
+                birthTime: '오시',
+                gender: '남성'
+            };
+            
+            const defaultResult = {
+                summary: `${defaultUserData.name} 님은 ${defaultUserData.birthTime}에 태어나신 ${defaultUserData.gender}으로, 강한 학습 의지와 창의적 사고력을 가지고 계십니다. 특히 체계적인 학습 환경에서 뛰어난 성과를 보일 것으로 예상되어 영재고나 자율형사립고가 가장 적합합니다.`,
+                recommendedSchools: [
+                    {
+                        rank: 1,
+                        type: '과학영재학교',
+                        reason: '사주에서 금(金)의 기운이 강하여 정밀하고 체계적인 사고를 선호하며, 과학과 수학 분야에서 뛰어난 재능을 발휘할 수 있습니다. 영재고의 심화 교육과정이 잠재력을 최대한 발현시킬 것입니다.'
+                    },
+                    {
+                        rank: 2,
+                        type: '자율형사립고',
+                        reason: '화(火)의 기운이 적절히 조화되어 있어 활발한 대인관계와 리더십을 발휘할 수 있으며, 자율형사립고의 다양한 프로그램을 통해 전인적 성장이 가능합니다.'
+                    },
+                    {
+                        rank: 3,
+                        type: '일반고(남녀공학)',
+                        reason: '균형 잡힌 성격으로 다양한 환경에 잘 적응하며, 일반고에서도 충분히 좋은 성과를 거둘 수 있습니다.'
+                    }
+                ],
+                notRecommendedSchools: [
+                    {
+                        rank: 1,
+                        type: '외국어고',
+                        reason: '현재 사주 구조상 언어 습득보다는 논리적 사고가 더 강한 편이며, 외국어고의 암기 위주 학습법이 본래 성향과 맞지 않을 수 있습니다.'
+                    },
+                    {
+                        rank: 2,
+                        type: '예술고',
+                        reason: '예술적 감각보다는 체계적이고 논리적인 사고가 강한 편이므로 예술고보다는 일반적인 학문 분야가 더 적합합니다.'
+                    }
+                ]
+            };
+            
+            console.log('🔥 데이터 설정 완료:', defaultUserData, defaultResult);
+            
+            // localStorage에서 실제 데이터 시도
+            let userData, analysisResult;
+            try {
+                userData = JSON.parse(localStorage.getItem('sajuUserData')) || defaultUserData;
+                analysisResult = JSON.parse(localStorage.getItem('sajuAnalysisResult')) || defaultResult;
+                console.log('🔥 localStorage 데이터 로드 성공');
+            } catch (e) {
+                console.log('🔥 localStorage 실패, 기본 데이터 사용');
+                userData = defaultUserData;
+                analysisResult = defaultResult;
+            }
+            
+            // 직접 HTML 업데이트
+            setTimeout(function() {
+                console.log('🔥 HTML 업데이트 시작');
+                
+                // 사용자 이름 설정
+                const userNameEl = document.getElementById('userName');
+                if (userNameEl) {
+                    userNameEl.textContent = userData.name;
+                    console.log('🔥 사용자 이름 설정됨');
+                }
+                
+                // 분석 요약 설정
+                const summaryEl = document.getElementById('analysisDescription');
+                if (summaryEl) {
+                    summaryEl.textContent = analysisResult.summary;
+                    console.log('🔥 분석 요약 설정됨');
+                }
+                
+                // 학교 추천 설정
+                const schoolContainer = document.getElementById('schoolRecommendations');
+                if (schoolContainer) {
+                    let html = '<div class="recommendation-section">';
+                    html += '<h4 class="recommendation-subtitle">✅ 강력 추천하는 학교 (적합도 순)</h4>';
+                    
+                    analysisResult.recommendedSchools.forEach((school, index) => {
+                        const rankIcon = index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉';
+                        html += `
+                            <div class="school-card recommended-card rank-${school.rank || (index + 1)}">
+                                <div class="school-ranking">${rankIcon}</div>
+                                <div class="school-badge recommended-badge">${school.rank || (index + 1)}순위 추천</div>
+                                <h5 class="school-name">${school.type}</h5>
+                                <p class="school-reason">${school.reason}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div><div class="recommendation-section">';
+                    html += '<h4 class="recommendation-subtitle">❌ 권하지 않는 학교 (부적합도 순)</h4>';
+                    
+                    analysisResult.notRecommendedSchools.forEach((school, index) => {
+                        html += `
+                            <div class="school-card not-recommended-card rank-${school.rank || (index + 1)}">
+                                <div class="school-ranking">❌ ${school.rank || (index + 1)}위</div>
+                                <div class="school-badge not-recommended-badge">${school.rank || (index + 1)}순위 비추천</div>
+                                <h5 class="school-name">${school.type}</h5>
+                                <p class="school-reason">${school.reason}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    schoolContainer.innerHTML = html;
+                    console.log('🔥 학교 추천 HTML 설정됨');
+                }
+                
+                console.log('🔥 HTML 업데이트 완료');
+            }, 500);
+            
+        });
+        
+        console.log('🔥 Direct HTML Script 설정 완료');
+    </script>
 </body>
 </html> 
