@@ -15,6 +15,10 @@ function goBack() {
 }
 
 function goToInput() {
+    // 기존 로딩 상태 정리
+    hideLoadingScreen();
+    
+    // input.html로 이동
     window.location.href = 'input.html';
 }
 
@@ -33,6 +37,15 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeInputPage() {
     setupDateSelectors();
     setupFormSubmission();
+    
+    // 브라우저 뒤로가기로 돌아온 경우 로딩 화면 숨기기
+    hideLoadingScreen();
+    
+    // 페이지가 뒤로가기로 접근된 경우 감지
+    if (performance.navigation.type === performance.navigation.TYPE_BACK_FORWARD) {
+        // 뒤로가기로 온 경우 기존 localStorage 데이터로 폼 복원
+        restoreFormData();
+    }
 }
 
 // Setup date selectors
@@ -795,5 +808,39 @@ function forceRedirectToResult() {
                 }
             }
         }
+    }
+}
+
+// 브라우저 뒤로가기 시 폼 데이터 복원
+function restoreFormData() {
+    try {
+        const savedData = localStorage.getItem('sajuUserData');
+        if (savedData) {
+            const userData = JSON.parse(savedData);
+            
+            // 폼 필드에 저장된 데이터 복원
+            const nameField = document.getElementById('name');
+            const yearField = document.getElementById('birthYear');
+            const monthField = document.getElementById('birthMonth');
+            const dayField = document.getElementById('birthDay');
+            const timeField = document.getElementById('birthTime');
+            const genderFields = document.querySelectorAll('input[name="gender"]');
+            
+            if (nameField && userData.name) nameField.value = userData.name;
+            if (yearField && userData.birthYear) yearField.value = userData.birthYear;
+            if (monthField && userData.birthMonth) monthField.value = userData.birthMonth;
+            if (dayField && userData.birthDay) dayField.value = userData.birthDay;
+            if (timeField && userData.birthTime) timeField.value = userData.birthTime;
+            
+            if (userData.gender) {
+                genderFields.forEach(field => {
+                    if (field.value === userData.gender) {
+                        field.checked = true;
+                    }
+                });
+            }
+        }
+    } catch (e) {
+        // 복원 실패시 무시
     }
 } 

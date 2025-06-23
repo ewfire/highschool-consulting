@@ -208,6 +208,17 @@
     <script>
         // 추가 안전장치 - 직접 폼 처리
         document.addEventListener('DOMContentLoaded', function() {
+            // 브라우저 뒤로가기로 돌아온 경우 로딩 화면 숨기기
+            const loadingScreen = document.getElementById('loadingScreen');
+            if (loadingScreen) {
+                loadingScreen.style.display = 'none';
+            }
+            
+            // 뒤로가기로 온 경우 기존 데이터로 폼 복원
+            if (performance.navigation && performance.navigation.type === performance.navigation.TYPE_BACK_FORWARD) {
+                restoreFormDataInline();
+            }
+            
             const form = document.getElementById('sajuForm');
             if (form) {
                 form.addEventListener('submit', function(e) {
@@ -290,7 +301,6 @@
                     localStorage.setItem('sajuAnalysisResult', JSON.stringify(demoResult));
                     
                     // 로딩 화면 표시
-                    const loadingScreen = document.getElementById('loadingScreen');
                     if (loadingScreen) {
                         loadingScreen.style.display = 'flex';
                     }
@@ -300,6 +310,40 @@
                         window.location.href = 'result.html';
                     }, 2000);
                 });
+            }
+            
+            // 인라인 폼 데이터 복원 함수
+            function restoreFormDataInline() {
+                try {
+                    const savedData = localStorage.getItem('sajuUserData');
+                    if (savedData) {
+                        const userData = JSON.parse(savedData);
+                        
+                        // 폼 필드에 저장된 데이터 복원
+                        const nameField = document.getElementById('name');
+                        const yearField = document.getElementById('birthYear');
+                        const monthField = document.getElementById('birthMonth');
+                        const dayField = document.getElementById('birthDay');
+                        const timeField = document.getElementById('birthTime');
+                        const genderFields = document.querySelectorAll('input[name="gender"]');
+                        
+                        if (nameField && userData.name) nameField.value = userData.name;
+                        if (yearField && userData.birthYear) yearField.value = userData.birthYear;
+                        if (monthField && userData.birthMonth) monthField.value = userData.birthMonth;
+                        if (dayField && userData.birthDay) dayField.value = userData.birthDay;
+                        if (timeField && userData.birthTime) timeField.value = userData.birthTime;
+                        
+                        if (userData.gender) {
+                            genderFields.forEach(field => {
+                                if (field.value === userData.gender) {
+                                    field.checked = true;
+                                }
+                            });
+                        }
+                    }
+                } catch (e) {
+                    // 복원 실패시 무시
+                }
             }
         });
     </script>
