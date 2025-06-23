@@ -117,13 +117,12 @@ body {
 }
 
 .hero-icons {
-    position: relative;
-    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 20px;
     flex-wrap: wrap;
-    gap: 10px;
+    margin: 40px 0;
 }
 
 .icon-item {
@@ -866,273 +865,255 @@ body {
 
 @media (max-width: 768px) {
     .container {
-        padding: 10px;
+        padding: 0 20px;
     }
-    
+
     .header {
-        padding: 15px 20px;
+        padding: 15px 0;
         flex-direction: column;
         gap: 15px;
-        text-align: center;
-        border-radius: 12px;
+        align-items: flex-start;
     }
-    
+
     .logo h1 {
-        font-size: 1.3rem;
+        font-size: 1.5rem;
     }
-    
+
     .back-button {
-        flex: 1;
-        max-width: 120px;
-        padding: 12px 16px;
-        font-size: 0.8rem;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        align-self: flex-start;
     }
-    
+
     .main-content {
-        padding: 25px 20px;
-        border-radius: 16px;
+        margin: 20px 0;
     }
-    
+
     .main-title {
         font-size: 1.8rem;
-        line-height: 1.4;
+        line-height: 1.3;
     }
-    
+
     .subtitle {
         font-size: 1rem;
     }
-    
+
     .hero {
         padding: 40px 0;
     }
-    
+
     .hero-image {
-        height: 150px;
         margin: 30px 0;
     }
-    
+
+    /* Hide last 2 icons on mobile to prevent wrapping */
+    .hero-icons .icon-5,
+    .hero-icons .icon-6 {
+        display: none;
+    }
+
+    .hero-icons {
+        gap: 15px;
+        margin: 30px 0;
+    }
+
+    .icon-item {
+        width: 60px;
+        height: 60px;
+        font-size: 1.8rem;
+    }
+
     .cta-button {
-        padding: 16px 35px;
+        padding: 16px 32px;
         font-size: 1.1rem;
         width: 100%;
         max-width: 300px;
-        border-radius: 12px;
     }
-    
+
     .section-title {
-        font-size: 1.6rem;
-        margin-bottom: 30px;
+        font-size: 1.8rem;
     }
-    
+
     .features {
-        padding: 40px 0;
+        padding: 40px 20px;
     }
-    
+
     .features-grid {
-        grid-template-columns: 1fr;
         gap: 20px;
     }
-    
+
     .feature-card {
-        padding: 25px 20px;
-        border-radius: 12px;
+        padding: 24px 20px;
     }
-    
+
     .feature-icon {
         font-size: 2.5rem;
     }
-    
+
     .how-it-works {
         padding: 40px 20px;
         margin: 30px 0;
-        border-radius: 16px;
     }
-    
+
     .steps {
         flex-direction: column;
-        gap: 15px;
+        gap: 30px;
     }
-    
+
     .step {
         max-width: 100%;
-        padding: 25px 20px;
-        border-radius: 12px;
     }
-    
+
     .step-arrow {
         transform: rotate(90deg);
-        font-size: 1.5rem;
+        margin: 10px 0;
     }
-    
-    /* Input Page Mobile */
+
     .input-section {
-        max-width: 100%;
+        margin: 0;
     }
-    
+
     .input-container {
-        padding: 25px 20px;
-        border-radius: 16px;
+        padding: 30px 20px;
     }
-    
+
     .page-title {
-        font-size: 1.6rem;
-        margin-bottom: 15px;
+        font-size: 1.8rem;
     }
-    
+
     .description {
         font-size: 0.95rem;
-        margin-bottom: 30px;
     }
-    
+
     .saju-form {
         gap: 20px;
     }
-    
+
     .form-group input,
     .form-group select {
-        padding: 16px;
-        font-size: 16px; /* 모바일에서 zoom 방지 */
-        border-radius: 10px;
+        padding: 18px 16px;
+        font-size: 1.1rem;
+        min-height: 50px;
     }
-    
+
     .date-inputs {
-        grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 8px;
     }
-    
+
     .gender-options {
-        grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 10px;
     }
-    
+
     .radio-label {
-        padding: 16px;
-        border-radius: 10px;
+        padding: 18px 12px;
         font-size: 1rem;
     }
-    
+
     .submit-button {
         padding: 18px;
         font-size: 1.1rem;
-        border-radius: 10px;
-        margin-top: 25px;
+        margin-top: 10px;
     }
-    
-    /* Result Page Mobile */
+
     .result-title {
-        font-size: 1.8rem;
-        line-height: 1.4;
+        font-size: 1.6rem;
     }
-    
+
     .result-summary {
-        padding: 20px;
-        margin: 15px 0;
-        border-radius: 12px;
+        padding: 0 10px;
     }
-    
+
     .recommendations {
-        margin-bottom: 40px;
+        margin: 30px 0;
     }
-    
+
     .school-card {
-        padding: 20px;
-        border-radius: 12px;
-        margin-bottom: 12px;
-    }
-    
-    .recommendation-subtitle {
-        font-size: 1.2rem;
+        padding: 20px 15px;
         margin-bottom: 15px;
-        padding: 8px 12px;
-        border-radius: 8px;
     }
-    
+
+    .recommendation-subtitle {
+        font-size: 1.1rem;
+        padding: 15px 0;
+        margin: 20px 0 15px 0;
+    }
+
     .school-badge {
-        padding: 5px 12px;
-        font-size: 0.85rem;
-        margin-bottom: 12px;
+        padding: 6px 12px;
+        font-size: 0.8rem;
     }
 
     .school-name {
-        font-size: 1.2rem;
-        margin-bottom: 12px;
+        font-size: 1.1rem;
     }
-    
+
     .school-reason {
-        font-size: 0.95rem;
-        line-height: 1.5;
+        font-size: 0.9rem;
     }
-    
+
     .direction-analysis {
-        margin-bottom: 40px;
+        margin: 30px 0;
     }
-    
+
     .direction-container {
-        grid-template-columns: 1fr;
-        text-align: center;
+        flex-direction: column;
         gap: 25px;
     }
-    
+
     .compass-circle {
-        width: 200px;
-        height: 200px;
+        width: 180px;
+        height: 180px;
     }
-    
+
     .direction-info h4 {
-        font-size: 1.3rem;
-        margin-bottom: 12px;
+        font-size: 1.2rem;
     }
-    
+
     .timeline-container {
-        padding: 20px;
-        border-radius: 12px;
+        margin: 20px 0;
     }
-    
+
     #fortuneChart {
-        width: 100%;
-        height: 300px;
+        width: 100% !important;
+        max-width: 400px;
     }
-    
+
     .timeline-legend {
-        gap: 15px;
-        flex-direction: column;
-        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
     }
-    
+
     .info-cards {
         grid-template-columns: 1fr;
         gap: 15px;
     }
-    
+
     .info-card {
-        padding: 20px;
-        border-radius: 12px;
+        padding: 20px 15px;
     }
-    
+
     .card-icon {
         font-size: 2rem;
     }
-    
+
     .action-buttons {
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .primary-button, .secondary-button {
         width: 100%;
-        padding: 16px 30px;
+        padding: 16px;
         font-size: 1rem;
-        border-radius: 10px;
     }
-    
+
     .message-box {
-        padding: 25px 20px;
-        border-radius: 12px;
+        padding: 20px 15px;
     }
 
     .section-wrapper {
-        padding: 20px;
-        margin-bottom: 24px;
+        margin: 30px 0;
+        padding: 25px 15px;
     }
 
     .section-wrapper:hover {
@@ -1140,8 +1121,7 @@ body {
     }
 
     .section-icon {
-        font-size: 1.2rem;
-        margin-right: 8px;
+        font-size: 1.3rem;
     }
 
     .section-header {
@@ -1149,353 +1129,347 @@ body {
     }
 
     .result-header {
-        padding: 30px 20px;
-        margin-bottom: 24px;
+        margin-bottom: 30px;
+        padding: 0 10px;
     }
 
     .result-title {
-        font-size: 1.5rem;
+        font-size: 1.6rem;
+        line-height: 1.4;
     }
 
     .result-summary {
-        padding: 16px;
+        margin-top: 15px;
     }
 
     .action-buttons {
-        padding: 24px 16px;
-        gap: 16px;
+        margin-top: 40px;
+        padding: 0 10px;
     }
 }
 
 @media (max-width: 480px) {
     .container {
-        padding: 8px;
+        padding: 0 15px;
     }
-    
+
     .header {
-        padding: 12px 15px;
-        margin-bottom: 20px;
-        border-radius: 10px;
+        padding: 12px 0;
+        gap: 10px;
     }
-    
+
     .logo h1 {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
     }
-    
+
     .star {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
     }
-    
+
     .main-content {
-        padding: 20px 15px;
-        border-radius: 12px;
+        margin: 15px 0;
     }
-    
+
     .main-title {
         font-size: 1.5rem;
-        margin-bottom: 15px;
+        line-height: 1.3;
     }
-    
+
     .subtitle {
-        font-size: 0.95rem;
-        margin-bottom: 30px;
+        font-size: 0.9rem;
+        line-height: 1.5;
     }
-    
+
     .hero {
         padding: 30px 0;
     }
-    
+
     .hero-image {
-        height: 120px;
         margin: 25px 0;
     }
-    
+
+    /* Show only 3 icons on very small screens */
+    .hero-icons .icon-4,
+    .hero-icons .icon-5,
+    .hero-icons .icon-6 {
+        display: none;
+    }
+
+    .hero-icons {
+        gap: 20px;
+        margin: 25px 0;
+    }
+
     .icon-item {
-        font-size: 1.8rem;
-        padding: 10px;
-        border-radius: 12px;
+        width: 55px;
+        height: 55px;
+        font-size: 1.6rem;
     }
-    
+
     .cta-button {
-        padding: 14px 30px;
+        padding: 16px 24px;
         font-size: 1rem;
-        border-radius: 12px;
+        width: 100%;
     }
-    
+
     .section-title {
-        font-size: 1.4rem;
-        margin-bottom: 25px;
+        font-size: 1.5rem;
+        line-height: 1.3;
     }
-    
+
     .features {
-        padding: 30px 0;
+        padding: 30px 15px;
     }
-    
+
     .feature-card {
         padding: 20px 15px;
-        border-radius: 10px;
     }
-    
+
     .feature-card h4 {
         font-size: 1.1rem;
     }
-    
+
     .feature-card p {
         font-size: 0.9rem;
     }
-    
+
     .how-it-works {
         padding: 30px 15px;
-        border-radius: 12px;
+        margin: 25px 0;
     }
-    
+
     .step {
         padding: 20px 15px;
-        border-radius: 10px;
     }
-    
+
     .step-number {
         width: 40px;
         height: 40px;
         font-size: 1.2rem;
     }
-    
+
     .step h4 {
         font-size: 1rem;
     }
-    
+
     .step p {
         font-size: 0.85rem;
     }
-    
-    /* Input Page Small Mobile */
+
     .input-container {
-        padding: 20px 15px;
-        border-radius: 12px;
+        padding: 25px 15px;
     }
-    
+
     .page-title {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
     }
-    
+
     .description {
         font-size: 0.9rem;
     }
-    
+
     .form-group label {
         font-size: 0.95rem;
     }
-    
+
     .form-group input,
     .form-group select {
-        padding: 14px;
-        font-size: 16px;
-        border-radius: 8px;
+        padding: 20px 16px;
+        font-size: 1.2rem;
+        min-height: 56px;
+        border-radius: 10px;
     }
-    
+
     .time-help {
         font-size: 0.8rem;
     }
-    
+
     .radio-label {
-        padding: 14px;
-        border-radius: 8px;
-        font-size: 0.95rem;
+        padding: 20px 15px;
+        font-size: 1.1rem;
     }
-    
+
     .radio-icon {
         font-size: 1.3rem;
     }
-    
+
     .submit-button {
-        padding: 16px;
-        font-size: 1rem;
-        border-radius: 8px;
+        padding: 20px;
+        font-size: 1.2rem;
+        min-height: 56px;
     }
-    
-    /* Result Page Small Mobile */
+
     .result-title {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
     }
-    
+
     .result-summary {
-        padding: 18px 15px;
-        border-radius: 10px;
+        margin: 15px 0;
     }
-    
+
     .result-summary p {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
-    
+
     .school-card {
-        padding: 18px 15px;
-        border-radius: 10px;
-        margin-bottom: 10px;
-    }
-    
-    .recommendation-subtitle {
-        font-size: 1.1rem;
+        padding: 18px 12px;
         margin-bottom: 12px;
-        padding: 6px 10px;
-        border-radius: 6px;
     }
-    
+
+    .recommendation-subtitle {
+        font-size: 1rem;
+        margin: 15px 0 10px 0;
+        padding: 12px 0;
+    }
+
     .school-badge {
-        padding: 4px 10px;
-        font-size: 0.8rem;
-        margin-bottom: 10px;
-        border-radius: 12px;
+        padding: 5px 10px;
+        font-size: 0.75rem;
+        margin-bottom: 8px;
     }
 
     .school-name {
-        font-size: 1.1rem;
-        margin-bottom: 10px;
+        font-size: 1rem;
+        margin-bottom: 8px;
     }
-    
+
     .school-reason {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         line-height: 1.4;
     }
-    
+
     .compass-circle {
-        width: 180px;
-        height: 180px;
-        border-width: 2px;
+        width: 150px;
+        height: 150px;
     }
-    
+
     .compass-pointer {
-        width: 3px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
     }
-    
+
     .pointer-arrow {
-        font-size: 1.2rem;
+        font-size: 1.5rem;
     }
-    
+
     .compass-directions span {
-        font-size: 1rem;
+        font-size: 0.8rem;
     }
-    
+
     .direction-info h4 {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
     }
-    
+
     .direction-info p {
         font-size: 0.9rem;
     }
-    
+
     .timeline-container {
-        padding: 15px;
-        border-radius: 10px;
+        padding: 15px 0;
     }
-    
+
     #fortuneChart {
-        height: 250px;
+        width: 100% !important;
+        max-width: 350px;
+        height: 250px !important;
     }
-    
+
     .legend-item {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
-    
+
     .legend-color {
-        width: 16px;
-        height: 16px;
+        width: 12px;
+        height: 12px;
     }
-    
+
     .info-card {
-        padding: 18px 15px;
-        border-radius: 10px;
+        padding: 18px 12px;
     }
-    
+
     .card-icon {
         font-size: 1.8rem;
     }
-    
+
     .info-card h4 {
+        font-size: 1rem;
+    }
+
+    .info-card p {
+        font-size: 0.85rem;
+    }
+
+    .message-box {
+        padding: 18px 12px;
+    }
+
+    .message-box h4 {
         font-size: 1.1rem;
     }
-    
-    .info-card p {
-        font-size: 0.9rem;
-    }
-    
-    .message-box {
-        padding: 20px 15px;
-        border-radius: 10px;
-    }
-    
-    .message-box h4 {
-        font-size: 1.2rem;
-    }
-    
+
     .message-box p {
         font-size: 0.9rem;
     }
-    
+
     .primary-button, .secondary-button {
-        padding: 14px 25px;
-        font-size: 0.95rem;
-        border-radius: 8px;
+        padding: 18px 16px;
+        font-size: 1.1rem;
+        min-height: 52px;
     }
-    
+
     .footer {
-        padding: 25px 0;
-        font-size: 0.85rem;
+        padding: 20px 15px;
+        font-size: 0.8rem;
     }
-    
-    /* Loading Screen Mobile */
+
     .loading-content h3 {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
     }
-    
+
     .loading-content p {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
-    
+
     .star-spinner {
-        font-size: 3rem;
+        font-size: 2rem;
     }
 
     .section-wrapper {
-        padding: 16px;
-        margin-bottom: 20px;
-        border-radius: 12px;
+        padding: 20px 12px;
+        margin: 25px 0;
     }
 
     .section-icon {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         margin-right: 6px;
     }
 
     .section-header {
-        margin-bottom: 16px;
+        margin-bottom: 15px;
     }
 
     .section-divider {
         height: 2px;
-        margin-top: 8px;
+        margin: 12px 0;
     }
 
     .result-header {
-        padding: 24px 16px;
-        margin-bottom: 20px;
-        border-radius: 16px;
+        padding: 0 5px;
+        margin-bottom: 25px;
     }
 
     .result-title {
         font-size: 1.3rem;
-        margin-bottom: 12px;
+        line-height: 1.3;
     }
 
     .result-summary {
-        padding: 12px;
-        border-radius: 8px;
+        margin-top: 12px;
     }
 
     .action-buttons {
-        padding: 20px 12px;
-        border-radius: 12px;
-        flex-direction: column;
+        margin-top: 35px;
+        padding: 0 5px;
         gap: 12px;
     }
 }
