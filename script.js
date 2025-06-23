@@ -37,15 +37,14 @@ function initializeInputPage() {
 
 // Setup date selectors
 function setupDateSelectors() {
-    const currentYear = new Date().getFullYear();
     const birthYearSelect = document.getElementById('birthYear');
     const birthMonthSelect = document.getElementById('birthMonth');
     const birthDaySelect = document.getElementById('birthDay');
 
     if (!birthYearSelect) return;
 
-    // 년도 옵션 생성 (1950 ~ 현재 년도)
-    for (let year = currentYear; year >= 1950; year--) {
+    // 년도 옵션 생성 (2016 ~ 1970)
+    for (let year = 2016; year >= 1970; year--) {
         const option = document.createElement('option');
         option.value = year;
         option.textContent = year + '년';
