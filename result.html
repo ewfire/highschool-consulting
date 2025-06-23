@@ -83,9 +83,80 @@
                     <div class="section-divider"></div>
                 </div>
                 <div class="timeline-container">
-                    <div class="timeline-chart">
-                        <canvas id="fortuneChart" width="800" height="400"></canvas>
+                    <div class="fortune-bars">
+                        <div class="year-group">
+                            <h4>1학년</h4>
+                            <div class="bars">
+                                <div class="bar-item">
+                                    <span class="bar-label">학업운</span>
+                                    <div class="bar-container">
+                                        <div class="bar academic-bar" style="width: 85%;">85</div>
+                                    </div>
+                                </div>
+                                <div class="bar-item">
+                                    <span class="bar-label">대인관계운</span>
+                                    <div class="bar-container">
+                                        <div class="bar social-bar" style="width: 70%;">70</div>
+                                    </div>
+                                </div>
+                                <div class="bar-item">
+                                    <span class="bar-label">건강운</span>
+                                    <div class="bar-container">
+                                        <div class="bar health-bar" style="width: 80%;">80</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="year-group">
+                            <h4>2학년</h4>
+                            <div class="bars">
+                                <div class="bar-item">
+                                    <span class="bar-label">학업운</span>
+                                    <div class="bar-container">
+                                        <div class="bar academic-bar" style="width: 90%;">90</div>
+                                    </div>
+                                </div>
+                                <div class="bar-item">
+                                    <span class="bar-label">대인관계운</span>
+                                    <div class="bar-container">
+                                        <div class="bar social-bar" style="width: 75%;">75</div>
+                                    </div>
+                                </div>
+                                <div class="bar-item">
+                                    <span class="bar-label">건강운</span>
+                                    <div class="bar-container">
+                                        <div class="bar health-bar" style="width: 85%;">85</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="year-group">
+                            <h4>3학년</h4>
+                            <div class="bars">
+                                <div class="bar-item">
+                                    <span class="bar-label">학업운</span>
+                                    <div class="bar-container">
+                                        <div class="bar academic-bar" style="width: 80%;">80</div>
+                                    </div>
+                                </div>
+                                <div class="bar-item">
+                                    <span class="bar-label">대인관계운</span>
+                                    <div class="bar-container">
+                                        <div class="bar social-bar" style="width: 85%;">85</div>
+                                    </div>
+                                </div>
+                                <div class="bar-item">
+                                    <span class="bar-label">건강운</span>
+                                    <div class="bar-container">
+                                        <div class="bar health-bar" style="width: 90%;">90</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    
                     <div class="timeline-legend">
                         <div class="legend-item">
                             <span class="legend-color academic"></span>
@@ -300,87 +371,6 @@
                 
                 if (cautionsEl) {
                     cautionsEl.textContent = '완벽주의 성향이 강해 스트레스를 받을 수 있으니, 적절한 휴식과 취미 활동을 통해 균형을 유지하는 것이 중요합니다.';
-                }
-                
-                // 운세 차트 그리기
-                const fortuneCanvas = document.getElementById('fortuneChart');
-                if (fortuneCanvas) {
-                    const ctx = fortuneCanvas.getContext('2d');
-                    const width = fortuneCanvas.width;
-                    const height = fortuneCanvas.height;
-                    
-                    // 캔버스 초기화
-                    ctx.clearRect(0, 0, width, height);
-                    
-                    // 차트 데이터
-                    const years = ['1학년', '2학년', '3학년'];
-                    const academic = [85, 90, 80];
-                    const social = [70, 75, 85];
-                    const health = [80, 85, 90];
-                    
-                    const margin = 80;
-                    const chartWidth = width - 2 * margin;
-                    const chartHeight = height - 2 * margin;
-                    const stepX = chartWidth / (years.length - 1);
-                    
-                    // 배경 그리드
-                    ctx.strokeStyle = '#e0e0e0';
-                    ctx.lineWidth = 1;
-                    for (let i = 0; i <= 10; i++) {
-                        const y = margin + (chartHeight * i / 10);
-                        ctx.beginPath();
-                        ctx.moveTo(margin, y);
-                        ctx.lineTo(width - margin, y);
-                        ctx.stroke();
-                    }
-                    
-                    // Y축 라벨
-                    ctx.fillStyle = '#666';
-                    ctx.font = '12px Noto Sans KR';
-                    ctx.textAlign = 'right';
-                    for (let i = 0; i <= 10; i++) {
-                        const value = 100 - (i * 10);
-                        const y = margin + (chartHeight * i / 10);
-                        ctx.fillText(value, margin - 10, y + 4);
-                    }
-                    
-                    // X축 라벨
-                    ctx.textAlign = 'center';
-                    years.forEach((year, index) => {
-                        const x = margin + (stepX * index);
-                        ctx.fillText(year, x, height - margin + 20);
-                    });
-                    
-                    // 선 그래프 그리기 함수
-                    function drawLine(data, color) {
-                        ctx.strokeStyle = color;
-                        ctx.lineWidth = 3;
-                        ctx.beginPath();
-                        
-                        data.forEach((value, index) => {
-                            const x = margin + (stepX * index);
-                            const y = margin + chartHeight - (chartHeight * value / 100);
-                            
-                            if (index === 0) {
-                                ctx.moveTo(x, y);
-                            } else {
-                                ctx.lineTo(x, y);
-                            }
-                            
-                            // 점 표시
-                            ctx.fillStyle = color;
-                            ctx.beginPath();
-                            ctx.arc(x, y, 5, 0, 2 * Math.PI);
-                            ctx.fill();
-                        });
-                        
-                        ctx.stroke();
-                    }
-                    
-                    // 각 운세 라인 그리기
-                    drawLine(academic, '#570df8');
-                    drawLine(social, '#37cdbe');
-                    drawLine(health, '#f000b8');
                 }
             }, 500);
         });
