@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>분석 결과 - 운명의 고등학교 찾기</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="star">🎯</span>
+                <h1>운명의 학교 찾기</h1>
+            </div>
+            <button class="back-button" onclick="goBack()">← 다시 분석하기</button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Result Header -->
+            <section class="result-header">
+                <h2 class="result-title">
+                    📊 <span id="userName"></span> 님을 위한 최적의 고등학교 분석 결과
+                </h2>
+                <div class="result-summary">
+                    <p id="analysisDescription"></p>
+                </div>
+            </section>
+
+            <!-- Recommended Schools -->
+            <section class="recommendations section-wrapper">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <span class="section-icon">🏫</span>
+                        고등학교 진학 추천 분석
+                    </h3>
+                    <div class="section-divider"></div>
+                </div>
+                <div id="schoolRecommendations" class="recommendations-list">
+                    <!-- 동적으로 생성될 추천/비추천 학교 목록 -->
+                </div>
+            </section>
+
+            <!-- Direction Analysis -->
+            <section class="direction-analysis section-wrapper">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <span class="section-icon">🧭</span>
+                        나에게 가장 길한 고등학교 방향
+                    </h3>
+                    <div class="section-divider"></div>
+                </div>
+                <div class="direction-container">
+                    <div class="compass">
+                        <div class="compass-circle">
+                            <div class="compass-pointer" id="compassPointer">
+                                <div class="pointer-arrow">↑</div>
+                            </div>
+                            <div class="compass-directions">
+                                <span class="north">북</span>
+                                <span class="east">동</span>
+                                <span class="south">남</span>
+                                <span class="west">서</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="direction-info">
+                        <h4 id="directionTitle"></h4>
+                        <p id="directionExplanation"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Fortune Timeline -->
+            <section class="fortune-timeline section-wrapper">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <span class="section-icon">📈</span>
+                        고등학교 3년간 운세 흐름
+                    </h3>
+                    <div class="section-divider"></div>
+                </div>
+                <div class="timeline-container">
+                    <div class="timeline-chart">
+                        <canvas id="fortuneChart" width="800" height="400"></canvas>
+                    </div>
+                    <div class="timeline-legend">
+                        <div class="legend-item">
+                            <span class="legend-color academic"></span>
+                            <span>학업운</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color social"></span>
+                            <span>대인관계운</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color health"></span>
+                            <span>건강운</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Additional Info -->
+            <section class="additional-info section-wrapper">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <span class="section-icon">💡</span>
+                        개인 맞춤 정보
+                    </h3>
+                    <div class="section-divider"></div>
+                </div>
+                <div class="info-cards">
+                    <div class="info-card">
+                        <div class="card-icon">🎯</div>
+                        <h4>학습 스타일</h4>
+                        <p id="learningStyle"></p>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon">👥</div>
+                        <h4>사회성</h4>
+                        <p id="socialTendency"></p>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon">🌟</div>
+                        <h4>특별한 재능</h4>
+                        <p id="specialTalent"></p>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon">⚠️</div>
+                        <h4>주의사항</h4>
+                        <p id="cautions"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Closing Message -->
+            <section class="closing-message">
+                <div class="message-box">
+                    <h4>💡 잠깐!</h4>
+                    <p>
+                        이 분석은 여러분의 고등학교 선택에 도움을 주기 위한 참고 자료입니다. 
+                        가장 중요한 것은 여러분의 관심사와 꿈입니다. 
+                        충분한 고민과 실제 학교 방문을 통해 여러분에게 최적의 결정을 내리시길 바랍니다!
+                    </p>
+                </div>
+            </section>
+
+            <!-- Action Buttons -->
+            <section class="action-buttons">
+                <button class="secondary-button" onclick="goToInput()">다시 분석하기</button>
+                <button class="primary-button" onclick="shareResult()">결과 공유하기 📤</button>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
