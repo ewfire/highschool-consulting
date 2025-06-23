@@ -159,11 +159,7 @@
     <script src="script.js"></script>
     <script>
         // 직접 HTML에서 결과 표시 - JavaScript 로딩 실패 대비
-        console.log('🔥 Direct HTML Script 실행됨');
-        
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🔥 DOMContentLoaded 이벤트 발생');
-            
             // 기본 데이터 설정
             const defaultUserData = {
                 name: '테스트 사용자',
@@ -207,36 +203,28 @@
                 ]
             };
             
-            console.log('🔥 데이터 설정 완료:', defaultUserData, defaultResult);
-            
             // localStorage에서 실제 데이터 시도
             let userData, analysisResult;
             try {
                 userData = JSON.parse(localStorage.getItem('sajuUserData')) || defaultUserData;
                 analysisResult = JSON.parse(localStorage.getItem('sajuAnalysisResult')) || defaultResult;
-                console.log('🔥 localStorage 데이터 로드 성공');
             } catch (e) {
-                console.log('🔥 localStorage 실패, 기본 데이터 사용');
                 userData = defaultUserData;
                 analysisResult = defaultResult;
             }
             
             // 직접 HTML 업데이트
             setTimeout(function() {
-                console.log('🔥 HTML 업데이트 시작');
-                
                 // 사용자 이름 설정
                 const userNameEl = document.getElementById('userName');
                 if (userNameEl) {
                     userNameEl.textContent = userData.name;
-                    console.log('🔥 사용자 이름 설정됨');
                 }
                 
                 // 분석 요약 설정
                 const summaryEl = document.getElementById('analysisDescription');
                 if (summaryEl) {
                     summaryEl.textContent = analysisResult.summary;
-                    console.log('🔥 분석 요약 설정됨');
                 }
                 
                 // 학교 추천 설정
@@ -273,7 +261,6 @@
                     
                     html += '</div>';
                     schoolContainer.innerHTML = html;
-                    console.log('🔥 학교 추천 HTML 설정됨');
                 }
                 
                 // 길한 방향 설정
@@ -283,17 +270,14 @@
                 
                 if (directionTitleEl) {
                     directionTitleEl.textContent = '북쪽이 당신에게 길한 방향입니다';
-                    console.log('🔥 방향 제목 설정됨');
                 }
                 
                 if (directionExplanationEl) {
                     directionExplanationEl.textContent = '북쪽 방향은 오행에서 학업운과 대인관계운을 상승시키는 길한 방위입니다. 이 방향에 위치한 학교에서 더욱 안정적이고 발전적인 학교생활을 할 수 있을 것입니다.';
-                    console.log('🔥 방향 설명 설정됨');
                 }
                 
                 if (compassPointerEl) {
                     compassPointerEl.style.transform = 'rotate(0deg)'; // 북쪽
-                    console.log('🔥 나침반 포인터 설정됨');
                 }
                 
                 // 개인 특성 설정
@@ -304,22 +288,18 @@
                 
                 if (learningStyleEl) {
                     learningStyleEl.textContent = '체계적이고 논리적인 학습을 선호하며, 단계별 접근을 통해 깊이 있는 이해를 추구합니다.';
-                    console.log('🔥 학습 스타일 설정됨');
                 }
                 
                 if (socialTendencyEl) {
                     socialTendencyEl.textContent = '신중하면서도 따뜻한 성격으로 진실한 우정을 중시하며, 필요시 리더십을 발휘할 수 있습니다.';
-                    console.log('🔥 사회성 설정됨');
                 }
                 
                 if (specialTalentEl) {
                     specialTalentEl.textContent = '분석적 사고와 창의적 문제해결 능력이 뛰어나며, 특히 과학과 수학 분야에서 재능이 돋보입니다.';
-                    console.log('🔥 특별한 재능 설정됨');
                 }
                 
                 if (cautionsEl) {
                     cautionsEl.textContent = '완벽주의 성향이 강해 스트레스를 받을 수 있으니, 적절한 휴식과 취미 활동을 통해 균형을 유지하는 것이 중요합니다.';
-                    console.log('🔥 주의사항 설정됨');
                 }
                 
                 // 운세 차트 그리기
@@ -401,16 +381,9 @@
                     drawLine(academic, '#570df8');
                     drawLine(social, '#37cdbe');
                     drawLine(health, '#f000b8');
-                    
-                    console.log('🔥 운세 차트 그리기 완료');
                 }
-                
-                console.log('🔥 HTML 업데이트 완료');
             }, 500);
-            
         });
-        
-        console.log('🔥 Direct HTML Script 설정 완료');
     </script>
 </body>
 </html> 

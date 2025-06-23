@@ -400,28 +400,20 @@ function generateDemoAnalysis(userData) {
 
 // Result page initialization
 function initializeResultPage() {
-    console.log('=== Result Page 초기화 시작 ===');
-    
     let userData = localStorage.getItem('sajuUserData');
     let analysisResult = localStorage.getItem('sajuAnalysisResult');
-    
-    console.log('저장된 사용자 데이터:', userData);
-    console.log('저장된 분석 결과:', analysisResult);
     
     // 데이터 파싱
     try {
         userData = userData ? JSON.parse(userData) : null;
         analysisResult = analysisResult ? JSON.parse(analysisResult) : null;
     } catch (e) {
-        console.error('JSON 파싱 오류:', e);
         userData = null;
         analysisResult = null;
     }
     
     // 데이터가 없거나 문제가 있으면 강제로 데모 데이터 생성
     if (!userData || !analysisResult) {
-        console.log('데이터가 없어서 강제로 데모 데이터를 생성합니다.');
-        
         userData = {
             name: '홍길동',
             birthYear: '2008',
@@ -482,82 +474,50 @@ function initializeResultPage() {
         // localStorage에 저장
         localStorage.setItem('sajuUserData', JSON.stringify(userData));
         localStorage.setItem('sajuAnalysisResult', JSON.stringify(analysisResult));
-        
-        console.log('강제 생성된 사용자 데이터:', userData);
-        console.log('강제 생성된 분석 결과:', analysisResult);
     }
-    
-    console.log('최종 사용자 데이터:', userData);
-    console.log('최종 분석 결과:', analysisResult);
     
     displayAnalysisResult(userData, analysisResult);
 }
 
 // Display analysis result
 function displayAnalysisResult(userData, result) {
-    // 디버깅을 위한 상세 로그
-    console.log('=== DEBUGGING START ===');
-    console.log('사용자 데이터:', userData);
-    console.log('분석 결과 전체:', result);
-    console.log('추천 학교들:', result.recommendedSchools);
-    console.log('비추천 학교들:', result.notRecommendedSchools);
-    console.log('방향 데이터:', result.direction || result.favorableDirection);
-    console.log('운세 데이터:', result.fortuneFlow || result.fortuneTimeline);
-    console.log('개인 특성:', result.personalTraits);
-    
     // 사용자 이름 표시
     const userNameElement = document.getElementById('userName');
-    console.log('userName 요소 찾기:', !!userNameElement);
     if (userNameElement) {
         userNameElement.textContent = userData.name;
-        console.log('사용자 이름 설정 완료:', userData.name);
     }
     
     // 분석 요약 표시
     const analysisDescElement = document.getElementById('analysisDescription');
-    console.log('analysisDescription 요소 찾기:', !!analysisDescElement);
     if (analysisDescElement) {
         analysisDescElement.textContent = result.summary;
-        console.log('분석 요약 설정 완료:', result.summary);
     }
     
     // 학교 추천 순위 표시
-    console.log('학교 추천 함수 호출 시작...');
     displaySchoolRecommendations(result.recommendedSchools, result.notRecommendedSchools);
     
     // 방향 분석 표시 (API와 데모 형식 통일 처리)
     const directionData = result.direction || result.favorableDirection;
-    console.log('방향 데이터 처리:', directionData);
     if (directionData) {
         displayDirectionAnalysis(directionData);
     }
     
     // 운세 차트 표시 (API와 데모 형식 통일 처리)
     const fortuneData = result.fortuneFlow || result.fortuneTimeline;
-    console.log('운세 데이터 처리:', fortuneData);
     if (fortuneData) {
         displayFortuneChart(fortuneData);
     }
     
     // 개인 특성 표시
-    console.log('개인 특성 데이터 처리:', result.personalTraits);
     if (result.personalTraits) {
         displayPersonalTraits(result.personalTraits);
     }
-    
-    console.log('=== DEBUGGING END ===');
 }
 
 // Display school recommendations
 function displaySchoolRecommendations(recommendedSchools, notRecommendedSchools) {
-    console.log('=== 학교 추천 함수 디버깅 ===');
-    console.log('추천 학교 파라미터:', recommendedSchools);
-    console.log('비추천 학교 파라미터:', notRecommendedSchools);
-    
     const container = document.getElementById('schoolRecommendations');
-    console.log('schoolRecommendations 컨테이너 찾기:', !!container);
     if (!container) {
-        console.error('schoolRecommendations 컨테이너를 찾을 수 없습니다!');
         return;
     }
     
@@ -570,10 +530,8 @@ function displaySchoolRecommendations(recommendedSchools, notRecommendedSchools)
         <h4 class="recommendation-subtitle">✅ 강력 추천하는 학교 (적합도 순)</h4>
     `;
     
-    console.log('추천 학교 개수:', recommendedSchools ? recommendedSchools.length : 0);
     if (recommendedSchools && recommendedSchools.length > 0) {
         recommendedSchools.forEach((school, index) => {
-            console.log(`추천 학교 ${index + 1}:`, school);
             const rank = school.rank || (index + 1);
             const rankIcon = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}위`;
             
@@ -587,8 +545,6 @@ function displaySchoolRecommendations(recommendedSchools, notRecommendedSchools)
             `;
             recommendedSection.appendChild(schoolCard);
         });
-    } else {
-        console.error('추천 학교 데이터가 없습니다!');
     }
     
     // 비추천 학교 섹션
@@ -598,10 +554,8 @@ function displaySchoolRecommendations(recommendedSchools, notRecommendedSchools)
         <h4 class="recommendation-subtitle">❌ 권하지 않는 학교 (부적합도 순)</h4>
     `;
     
-    console.log('비추천 학교 개수:', notRecommendedSchools ? notRecommendedSchools.length : 0);
     if (notRecommendedSchools && notRecommendedSchools.length > 0) {
         notRecommendedSchools.forEach((school, index) => {
-            console.log(`비추천 학교 ${index + 1}:`, school);
             const rank = school.rank || (index + 1);
             
             const schoolCard = document.createElement('div');
@@ -614,15 +568,10 @@ function displaySchoolRecommendations(recommendedSchools, notRecommendedSchools)
             `;
             notRecommendedSection.appendChild(schoolCard);
         });
-    } else {
-        console.error('비추천 학교 데이터가 없습니다!');
     }
     
     container.appendChild(recommendedSection);
     container.appendChild(notRecommendedSection);
-    
-    console.log('학교 추천 HTML 생성 완료');
-    console.log('=== 학교 추천 함수 디버깅 끝 ===');
 }
 
 // Display direction analysis
