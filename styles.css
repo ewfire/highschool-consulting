@@ -328,13 +328,15 @@ body {
 
 .form-group input,
 .form-group select {
-    padding: 16px;
+    padding: 18px 16px;
     border: 2px solid #e5e6e6;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.2s ease;
     background: #ffffff;
     color: #3d4451;
+    min-height: 56px;
+    width: 100%;
 }
 
 .form-group input:focus,
@@ -348,6 +350,12 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 12px;
+}
+
+.date-inputs select {
+    min-height: 56px;
+    padding: 18px 16px;
+    font-size: 1rem;
 }
 
 .time-help {
@@ -377,7 +385,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    padding: 16px;
+    padding: 18px 16px;
     border: 2px solid #e5e6e6;
     border-radius: 12px;
     cursor: pointer;
@@ -385,6 +393,7 @@ body {
     background: #ffffff;
     font-weight: 600;
     color: #3d4451;
+    min-height: 56px;
 }
 
 .radio-option input[type="radio"]:checked + .radio-label {
@@ -408,6 +417,8 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     margin-top: 20px;
+    min-height: 56px;
+    width: 100%;
 }
 
 .submit-button:hover {
@@ -958,13 +969,25 @@ body {
 
     .form-group input,
     .form-group select {
-        padding: 22px 18px;
-        font-size: 1.2rem;
+        padding: 20px 16px;
+        font-size: 1.1rem;
+        min-height: 60px;
+    }
+
+    .date-inputs select {
+        padding: 20px 16px;
+        font-size: 1.1rem;
+        min-height: 60px;
+    }
+
+    .radio-label {
+        padding: 20px 16px;
+        font-size: 1rem;
         min-height: 60px;
     }
 
     .submit-button {
-        padding: 22px;
+        padding: 20px;
         font-size: 1.2rem;
         min-height: 60px;
     }
@@ -997,13 +1020,25 @@ body {
 
     .form-group input,
     .form-group select {
-        padding: 24px 20px;
-        font-size: 1.3rem;
+        padding: 22px 18px;
+        font-size: 1.2rem;
+        min-height: 64px;
+    }
+
+    .date-inputs select {
+        padding: 22px 18px;
+        font-size: 1.2rem;
+        min-height: 64px;
+    }
+
+    .radio-label {
+        padding: 22px 18px;
+        font-size: 1.1rem;
         min-height: 64px;
     }
 
     .submit-button {
-        padding: 24px;
+        padding: 22px;
         font-size: 1.3rem;
         min-height: 64px;
     }
