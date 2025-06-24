@@ -2,6 +2,10 @@
 const GEMINI_API_KEY = 'AIzaSyBY1aPCt5gkJr7m8BCuTRUjtLl5PWHO4Dg'; // 실제 사용시 환경변수로 관리
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
+// 버전 관리 및 데이터 클리어
+const SCRIPT_VERSION = '3.0';
+const STORAGE_VERSION_KEY = 'sajuApp_version';
+
 // Global variables
 let currentUserData = {};
 
@@ -24,12 +28,18 @@ function goToInput() {
 
 // Initialize page based on current location
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== DOMContentLoaded 이벤트 발생 ===');
     const currentPage = window.location.pathname.split('/').pop();
+    console.log('현재 페이지:', currentPage);
     
     if (currentPage === 'input.html' || currentPage === '') {
+        console.log('📄 입력 페이지 감지 - initializeInputPage 호출');
         initializeInputPage();
     } else if (currentPage === 'result.html') {
+        console.log('📊 결과 페이지 감지 - initializeResultPage 호출');
         initializeResultPage();
+    } else {
+        console.log('⚠️ 알 수 없는 페이지:', currentPage);
     }
 });
 
@@ -72,21 +82,37 @@ function setupDateSelectors() {
         birthMonthSelect.appendChild(option);
     }
 
-    // 일 옵션 생성 (월 선택시 동적으로 업데이트)
+    // 초기 일자 옵션 생성 (1~31일)
+    for (let day = 1; day <= 31; day++) {
+        const option = document.createElement('option');
+        option.value = day;
+        option.textContent = day + '일';
+        birthDaySelect.appendChild(option);
+    }
+
+    // 일 옵션 동적 업데이트 (월/년 선택시)
     function updateDays() {
         const year = parseInt(birthYearSelect.value);
         const month = parseInt(birthMonthSelect.value);
         
-        if (!year || !month) return;
+        // 년도와 월이 모두 선택된 경우 해당 월의 정확한 일수로 업데이트
+        if (year && month) {
+            const daysInMonth = new Date(year, month, 0).getDate();
+            const currentSelectedDay = birthDaySelect.value;
+            
+            birthDaySelect.innerHTML = '<option value="">일</option>';
 
-        const daysInMonth = new Date(year, month, 0).getDate();
-        birthDaySelect.innerHTML = '<option value="">일</option>';
-
-        for (let day = 1; day <= daysInMonth; day++) {
-            const option = document.createElement('option');
-            option.value = day;
-            option.textContent = day + '일';
-            birthDaySelect.appendChild(option);
+            for (let day = 1; day <= daysInMonth; day++) {
+                const option = document.createElement('option');
+                option.value = day;
+                option.textContent = day + '일';
+                birthDaySelect.appendChild(option);
+            }
+            
+            // 이전에 선택된 일자가 있고 해당 월에 존재하는 일자라면 다시 선택
+            if (currentSelectedDay && parseInt(currentSelectedDay) <= daysInMonth) {
+                birthDaySelect.value = currentSelectedDay;
+            }
         }
     }
 
@@ -96,13 +122,29 @@ function setupDateSelectors() {
 
 // Setup form submission
 function setupFormSubmission() {
+    console.log('=== 폼 제출 설정 시작 ===');
+    
     const form = document.getElementById('sajuForm');
-    if (!form) return;
+    if (!form) {
+        console.error('❌ sajuForm을 찾을 수 없음');
+        return;
+    }
+    
+    console.log('✅ sajuForm 찾음');
+    
+    // 기존 이벤트 리스너 제거 (중복 방지)
+    const existingSubmitEvents = form.cloneNode(true);
+    form.parentNode.replaceChild(existingSubmitEvents, form);
+    const cleanForm = document.getElementById('sajuForm');
+    
+    console.log('🧹 기존 이벤트 리스너 정리 완료');
 
-    form.addEventListener('submit', async function(e) {
+    cleanForm.addEventListener('submit', async function(e) {
+        console.log('=== 🚀 SCRIPT.JS 폼 제출 이벤트 발생 ===');
+        console.log('⏰ 제출 시간:', new Date().toISOString());
         e.preventDefault();
         
-        const formData = new FormData(form);
+        const formData = new FormData(cleanForm);
         const userData = {
             name: formData.get('name'),
             birthYear: formData.get('birthYear'),
@@ -112,320 +154,560 @@ function setupFormSubmission() {
             gender: formData.get('gender')
         };
 
+        console.log('📝 폼에서 수집된 사용자 데이터:', userData);
+
         // 폼 검증
+        console.log('🔍 폼 검증 시작');
         if (!validateForm(userData)) {
+            console.log('❌ 폼 검증 실패 - 제출 중단');
             return;
         }
+        console.log('✅ 폼 검증 통과');
+
+        // 폼 검증 통과 후 바로 API 호출 진행
+        console.log('✅ 폼 검증 완료 - API 호출 시작');
 
         // 사용자 데이터 저장
         currentUserData = userData;
         localStorage.setItem('sajuUserData', JSON.stringify(userData));
+        console.log('💾 사용자 데이터 localStorage에 저장 완료');
 
         // 로딩 화면 표시
+        console.log('⏳ 로딩 화면 표시');
         showLoadingScreen();
 
         try {
+            console.log('🤖 🌟 실제 AI 분석 시작 - Google Gemini API 호출 🌟');
             // AI 분석 수행
             const analysisResult = await performSajuAnalysis(userData);
             
+            console.log('📊 AI 분석 결과 받음:', analysisResult);
+            
             // 결과 저장
             localStorage.setItem('sajuAnalysisResult', JSON.stringify(analysisResult));
+            console.log('💾 분석 결과 localStorage에 저장 완료');
             
             // 결과 페이지로 이동 (강화된 방식)
+            console.log('🔄 2초 후 결과 페이지로 이동 시작');
             setTimeout(() => {
+                console.log('🚀 결과 페이지로 강제 리다이렉션 실행');
                 forceRedirectToResult();
             }, 2000);
             
         } catch (error) {
-            hideLoadingScreen();
-            // 에러가 발생해도 결과 페이지로 이동 (데모 데이터 사용)
-            const demoResult = generateDemoAnalysis(userData);
-            localStorage.setItem('sajuAnalysisResult', JSON.stringify(demoResult));
-            
-            setTimeout(() => {
-                forceRedirectToResult();
-            }, 1000);
+            console.error(`❌ 네트워크 에러: ${error.message}`);
+            console.error(`❌ 에러 스택: ${error.stack}`);
+            console.log('API 호출 중 오류가 발생하여 데모 데이터로 테스트합니다.');
+            console.log(`오류: ${error.message}`);
+            return generateDemoAnalysis(userData);
         }
     });
+    
+    console.log('✅ 폼 제출 이벤트 리스너 등록 완료');
 }
 
 // Form validation
 function validateForm(userData) {
+    console.log('=== 폼 검증 시작 ===');
+    console.log('검증할 데이터:', userData);
+    
     if (!userData.name || userData.name.trim() === '') {
-        alert('이름을 입력해주세요.');
+        console.log('❌ 이름 검증 실패');
+        showValidationError('이름을 입력해주세요.');
         return false;
     }
+    console.log('✅ 이름 검증 통과:', userData.name);
     
     if (!userData.birthYear || !userData.birthMonth || !userData.birthDay) {
-        alert('생년월일을 모두 선택해주세요.');
+        console.log('❌ 생년월일 검증 실패');
+        console.log('birthYear:', userData.birthYear);
+        console.log('birthMonth:', userData.birthMonth);
+        console.log('birthDay:', userData.birthDay);
+        showValidationError('생년월일을 모두 선택해주세요.');
         return false;
     }
+    console.log('✅ 생년월일 검증 통과:', `${userData.birthYear}년 ${userData.birthMonth}월 ${userData.birthDay}일`);
     
     if (!userData.birthTime) {
-        alert('출생시를 선택해주세요.');
+        console.log('❌ 출생시 검증 실패:', userData.birthTime);
+        showValidationError('출생시를 선택해주세요.');
         return false;
     }
+    console.log('✅ 출생시 검증 통과:', userData.birthTime);
     
     if (!userData.gender) {
-        alert('성별을 선택해주세요.');
+        console.log('❌ 성별 검증 실패:', userData.gender);
+        showValidationError('성별을 선택해주세요.');
         return false;
     }
+    console.log('✅ 성별 검증 통과:', userData.gender);
     
+    console.log('✅ 모든 폼 검증 통과');
     return true;
+}
+
+// 검증 오류 표시 함수 (alert 대신 사용)
+function showValidationError(message) {
+    console.log('⚠️ 검증 오류:', message);
+    // 간단한 시각적 피드백만 제공
+    const form = document.getElementById('sajuForm');
+    if (form) {
+        form.style.borderColor = '#ef4444';
+        setTimeout(() => {
+            form.style.borderColor = '';
+        }, 2000);
+    }
 }
 
 // Show/hide loading screen
 function showLoadingScreen() {
+    console.log('⏳ 로딩 화면 표시 시도');
     const loadingScreen = document.getElementById('loadingScreen');
     if (loadingScreen) {
         loadingScreen.style.display = 'flex';
+        console.log('✅ 로딩 화면 표시됨');
+    } else {
+        console.error('❌ loadingScreen 엘리먼트를 찾을 수 없음');
     }
 }
 
 function hideLoadingScreen() {
+    console.log('⏹️ 로딩 화면 숨김 시도');
     const loadingScreen = document.getElementById('loadingScreen');
     if (loadingScreen) {
         loadingScreen.style.display = 'none';
+        console.log('✅ 로딩 화면 숨김됨');
+    } else {
+        console.error('❌ loadingScreen 엘리먼트를 찾을 수 없음');
     }
 }
 
 // Perform Saju Analysis using Gemini API
 async function performSajuAnalysis(userData) {
-    // API 키가 설정되지 않은 경우 데모 데이터 사용
+    console.log('🔮 사주 분석 시작');
+    console.log('입력 데이터:', userData);
+    
+    // API 키 검증
     if (GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY') {
+        console.error('❌ API 키가 설정되지 않았습니다');
+        console.log('🎭 API 키 미설정으로 데모 데이터 사용');
         return generateDemoAnalysis(userData);
     }
+    
+    console.log('✅ API 키 확인됨, Gemini API 호출 시작');
+    console.log('🔑 API 키 마지막 4자리:', GEMINI_API_KEY.slice(-4));
+    
+    // 기본 요청 ID 생성
+    const requestId = Math.random().toString(36).substr(2, 16);
+    const selectedPrompt = 'detailed';
+    
+    console.log('📧 요청 메타데이터:');
+    console.log('- 요청 ID:', requestId);
+    console.log('- 프롬프트 변형:', selectedPrompt);
+    
+    const basePrompt = `사주팔자 분석 전문가로서 다음 정보를 바탕으로 고등학교 추천 분석을 수행해주세요.
 
-    const prompt = `
-당신은 사주명리학 전문가입니다. 다음 사주 정보를 바탕으로 고등학교 진학 컨설팅을 해주세요.
-
-사주 정보:
+**분석 대상 정보:**
 - 이름: ${userData.name}
-- 생년월일: ${userData.birthYear}년 ${userData.birthMonth}월 ${userData.birthDay}일  
-- 출생시: ${userData.birthTime}
+- 생년월일: ${userData.birthYear}년 ${userData.birthMonth}월 ${userData.birthDay}일
+- 출생시간: ${userData.birthTime}
 - 성별: ${userData.gender}
+- 요청 ID: ${requestId}
 
-분석 조건:
-1. 추천 학교는 3개 (1순위~3순위), 비추천 학교는 2개 (1순위~2순위)로 구성
-2. 반드시 일반고 유형 중 하나는 포함할 것 (일반고는 가장 많은 학생이 진학하는 현실적 선택지)
-3. ${userData.gender === '남성' ? '남고, 남녀공학 중심으로' : '여고, 남녀공학 중심으로'} 분석
-4. 각 학교별 사주 분석 근거를 구체적으로 제시
-5. 추천/비추천 순위는 사주 분석 결과에 따른 적합도 순으로 배치
+**분석 요구사항:**
+1. 사주오행 분석을 통한 성격 및 재능 파악
+2. 고등학교 3년간의 운세 흐름 예측 (학업운, 대인관계운, 이성운)
+3. 최적의 고등학교 유형 3개 추천 (구체적인 이유 포함)
+4. 피해야 할 고등학교 유형 2개 (이유 포함)
+5. 문과 vs 이과 적합도 분석 (각각 점수화 및 추천 이유)
+6. 학습 방향 및 진로 조언
 
-반드시 아래 JSON 형식으로만 답변하고, JSON 이외의 다른 텍스트는 절대 포함하지 마세요:
+**⚠️ 현실적인 추천 가이드라인 (반드시 준수):**
+- 일반고(남녀공학/남고/여고): 80-85% 학생이 진학하는 주류 선택지
+- 자율형사립고: 8-10% 학생이 진학, 경제적 여건 고려 필요
+- 특목고(외고/국제고): 3-5% 학생만 진학 가능한 높은 경쟁률
+- 특성화고: 2-4% 학생이 진학하는 전문 교육 과정
+- 과학영재학교: 1% 미만의 최상위 학생만 진학 가능
 
+**추천 우선순위:**
+1순위는 반드시 일반고 계열 중에서 선택 (남녀공학, 남고, 여고)
+2-3순위에서 특성에 맞는 다른 유형 고려 가능
+단, 과학영재학교나 특목고는 정말 특출난 재능이 확인될 때만 추천
+
+**중요 참고사항:**
+- 이성운: 고등학교 시기 연애에 대한 관심도를 나타냄 (점수가 높을수록 연애에 관심이 많아 공부 집중도가 떨어질 수 있음)
+- 문과/이과: 사주 오행 분석을 바탕으로 한 학문적 성향 판단
+- 현실성: 대부분 학생은 일반고에 진학하므로 일반고 내에서의 최적 선택을 우선 고려
+
+**응답 형식 (반드시 JSON으로만 응답):**
 {
-  "summary": "이 학생의 사주 특성과 추천 학교 유형 요약 (150자 내외)",
+  "requestId": "${requestId}",
+  "promptVariation": "${selectedPrompt}",
+  "sajuElements": "오행 분석 내용",
+  "personality": "성격 분석",
+  "learningStyle": "학습 스타일",
+  "socialTendency": "사회적 성향",
   "recommendedSchools": [
-    {
-      "rank": 1,
-      "type": "1순위 추천 학교",
-      "reason": "가장 적합한 이유와 사주 분석 근거"
-    },
-    {
-      "rank": 2,
-      "type": "2순위 추천 학교", 
-      "reason": "두 번째로 적합한 이유와 사주 분석 근거"
-    },
-    {
-      "rank": 3,
-      "type": "3순위 추천 학교 (일반고 포함 권장)",
-      "reason": "세 번째로 적합한 이유와 사주 분석 근거"
-    }
+    {"rank": 1, "type": "학교유형1", "reason": "추천 이유"},
+    {"rank": 2, "type": "학교유형2", "reason": "추천 이유"},
+    {"rank": 3, "type": "학교유형3", "reason": "추천 이유"}
   ],
   "notRecommendedSchools": [
-    {
-      "rank": 1,
-      "type": "가장 부적합한 학교",
-      "reason": "가장 부적합한 이유와 사주 분석 근거"
-    },
-    {
-      "rank": 2,
-      "type": "두 번째로 부적합한 학교",
-      "reason": "두 번째로 부적합한 이유와 사주 분석 근거"
-    }
+    {"rank": 1, "type": "학교유형1", "reason": "비추천 이유"},
+    {"rank": 2, "type": "학교유형2", "reason": "비추천 이유"}
   ],
+  "summary": "종합적인 분석 요약",
   "direction": {
-    "bestDirection": "길한방향(북/남/동/서/북동/남동/북서/남서 중 1개)",
-    "title": "방향의 의미",
-    "explanation": "해당 방향이 길한 사주학적 이유"
+    "bestDirection": "방향",
+    "title": "방향 제목",
+    "explanation": "방향 설명"
   },
   "fortuneFlow": {
-    "grade1": {"academic": 70, "social": 80, "health": 75},
-    "grade2": {"academic": 85, "social": 70, "health": 90}, 
-    "grade3": {"academic": 90, "social": 85, "health": 80}
+    "grade1": {"academic": 85, "social": 78, "romance": 72},
+    "grade2": {"academic": 88, "social": 82, "romance": 75},
+    "grade3": {"academic": 90, "social": 85, "romance": 78}
   },
   "personalTraits": {
-    "learningStyle": "학습 스타일 분석",
-    "socialTendency": "사회성 분석", 
+    "learningStyle": "학습 스타일 상세",
+    "socialTendency": "사회적 성향 상세",
     "specialTalent": "특별한 재능",
     "cautions": "주의사항"
-  }
-}
+  },
+  "academicTrack": {
+    "liberalArts": 75,
+    "science": 85,
+    "recommendation": "이과",
+    "reasoning": "문과/이과 추천 이유"
+  },
+  "studyTips": "구체적인 공부 방법 조언",
+  "careerDirection": "진로 방향 조언"}`;
 
-학교 유형 (반드시 이 중에서 선택):
-- 과학영재학교
-- 외국어고  
-- 자율형사립고
-- 광역자사고
-- 특목고
-- 일반고(남녀공학) 
-- 일반고(${userData.gender === '남성' ? '남고' : '여고'})
-- 일반고(${userData.gender === '남성' ? '여고는 해당 성별 아니므로 선택 금지' : '남고는 해당 성별 아니므로 선택 금지'})
-- 예술고
-- 체육고
-- 마이스터고
+    // 실제 API 호출 시작 로그
+    console.log(`🤖 실제 Gemini API 호출을 시작합니다!`);
+    console.log(`사용자: ${userData.name}`);
+    console.log(`API 키 끝자리: ${GEMINI_API_KEY.slice(-4)}`);
+    console.log(`요청 ID: ${requestId.substr(0, 8)}...`);
 
-중요: 
-- 일반고 유형 중 최소 1개는 반드시 추천 또는 비추천에 포함하세요
-- 순위는 사주 분석 결과 적합도에 따라 정확히 매기세요
-
-JSON만 반환하세요:`;
+    // debug-api.html과 동일한 요청 구성
+    const requestBody = {
+        contents: [{
+            parts: [{
+                text: basePrompt
+            }]
+        }],
+        generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 4096,
+            stopSequences: [],
+            candidateCount: 1
+        },
+        safetySettings: [
+            {
+                category: "HARM_CATEGORY_HARASSMENT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+                category: "HARM_CATEGORY_HATE_SPEECH", 
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+                category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+                category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            }
+        ]
+    };
 
     try {
+        console.log('📤 사주 분석 요청 준비...');
+        console.log(`프롬프트 길이: ${basePrompt.length} 문자`);
+        console.log(`요청 본문 크기: ${JSON.stringify(requestBody).length} bytes`);
+        
+        const startTime = Date.now();
+        console.log('🌐 Fetch 요청 시작...');
+        
+        // debug-api.html과 동일한 fetch 호출
         const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'User-Agent': 'HighSchool-Recommender/1.0'
             },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: prompt
-                    }]
-                }],
-                generationConfig: {
-                    temperature: 0.3,
-                    topK: 40,
-                    topP: 0.95,
-                    maxOutputTokens: 2048,
-                }
-            })
+            body: JSON.stringify(requestBody)
         });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`API 호출 실패: ${response.status} - ${errorText}`);
-        }
-
-        const data = await response.json();
-        const generatedText = data.candidates[0].content.parts[0].text;
         
-        // JSON 문자열 정리 (백틱, 코드블록 제거)
-        let cleanedText = generatedText
-            .replace(/```json\s*/g, '')
-            .replace(/```\s*/g, '')
-            .replace(/^\s*[\`\'\"]*/g, '')
-            .replace(/[\`\'\\"]*\s*$/g, '')
-            .trim();
+        const endTime = Date.now();
+        console.log(`📥 응답 받음 - 상태: ${response.status}, 시간: ${endTime - startTime}ms`);
         
-        // JSON 파싱 시도
-        try {
-            const analysisResult = JSON.parse(cleanedText);
+        if (response.ok) {
+            const data = await response.json();
+            console.log('✅ API 호출 성공!');
+            console.log(`📊 전체 응답: ${JSON.stringify(data, null, 2)}`);
             
-            // 결과 검증
-            if (analysisResult.recommendedSchools && analysisResult.notRecommendedSchools) {
-                return analysisResult;
+            if (data.candidates && data.candidates.length > 0) {
+                const generatedText = data.candidates[0].content.parts[0].text;
+                console.log(`📝 생성된 텍스트: ${generatedText}`);
+                
+                // JSON 파싱 시도 (debug-api.html과 동일)
+                try {
+                    let cleanedText = generatedText
+                        .replace(/```json\s*/g, '')
+                        .replace(/```\s*/g, '')
+                        .replace(/^\s*[\`\'\"]*/g, '')
+                        .replace(/[\`\'\\"]*\s*$/g, '')
+                        .trim();
+                    
+                    const analysisResult = JSON.parse(cleanedText);
+                    console.log('✅ JSON 파싱 성공!');
+                    console.log(`📊 파싱된 결과: ${JSON.stringify(analysisResult, null, 2)}`);
+                    
+                    return analysisResult;
+                } catch (parseError) {
+                    console.error(`❌ JSON 파싱 실패: ${parseError.message}`);
+                    console.log('🎭 JSON 파싱 실패로 데모 데이터 사용');
+                    return generateDemoAnalysis(userData);
+                }
             } else {
+                console.error('❌ candidates 배열이 비어있음');
+                console.log('🎭 candidates 없음으로 데모 데이터 사용');
                 return generateDemoAnalysis(userData);
             }
-        } catch (parseError) {
-            // 파싱 실패시 데모 데이터 반환
-            return generateDemoAnalysis(userData);
+        } else {
+            const errorText = await response.text();
+            console.error(`❌ API 호출 실패 - 상태: ${response.status}`);
+            console.error(`❌ 에러 응답: ${errorText}`);
+            
+            // 에러 데이터 파싱 시도 (debug-api.html과 동일)
+            try {
+                const errorData = JSON.parse(errorText);
+                console.log(`📋 파싱된 에러 데이터: ${JSON.stringify(errorData, null, 2)}`);
+                
+                // 할당량 초과 확인
+                if ((response.status === 429 || response.status === 403) && 
+                    errorData.error && (
+                        errorData.error.message.includes('quota') || 
+                        errorData.error.message.includes('Quota') ||
+                        errorData.error.message.includes('limit') ||
+                        errorData.error.status === 'RESOURCE_EXHAUSTED' ||
+                        errorData.error.status === 'QUOTA_EXCEEDED'
+                    )) {
+                    console.log('🚨 할당량 초과 에러 감지!');
+                    console.log(`상태 코드: ${response.status}`);
+                    console.log(`에러 타입: ${errorData.error.status}`);
+                    console.log(`메시지: ${errorData.error.message}`);
+                    console.log('지금은 데모 데이터로 테스트합니다.');
+                    return generateDemoAnalysis(userData);
+                } else {
+                    console.log(`🚨 API 에러 - ${response.status}`);
+                    console.log(`에러 메시지: ${errorData.error ? errorData.error.message : errorText}`);
+                    console.log('데모 데이터로 테스트합니다.');
+                    return generateDemoAnalysis(userData);
+                }
+            } catch (parseError) {
+                console.log(`⚠️ 에러 응답 파싱 실패: ${parseError.message}`);
+                console.log(`🚨 API 호출 실패! 상태 코드: ${response.status}`);
+                console.log('데모 데이터로 테스트합니다.');
+                return generateDemoAnalysis(userData);
+            }
         }
-
+        
     } catch (error) {
-        // API 오류시 데모 데이터 반환
+        console.error(`❌ 네트워크 에러: ${error.message}`);
+        console.error(`❌ 에러 스택: ${error.stack}`);
+        console.log('API 호출 중 오류가 발생하여 데모 데이터로 테스트합니다.');
+        console.log(`오류: ${error.message}`);
         return generateDemoAnalysis(userData);
     }
 }
 
 // Generate demo analysis for testing
 function generateDemoAnalysis(userData) {
+    console.log('🎭 데모 분석 데이터 생성 시작');
+    console.log('입력 사용자 데이터:', userData);
+    console.log('⚠️ 이것은 데모 데이터입니다! API 호출이 실패했습니다! 🚨');
+    
+    // 매번 완전히 다른 랜덤 결과 생성
+    const timestamp = Date.now();
+    const randomId = Math.random().toString(36).substr(2, 9);
+    
+    console.log('🎲 랜덤 ID:', randomId);
+    console.log('⏰ 타임스탬프:', timestamp);
+    
+    // 현실적인 학교 유형들 (비율 반영)
+    const realSchoolTypes = {
+        // 일반고 (80-85% 비중)
+        regular: [
+            '일반고(남녀공학)', '일반고(남고)', '일반고(여고)', 
+            '인문계 일반고', '종합고등학교'
+        ],
+        // 자율형사립고 (8-10% 비중)
+        autonomous: [
+            '자율형사립고', '자율형공립고'
+        ],
+        // 특목고 (3-5% 비중)
+        special: [
+            '외국어고', '국제고', '과학고'
+        ],
+        // 특성화고 (2-4% 비중)
+        vocational: [
+            '상업정보고', '공업고', '농생명산업고', '예술고', '체육고'
+        ],
+        // 영재학교 (1% 미만)
+        gifted: [
+            '과학영재학교', '영재학교'
+        ]
+    };
+    
+    const reasons = [
+        '사주에서 수(水)의 기운이 강해 창의적이고 유연한 사고를 가지고 있습니다.',
+        '목(木)의 기운이 왕성하여 성장 지향적이고 도전적인 성격입니다.',
+        '화(火)의 에너지가 넘쳐 열정적이고 활동적인 특성을 보입니다.',
+        '토(土)의 안정성이 강해 차분하고 신중한 판단력을 가지고 있습니다.',
+        '금(金)의 날카로움으로 분석적이고 정확한 사고를 선호합니다.',
+        '음양의 조화가 뛰어나 균형 잡힌 사고와 행동을 보입니다.',
+        '천간과 지지의 배치가 특별하여 독특한 재능을 가지고 있습니다.'
+    ];
+    
+    // 현실적인 추천 (1순위는 반드시 일반고)
+    const recommendedSchools = [
+        {
+            rank: 1,
+            type: realSchoolTypes.regular[Math.floor(Math.random() * realSchoolTypes.regular.length)],
+            reason: `${reasons[0]} 일반고에서 다양한 친구들과 함께 성장하며 균형 잡힌 교육을 받을 수 있어 가장 적합합니다.`
+        },
+        {
+            rank: 2,
+            type: Math.random() < 0.7 ? 
+                realSchoolTypes.regular[Math.floor(Math.random() * realSchoolTypes.regular.length)] :
+                realSchoolTypes.autonomous[Math.floor(Math.random() * realSchoolTypes.autonomous.length)],
+            reason: `${reasons[1]} 안정적인 교육 환경에서 개인의 특성을 살려 성장할 수 있을 것입니다.`
+        },
+        {
+            rank: 3,
+            type: Math.random() < 0.5 ? 
+                realSchoolTypes.regular[Math.floor(Math.random() * realSchoolTypes.regular.length)] :
+                (Math.random() < 0.8 ? 
+                    realSchoolTypes.autonomous[Math.floor(Math.random() * realSchoolTypes.autonomous.length)] :
+                    realSchoolTypes.special[Math.floor(Math.random() * realSchoolTypes.special.length)]
+                ),
+            reason: `${reasons[2]} 이 교육 환경이 당신의 잠재력을 발현하는 데 도움이 될 것입니다.`
+        }
+    ];
+    
+    // 비추천 학교 (현실적으로 맞지 않는 유형)
+    const notRecommendedSchools = [
+        {
+            rank: 1,
+            type: realSchoolTypes.gifted[Math.floor(Math.random() * realSchoolTypes.gifted.length)],
+            reason: '매우 특출한 과학적 재능이 필요하며, 극도로 높은 경쟁률로 인해 현실적으로 진학이 어려울 수 있습니다.'
+        },
+        {
+            rank: 2,
+            type: realSchoolTypes.vocational[Math.floor(Math.random() * realSchoolTypes.vocational.length)],
+            reason: '현재 사주 특성상 일반적인 학문 과정이 더 적합하며, 전문 기술 교육보다는 종합적 교육이 유리합니다.'
+        }
+    ];
+    
     const directions = ['북쪽', '남쪽', '동쪽', '서쪽', '북동쪽', '남동쪽', '북서쪽', '남서쪽'];
     const randomDirection = directions[Math.floor(Math.random() * directions.length)];
     
-    // 성별에 따른 일반고 유형 결정
-    const genderBasedSchools = {
-        '남성': ['일반고 (남고)', '일반고 (남녀공학)'],
-        '여성': ['일반고 (여고)', '일반고 (남녀공학)']
-    };
+    // 랜덤한 운세 수치
+    const generateRandomStats = () => ({
+        academic: Math.floor(Math.random() * 40) + 60, // 60-100
+        social: Math.floor(Math.random() * 40) + 60,   // 60-100
+        romance: Math.floor(Math.random() * 40) + 60    // 60-100
+    });
     
-    const availableGeneralSchools = genderBasedSchools[userData.gender] || ['일반고 (남녀공학)'];
-    const notRecommendedGeneralSchool = availableGeneralSchools[Math.floor(Math.random() * availableGeneralSchools.length)];
-    
-    // 성별별 맞춤 분석 메시지
-    const genderSpecificAnalysis = {
-        '남성': {
-            schoolType: userData.gender === '남성' ? '일반고 (남고)' : '일반고 (여고)',
-            reason: userData.gender === '남성' 
-                ? '현재 사주에서 금(金)의 기운이 강하여 집중력과 경쟁심이 뛰어난 편입니다. 남고의 경쟁적이면서도 단합된 분위기에서 더욱 성장할 수 있을 것으로 보이나, 다양한 관점을 접할 기회가 제한될 수 있어 신중한 선택이 필요합니다.'
-                : '사주상 음(陰)의 기운이 조화롭게 배치되어 있어 여고의 안정적이고 세심한 교육 환경이 잘 맞을 것으로 보이나, 다양한 시각을 기를 기회가 부족할 수 있습니다.'
+    const demoResult = {
+        // 데모임을 명확히 표시
+        isDemoData: true,
+        demoTimestamp: timestamp,
+        demoRandomId: randomId,
+        
+        summary: `🚨 데모 데이터 🚨 ${userData.name} 님은 ${userData.birthTime}에 태어나신 ${userData.gender}으로, 이 분석은 실제 AI가 아닌 테스트용 랜덤 데이터입니다. 타임스탬프: ${new Date(timestamp).toLocaleString()}`,
+        
+        recommendedSchools: recommendedSchools,
+        
+        notRecommendedSchools: notRecommendedSchools,
+        
+        direction: {
+            bestDirection: randomDirection,
+            title: `${randomDirection}이 길한 방향 (데모)`,
+            explanation: `${randomDirection} 방향은 현재 시점 ${new Date().toLocaleString()}에 생성된 랜덤 데이터입니다. 실제 사주 분석이 아닙니다.`
         },
-        '여성': {
-            schoolType: userData.gender === '여성' ? '일반고 (여고)' : '일반고 (남고)',
-            reason: userData.gender === '여성'
-                ? '사주상 음(陰)의 기운이 조화롭게 배치되어 있어 여고의 안정적이고 세심한 교육 환경이 잘 맞을 것으로 보이나, 다양한 시각을 기를 기회가 부족할 수 있어 신중한 선택이 필요합니다.'
-                : '현재 사주에서 양(陽)의 기운이 강하여 집중력과 경쟁심이 뛰어난 편입니다. 남고의 경쟁적이면서도 단합된 분위기가 도움이 될 수 있으나, 다양한 관점을 접할 기회가 제한될 수 있습니다.'
-        }
-    };
-    
-    return {
-        summary: `${userData.name} 님은 ${userData.birthTime}에 태어나신 ${userData.gender}으로, 강한 학습 의지와 창의적 사고력을 가지고 계십니다. 특히 체계적인 학습 환경에서 뛰어난 성과를 보일 것으로 예상되어 영재고나 자율형사립고가 가장 적합합니다.`,
-        recommendedSchools: [
-            {
-                type: '영재고 (과학영재학교)',
-                reason: '사주에서 금(金)의 기운이 강하여 정밀하고 체계적인 사고를 선호하며, 과학과 수학 분야에서 뛰어난 재능을 발휘할 수 있습니다. 영재고의 심화 교육과정이 잠재력을 최대한 발현시킬 것입니다. 특히 고등학교 2학년에 학업운이 최고조에 달해 연구 활동에서 탁월한 성과를 거둘 수 있을 것으로 보입니다.'
-            },
-            {
-                type: '자율형사립고',
-                reason: '화(火)의 기운이 적절히 조화되어 있어 활발한 대인관계와 리더십을 발휘할 수 있으며, 자율형사립고의 다양한 프로그램을 통해 전인적 성장이 가능합니다. 3학년에 대인관계운이 상승하여 진로 설계와 대학 진학에 도움이 될 것입니다.'
-            }
-        ],
-        notRecommendedSchools: [
-            {
-                type: '외국어고',
-                reason: '현재 사주 구조상 언어 습득보다는 논리적 사고가 더 강한 편이며, 외국어고의 암기 위주 학습법이 본래 성향과 맞지 않을 수 있습니다. 또한 1학년 시기에 학습 스타일의 변화가 필요한 시점에서 혼란을 겪을 가능성이 높습니다.'
-            },
-            {
-                type: notRecommendedGeneralSchool,
-                reason: genderSpecificAnalysis[userData.gender].reason
-            }
-        ],
-        favorableDirection: {
-            direction: randomDirection,
-            explanation: `${randomDirection} 방향은 오행에서 ${userData.name} 님의 본명궁과 조화를 이루어 학업운과 대인관계운을 상승시키는 길한 방위입니다. 이 방향에 위치한 학교에서 더욱 안정적이고 발전적인 학교생활을 할 수 있을 것입니다.`
+        
+        fortuneFlow: {
+            grade1: {academic: 85, social: 70, romance: 80},
+            grade2: {academic: 90, social: 75, romance: 85},
+            grade3: {academic: 80, social: 85, romance: 90}
         },
-        fortuneTimeline: {
-            year1: {academic: 85, social: 70, health: 80},
-            year2: {academic: 90, social: 75, health: 85},
-            year3: {academic: 80, social: 85, health: 90}
-        },
+        
         personalTraits: {
             learningStyle: '체계적이고 논리적인 학습을 선호하며, 단계별 접근을 통해 깊이 있는 이해를 추구합니다.',
             socialTendency: '신중하면서도 따뜻한 성격으로 진실한 우정을 중시하며, 필요시 리더십을 발휘할 수 있습니다.',
             specialTalent: '분석적 사고와 창의적 문제해결 능력이 뛰어나며, 특히 과학과 수학 분야에서 재능이 돋보입니다.',
             cautions: '완벽주의 성향이 강해 스트레스를 받을 수 있으니, 적절한 휴식과 취미 활동을 통해 균형을 유지하는 것이 중요합니다.'
-        }
+        },
+        
+        academicTrack: {
+            liberalArts: 75,
+            science: 85,
+            recommendation: '이과',
+            reasoning: '문과/이과 추천 이유'
+        },
+        
+        sajuElements: `데모 데이터: 오행 분석이 실행되지 않았습니다. 랜덤ID: ${randomId}`,
+        studyTips: `데모 데이터: 실제 학습법 분석이 아닙니다. 타임스탬프: ${timestamp}`,
+        careerDirection: `데모 데이터: 실제 진로 분석이 아닙니다. API 호출이 실패했음을 의미합니다.`
     };
+    
+    console.log('🚨 [경고] 데모 분석 데이터 생성 완료 - 이것은 실제 AI 분석이 아닙니다!');
+    console.log('📊 생성된 데모 결과:', JSON.stringify(demoResult, null, 2));
+    
+    // 데모 데이터임을 콘솔에 표시
+    console.log(`🚨 경고: 실제 AI API 호출이 실패했습니다!`);
+    console.log(`이것은 테스트용 데모 데이터입니다.`);
+    console.log(`생성 시간: ${new Date().toLocaleString()}`);
+    console.log(`랜덤 ID: ${randomId}`);
+    
+    return demoResult;
 }
 
 // Result page initialization
 function initializeResultPage() {
+    console.log('=== 결과 페이지 초기화 시작 ===');
+    
     let userData = localStorage.getItem('sajuUserData');
     let analysisResult = localStorage.getItem('sajuAnalysisResult');
+    
+    console.log('📦 localStorage에서 가져온 원본 데이터:');
+    console.log('userData (raw):', userData);
+    console.log('analysisResult (raw):', analysisResult);
     
     // 데이터 파싱
     try {
         userData = userData ? JSON.parse(userData) : null;
         analysisResult = analysisResult ? JSON.parse(analysisResult) : null;
+        
+        console.log('✅ 데이터 파싱 성공');
+        console.log('userData (parsed):', userData);
+        console.log('analysisResult (parsed):', analysisResult);
+        
     } catch (e) {
+        console.error('❌ 데이터 파싱 실패:', e);
         userData = null;
         analysisResult = null;
     }
     
     // 데이터가 없거나 문제가 있으면 강제로 데모 데이터 생성
     if (!userData || !analysisResult) {
+        console.log('⚠️ 데이터가 없거나 문제 발생 - 강제 데모 데이터 생성');
+        
         userData = {
             name: '홍길동',
             birthYear: '2008',
@@ -446,12 +728,12 @@ function initializeResultPage() {
                 {
                     rank: 2,
                     type: '자율형사립고',
-                    reason: '화(火)의 기운이 적절히 조화되어 있어 활발한 대인관계와 리더십을 발휘할 수 있으며, 자율형사립고의 다양한 프로그램을 통해 전인적 성장이 가능합니다.'
+                    reason: '화(火)의 기운이 적절히 조화되어 있어 활발한 대인관계와 리더십을 발휘할 수 있으며, 자율형사립고의 다양한 프로그램을 통해 전인적 성장이 가능합니다. 3학년에 대인관계운이 상승하여 진로 설계와 대학 진학에 도움이 될 것입니다.'
                 },
                 {
                     rank: 3,
                     type: '일반고(남녀공학)',
-                    reason: '균형 잡힌 성격으로 다양한 환경에 잘 적응하며, 일반고에서도 충분히 좋은 성과를 거둘 수 있습니다.'
+                    reason: '균형 잡힌 성격으로 다양한 환경에 잘 적응하며, 일반고에서도 충분히 좋은 성과를 거둘 수 있습니다. 특히 다양한 배경의 친구들과 어울리며 사회성을 기를 수 있어 향후 대학 생활과 사회 진출에 도움이 될 것입니다.'
                 }
             ],
             notRecommendedSchools: [
@@ -471,71 +753,153 @@ function initializeResultPage() {
                 explanation: '북쪽 방향은 오행에서 학업운과 대인관계운을 상승시키는 길한 방위입니다. 이 방향에 위치한 학교에서 더욱 안정적이고 발전적인 학교생활을 할 수 있을 것입니다.'
             },
             fortuneFlow: {
-                grade1: {academic: 85, social: 70, health: 80},
-                grade2: {academic: 90, social: 75, health: 85},
-                grade3: {academic: 80, social: 85, health: 90}
+                grade1: {academic: 85, social: 70, romance: 80},
+                grade2: {academic: 90, social: 75, romance: 85},
+                grade3: {academic: 80, social: 85, romance: 90}
             },
             personalTraits: {
                 learningStyle: '체계적이고 논리적인 학습을 선호하며, 단계별 접근을 통해 깊이 있는 이해를 추구합니다.',
                 socialTendency: '신중하면서도 따뜻한 성격으로 진실한 우정을 중시하며, 필요시 리더십을 발휘할 수 있습니다.',
                 specialTalent: '분석적 사고와 창의적 문제해결 능력이 뛰어나며, 특히 과학과 수학 분야에서 재능이 돋보입니다.',
                 cautions: '완벽주의 성향이 강해 스트레스를 받을 수 있으니, 적절한 휴식과 취미 활동을 통해 균형을 유지하는 것이 중요합니다.'
+            },
+            academicTrack: {
+                liberalArts: 75,
+                science: 85,
+                recommendation: '이과',
+                reasoning: '문과/이과 추천 이유'
             }
         };
         
         // localStorage에 저장
         localStorage.setItem('sajuUserData', JSON.stringify(userData));
         localStorage.setItem('sajuAnalysisResult', JSON.stringify(analysisResult));
+        
+        console.log('💾 강제 생성된 데이터를 localStorage에 저장 완료');
     }
     
+    console.log('📊 최종 사용할 데이터:');
+    console.log('userData:', userData);
+    console.log('analysisResult:', analysisResult);
+    
+    console.log('🎨 결과 표시 시작');
     displayAnalysisResult(userData, analysisResult);
+    console.log('✅ 결과 페이지 초기화 완료');
 }
 
 // Display analysis result
 function displayAnalysisResult(userData, result) {
+    console.log('=== 분석 결과 표시 시작 ===');
+    console.log('받은 사용자 데이터:', userData);
+    console.log('받은 분석 결과:', result);
+    
     // 사용자 이름 표시
+    console.log('👤 사용자 이름 표시 시작');
     const userNameElement = document.getElementById('userName');
     if (userNameElement) {
         userNameElement.textContent = userData.name;
+        console.log('✅ 사용자 이름 설정:', userData.name);
+    } else {
+        console.error('❌ userName 엘리먼트를 찾을 수 없음');
     }
     
     // 분석 요약 표시
+    console.log('📝 분석 요약 표시 시작');
     const analysisDescElement = document.getElementById('analysisDescription');
     if (analysisDescElement) {
         analysisDescElement.textContent = result.summary;
+        console.log('✅ 분석 요약 설정:', result.summary);
+    } else {
+        console.error('❌ analysisDescription 엘리먼트를 찾을 수 없음');
     }
     
     // 학교 추천 순위 표시
+    console.log('🏫 학교 추천 순위 표시 시작');
     displaySchoolRecommendations(result.recommendedSchools, result.notRecommendedSchools);
     
     // 방향 분석 표시 (API와 데모 형식 통일 처리)
+    console.log('🧭 방향 분석 표시 시작');
     const directionData = result.direction || result.favorableDirection;
     if (directionData) {
+        console.log('방향 데이터:', directionData);
         displayDirectionAnalysis(directionData);
+    } else {
+        console.error('❌ 방향 데이터가 없음');
     }
     
     // 운세 차트 표시 (API와 데모 형식 통일 처리)
+    console.log('📈 운세 차트 표시 시작');
     const fortuneData = result.fortuneFlow || result.fortuneTimeline;
     if (fortuneData) {
+        console.log('운세 데이터:', fortuneData);
         displayFortuneChart(fortuneData);
+    } else {
+        console.error('❌ 운세 데이터가 없음');
     }
     
     // 개인 특성 표시
+    console.log('👥 개인 특성 표시 시작');
     if (result.personalTraits) {
+        console.log('개인 특성 데이터:', result.personalTraits);
         displayPersonalTraits(result.personalTraits);
+    } else {
+        console.error('❌ 개인 특성 데이터가 없음');
     }
+    
+    // 문과/이과 적합도 표시
+    console.log('📚 문과/이과 적합도 표시 시작');
+    if (result.academicTrack) {
+        console.log('문과/이과 데이터:', result.academicTrack);
+        displayAcademicTrack(result.academicTrack);
+    } else {
+        console.log('⚠️ 문과/이과 데이터가 없음 - 기본값 사용');
+        // 기본값 설정
+        const defaultTrack = {
+            liberalArts: 75,
+            science: 85,
+            recommendation: '이과',
+            reasoning: '사주 분석 결과, 이과 계열이 더 적합합니다. 특히 금(金)의 기운이 강해 정밀하고 체계적인 사고를 선호하며, 수학과 과학 분야에서 뛰어난 성과를 보일 것으로 예상됩니다.'
+        };
+        displayAcademicTrack(defaultTrack);
+    }
+    
+    // 추가 정보 표시 (새로운 필드들)
+    console.log('📚 추가 분석 정보 표시 시작');
+    if (result.sajuElements) {
+        console.log('🔮 사주 오행 정보:', result.sajuElements);
+        displayAdditionalInfo('사주 오행 분석', result.sajuElements);
+    }
+    
+    if (result.studyTips) {
+        console.log('📖 학습법 조언:', result.studyTips);
+        displayAdditionalInfo('맞춤 학습법', result.studyTips);
+    }
+    
+    if (result.careerDirection) {
+        console.log('🎯 진로 방향:', result.careerDirection);
+        displayAdditionalInfo('장기 진로 방향', result.careerDirection);
+    }
+    
+    console.log('✅ 분석 결과 표시 완료');
 }
 
 // Display school recommendations
 function displaySchoolRecommendations(recommendedSchools, notRecommendedSchools) {
+    console.log('=== 학교 추천 표시 시작 ===');
+    console.log('추천 학교:', recommendedSchools);
+    console.log('비추천 학교:', notRecommendedSchools);
+    
     const container = document.getElementById('schoolRecommendations');
     if (!container) {
+        console.error('❌ schoolRecommendations 컨테이너를 찾을 수 없음');
         return;
     }
     
+    console.log('✅ schoolRecommendations 컨테이너 찾음');
     container.innerHTML = '';
     
     // 추천 학교 섹션
+    console.log('📈 추천 학교 섹션 생성 시작');
     const recommendedSection = document.createElement('div');
     recommendedSection.className = 'recommendation-section';
     recommendedSection.innerHTML = `
@@ -543,9 +907,12 @@ function displaySchoolRecommendations(recommendedSchools, notRecommendedSchools)
     `;
     
     if (recommendedSchools && recommendedSchools.length > 0) {
+        console.log(`추천 학교 ${recommendedSchools.length}개 처리 시작`);
         recommendedSchools.forEach((school, index) => {
             const rank = school.rank || (index + 1);
             const rankIcon = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}위`;
+            
+            console.log(`추천 학교 ${index + 1}: ${school.type} (순위: ${rank})`);
             
             const schoolCard = document.createElement('div');
             schoolCard.className = `school-card recommended-card rank-${rank}`;
@@ -557,9 +924,13 @@ function displaySchoolRecommendations(recommendedSchools, notRecommendedSchools)
             `;
             recommendedSection.appendChild(schoolCard);
         });
+        console.log('✅ 추천 학교 카드 생성 완료');
+    } else {
+        console.error('❌ 추천 학교 데이터가 없거나 비어있음');
     }
     
     // 비추천 학교 섹션
+    console.log('📉 비추천 학교 섹션 생성 시작');
     const notRecommendedSection = document.createElement('div');
     notRecommendedSection.className = 'recommendation-section';
     notRecommendedSection.innerHTML = `
@@ -567,8 +938,11 @@ function displaySchoolRecommendations(recommendedSchools, notRecommendedSchools)
     `;
     
     if (notRecommendedSchools && notRecommendedSchools.length > 0) {
+        console.log(`비추천 학교 ${notRecommendedSchools.length}개 처리 시작`);
         notRecommendedSchools.forEach((school, index) => {
             const rank = school.rank || (index + 1);
+            
+            console.log(`비추천 학교 ${index + 1}: ${school.type} (순위: ${rank})`);
             
             const schoolCard = document.createElement('div');
             schoolCard.className = `school-card not-recommended-card rank-${rank}`;
@@ -580,25 +954,40 @@ function displaySchoolRecommendations(recommendedSchools, notRecommendedSchools)
             `;
             notRecommendedSection.appendChild(schoolCard);
         });
+        console.log('✅ 비추천 학교 카드 생성 완료');
+    } else {
+        console.error('❌ 비추천 학교 데이터가 없거나 비어있음');
     }
     
     container.appendChild(recommendedSection);
     container.appendChild(notRecommendedSection);
+    
+    console.log('✅ 학교 추천 표시 완료');
 }
 
 // Display direction analysis
 function displayDirectionAnalysis(directionData) {
+    console.log('=== 방향 분석 표시 시작 ===');
+    console.log('방향 데이터:', directionData);
+    
     const titleElement = document.getElementById('directionTitle');
     const explanationElement = document.getElementById('directionExplanation');
     const pointerElement = document.getElementById('compassPointer');
     
     if (titleElement) {
         const direction = directionData.bestDirection || directionData.direction;
-        titleElement.textContent = `${direction}이 당신에게 길한 방향입니다`;
+        const titleText = `${direction}이 길한 방향입니다`;
+        titleElement.textContent = titleText;
+        console.log('✅ 방향 제목 설정:', titleText);
+    } else {
+        console.error('❌ directionTitle 엘리먼트를 찾을 수 없음');
     }
     
     if (explanationElement) {
         explanationElement.textContent = directionData.explanation;
+        console.log('✅ 방향 설명 설정:', directionData.explanation);
+    } else {
+        console.error('❌ directionExplanation 엘리먼트를 찾을 수 없음');
     }
     
     // 나침반 포인터 회전
@@ -612,133 +1001,103 @@ function displayDirectionAnalysis(directionData) {
         const direction = directionData.bestDirection || directionData.direction;
         const angle = directions[direction] || 0;
         pointerElement.style.transform = `rotate(${angle}deg)`;
+        console.log('✅ 나침반 포인터 회전 설정:', `${direction} -> ${angle}도`);
+    } else {
+        console.error('❌ compassPointer 엘리먼트를 찾을 수 없음');
     }
+    
+    console.log('✅ 방향 분석 표시 완료');
 }
 
 // Display fortune chart
 function displayFortuneChart(fortuneData) {
-    const canvas = document.getElementById('fortuneChart');
-    if (!canvas) {
+    console.log('=== 운세 차트 표시 시작 ===');
+    console.log('받은 운세 데이터:', fortuneData);
+    
+    // CSS 막대 차트 컨테이너 찾기
+    const fortuneBars = document.querySelector('.fortune-bars');
+    if (!fortuneBars) {
+        console.error('❌ fortune-bars 컨테이너를 찾을 수 없음');
         return;
     }
+    
+    console.log('✅ fortune-bars 컨테이너 찾음');
     
     if (!fortuneData) {
+        console.error('❌ fortuneData가 null 또는 undefined');
         return;
     }
     
-    // 반응형 캔버스 크기 설정
-    const container = canvas.parentElement;
-    const containerWidth = container.clientWidth;
-    const isMobile = window.innerWidth <= 768;
-    const isSmallMobile = window.innerWidth <= 480;
-    
-    // 캔버스 크기 조정
-    if (isSmallMobile) {
-        canvas.width = Math.min(containerWidth - 20, 350);
-        canvas.height = 250;
-    } else if (isMobile) {
-        canvas.width = Math.min(containerWidth - 40, 400);
-        canvas.height = 300;
-    } else {
-        canvas.width = Math.min(containerWidth - 60, 800);
-        canvas.height = 400;
-    }
-    
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-    
-    // 캔버스 초기화
-    ctx.clearRect(0, 0, width, height);
-    
     // 차트 데이터 준비 (API와 데모 형식 모두 지원)
-    const years = ['1학년', '2학년', '3학년'];
-    let academic, social, health;
+    let academic, social, romance;
+    
+    console.log('📊 데이터 형식 확인:');
+    console.log('fortuneData.grade1 존재:', !!fortuneData.grade1);
+    console.log('fortuneData.year1 존재:', !!fortuneData.year1);
     
     if (fortuneData.grade1) {
         // API 응답 형식 (grade1, grade2, grade3)
+        console.log('📈 API 응답 형식으로 데이터 처리');
         academic = [fortuneData.grade1.academic, fortuneData.grade2.academic, fortuneData.grade3.academic];
         social = [fortuneData.grade1.social, fortuneData.grade2.social, fortuneData.grade3.social];
-        health = [fortuneData.grade1.health, fortuneData.grade2.health, fortuneData.grade3.health];
+        romance = [fortuneData.grade1.romance, fortuneData.grade2.romance, fortuneData.grade3.romance];
     } else if (fortuneData.year1) {
         // 데모 형식 (year1, year2, year3)
+        console.log('🎭 데모 형식으로 데이터 처리');
         academic = [fortuneData.year1.academic, fortuneData.year2.academic, fortuneData.year3.academic];
         social = [fortuneData.year1.social, fortuneData.year2.social, fortuneData.year3.social];
-        health = [fortuneData.year1.health, fortuneData.year2.health, fortuneData.year3.health];
+        romance = [fortuneData.year1.romance, fortuneData.year2.romance, fortuneData.year3.romance];
     } else {
+        console.error('❌ 지원되지 않는 데이터 형식');
         return;
     }
     
-    // 반응형 차트 설정
-    const margin = isMobile ? (isSmallMobile ? 50 : 60) : 80;
-    const chartWidth = width - 2 * margin;
-    const chartHeight = height - 2 * margin;
-    const stepX = chartWidth / (years.length - 1);
+    console.log('📊 처리된 차트 데이터:');
+    console.log('academic:', academic);
+    console.log('social:', social);
+    console.log('romance:', romance);
     
-    // 배경 그리드
-    ctx.strokeStyle = '#e0e0e0';
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= 10; i++) {
-        const y = margin + (chartHeight * i / 10);
-        ctx.beginPath();
-        ctx.moveTo(margin, y);
-        ctx.lineTo(width - margin, y);
-        ctx.stroke();
-    }
+    // CSS 막대 차트 업데이트
+    const yearGroups = fortuneBars.querySelectorAll('.year-group');
+    console.log('📊 년도 그룹 개수:', yearGroups.length);
     
-    // Y축 라벨
-    ctx.fillStyle = '#666';
-    const fontSize = isSmallMobile ? '10px' : (isMobile ? '11px' : '12px');
-    ctx.font = `${fontSize} Noto Sans KR`;
-    ctx.textAlign = 'right';
-    for (let i = 0; i <= 10; i++) {
-        const value = 100 - (i * 10);
-        const y = margin + (chartHeight * i / 10);
-        ctx.fillText(value, margin - 10, y + 4);
-    }
-    
-    // X축 라벨
-    ctx.textAlign = 'center';
-    years.forEach((year, index) => {
-        const x = margin + (stepX * index);
-        ctx.fillText(year, x, height - margin + (isSmallMobile ? 15 : 20));
+    yearGroups.forEach((yearGroup, yearIndex) => {
+        const academicBar = yearGroup.querySelector('.academic-bar');
+        const socialBar = yearGroup.querySelector('.social-bar');
+        const romanceBar = yearGroup.querySelector('.romance-bar');
+        
+        console.log(`${yearIndex + 1}학년 막대 업데이트:`);
+        
+        if (academicBar) {
+            const academicValue = academic[yearIndex];
+            academicBar.style.width = `${academicValue}%`;
+            academicBar.textContent = academicValue;
+            console.log(`✅ 학업운: ${academicValue}%`);
+        }
+        
+        if (socialBar) {
+            const socialValue = social[yearIndex];
+            socialBar.style.width = `${socialValue}%`;
+            socialBar.textContent = socialValue;
+            console.log(`✅ 대인관계운: ${socialValue}%`);
+        }
+        
+        if (romanceBar) {
+            const romanceValue = romance[yearIndex];
+            romanceBar.style.width = `${romanceValue}%`;
+            romanceBar.textContent = romanceValue;
+            console.log(`✅ 이성운: ${romanceValue}%`);
+        }
     });
     
-    // 선 그래프 그리기
-    function drawLine(data, color) {
-        ctx.strokeStyle = color;
-        ctx.lineWidth = isMobile ? 2 : 3;
-        ctx.beginPath();
-        
-        data.forEach((value, index) => {
-            const x = margin + (stepX * index);
-            const y = margin + chartHeight - (chartHeight * value / 100);
-            
-            if (index === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
-            
-            // 점 표시
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            const radius = isMobile ? (isSmallMobile ? 3 : 4) : 5;
-            ctx.arc(x, y, radius, 0, 2 * Math.PI);
-            ctx.fill();
-        });
-        
-        ctx.stroke();
-    }
-    
-    // 각 운세 라인 그리기
-    drawLine(academic, '#570df8');
-    drawLine(social, '#37cdbe');
-    drawLine(health, '#f000b8');
+    console.log('✅ 운세 차트 표시 완료');
 }
 
 // Display personal traits
 function displayPersonalTraits(traits) {
+    console.log('=== 개인 특성 표시 시작 ===');
+    console.log('특성 데이터:', traits);
+    
     const elements = {
         learningStyle: document.getElementById('learningStyle'),
         socialTendency: document.getElementById('socialTendency'),
@@ -746,11 +1105,103 @@ function displayPersonalTraits(traits) {
         cautions: document.getElementById('cautions')
     };
     
+    console.log('개인 특성 엘리먼트들:', {
+        learningStyle: !!elements.learningStyle,
+        socialTendency: !!elements.socialTendency,
+        specialTalent: !!elements.specialTalent,
+        cautions: !!elements.cautions
+    });
+    
     Object.keys(elements).forEach(key => {
         if (elements[key] && traits && traits[key]) {
             elements[key].textContent = traits[key];
+            console.log(`✅ ${key} 설정:`, traits[key]);
+        } else {
+            if (!elements[key]) {
+                console.error(`❌ ${key} 엘리먼트를 찾을 수 없음`);
+            }
+            if (!traits || !traits[key]) {
+                console.error(`❌ ${key} 데이터가 없음`);
+            }
         }
     });
+    
+    console.log('✅ 개인 특성 표시 완료');
+}
+
+// Display academic track recommendation
+function displayAcademicTrack(trackData) {
+    console.log('=== 문과/이과 적합도 표시 시작 ===');
+    console.log('문과/이과 데이터:', trackData);
+    
+    // 문과 적합도 업데이트
+    const liberalArtsScore = document.querySelector('.track-card.liberal-arts .track-score');
+    if (liberalArtsScore) {
+        liberalArtsScore.textContent = `${trackData.liberalArts}%`;
+        console.log('✅ 문과 적합도 설정:', trackData.liberalArts);
+    }
+    
+    // 이과 적합도 업데이트
+    const scienceScore = document.querySelector('.track-card.science .track-score');
+    if (scienceScore) {
+        scienceScore.textContent = `${trackData.science}%`;
+        console.log('✅ 이과 적합도 설정:', trackData.science);
+    }
+    
+    // 최종 추천 업데이트
+    const trackRecommendation = document.getElementById('trackRecommendation');
+    if (trackRecommendation) {
+        trackRecommendation.textContent = trackData.reasoning || '문과/이과 분석 결과를 표시합니다.';
+        console.log('✅ 최종 추천 설정:', trackData.reasoning);
+    }
+    
+    // 더 높은 점수에 따라 카드 스타일 강조
+    const liberalCard = document.querySelector('.track-card.liberal-arts');
+    const scienceCard = document.querySelector('.track-card.science');
+    
+    if (liberalCard && scienceCard) {
+        if (trackData.liberalArts > trackData.science) {
+            liberalCard.style.transform = 'scale(1.02)';
+            liberalCard.style.boxShadow = '0 8px 32px rgba(255, 154, 158, 0.3)';
+            scienceCard.style.transform = 'scale(1)';
+            scienceCard.style.boxShadow = '';
+            console.log('🔴 문과가 더 적합함을 시각적으로 강조');
+        } else {
+            scienceCard.style.transform = 'scale(1.02)';
+            scienceCard.style.boxShadow = '0 8px 32px rgba(102, 126, 234, 0.3)';
+            liberalCard.style.transform = 'scale(1)';
+            liberalCard.style.boxShadow = '';
+            console.log('🔵 이과가 더 적합함을 시각적으로 강조');
+        }
+    }
+    
+    console.log('✅ 문과/이과 적합도 표시 완료');
+}
+
+// Display additional information
+function displayAdditionalInfo(title, content) {
+    console.log(`=== ${title} 표시 시작 ===`);
+    
+    // personalTraits 섹션 찾기
+    const personalTraitsSection = document.querySelector('#personalTraits .traits-grid');
+    if (!personalTraitsSection) {
+        console.error(`❌ personalTraits 섹션을 찾을 수 없음`);
+        return;
+    }
+    
+    // 새로운 특성 아이템 생성
+    const traitItem = document.createElement('div');
+    traitItem.className = 'trait-item additional-info';
+    traitItem.innerHTML = `
+        <div class="trait-icon">📚</div>
+        <div class="trait-content">
+            <h4 class="trait-title">${title}</h4>
+            <p class="trait-description">${content}</p>
+        </div>
+    `;
+    
+    personalTraitsSection.appendChild(traitItem);
+    console.log(`✅ ${title} 표시 완료`);
 }
 
 // Share result function
@@ -764,9 +1215,9 @@ function shareResult() {
     } else {
         // 링크 복사
         navigator.clipboard.writeText(window.location.href).then(() => {
-            alert('링크가 클립보드에 복사되었습니다!');
+            console.log('✅ 링크가 클립보드에 복사되었습니다!');
         }).catch(() => {
-            alert('링크 복사에 실패했습니다.');
+            console.log('❌ 링크 복사에 실패했습니다.');
         });
     }
 }
@@ -784,26 +1235,42 @@ window.addEventListener('resize', function() {
 
 // 강제 리다이렉션 함수 추가
 function forceRedirectToResult() {
+    console.log('=== 강제 리다이렉션 시작 ===');
+    
     // 현재 도메인 기준 절대 경로 생성
     const currentDomain = window.location.origin;
     const currentPath = window.location.pathname;
     const basePath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
     const resultUrl = currentDomain + basePath + 'result.html';
     
+    console.log('🌐 현재 도메인:', currentDomain);
+    console.log('📂 현재 경로:', currentPath);
+    console.log('📁 베이스 경로:', basePath);
+    console.log('🎯 결과 페이지 URL:', resultUrl);
+    
     // 여러 방법으로 시도
     try {
+        console.log('🔄 방법 1: window.location.replace() 시도');
         window.location.replace(resultUrl);
     } catch (e) {
+        console.error('❌ 방법 1 실패:', e);
         try {
+            console.log('🔄 방법 2: window.location.assign() 시도');
             window.location.assign(resultUrl);
         } catch (e2) {
+            console.error('❌ 방법 2 실패:', e2);
             try {
+                console.log('🔄 방법 3: window.location.href 시도');
                 window.location.href = resultUrl;
             } catch (e3) {
+                console.error('❌ 방법 3 실패:', e3);
                 try {
+                    console.log('🔄 방법 4: document.location.href 시도');
                     document.location.href = resultUrl;
                 } catch (e4) {
+                    console.error('❌ 방법 4 실패:', e4);
                     // 최후의 수단 - 상대 경로
+                    console.log('🔄 방법 5: 상대 경로로 최종 시도');
                     window.location.href = './result.html';
                 }
             }
@@ -843,4 +1310,22 @@ function restoreFormData() {
     } catch (e) {
         // 복원 실패시 무시
     }
-} 
+}
+
+// 페이지 로드 시 버전 체크 및 이전 데이터 클리어
+function checkVersionAndClearOldData() {
+    const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY);
+    console.log('🔍 버전 체크:', '저장된 버전:', storedVersion, '현재 버전:', SCRIPT_VERSION);
+    
+    if (!storedVersion || storedVersion !== SCRIPT_VERSION) {
+        console.log('🧹 새 버전 감지 - 이전 데이터 클리어');
+        localStorage.clear();
+        localStorage.setItem(STORAGE_VERSION_KEY, SCRIPT_VERSION);
+        console.log('✅ 데이터 클리어 및 새 버전 저장 완료');
+    } else {
+        console.log('✅ 동일 버전 - 데이터 유지');
+    }
+}
+
+// 즉시 실행
+checkVersionAndClearOldData();

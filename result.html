@@ -100,9 +100,9 @@
                                     </div>
                                 </div>
                                 <div class="bar-item">
-                                    <span class="bar-label">건강운</span>
+                                    <span class="bar-label">이성운</span>
                                     <div class="bar-container">
-                                        <div class="bar health-bar" style="width: 80%;">80</div>
+                                        <div class="bar romance-bar" style="width: 80%;">80</div>
                                     </div>
                                 </div>
                             </div>
@@ -124,9 +124,9 @@
                                     </div>
                                 </div>
                                 <div class="bar-item">
-                                    <span class="bar-label">건강운</span>
+                                    <span class="bar-label">이성운</span>
                                     <div class="bar-container">
-                                        <div class="bar health-bar" style="width: 85%;">85</div>
+                                        <div class="bar romance-bar" style="width: 85%;">85</div>
                                     </div>
                                 </div>
                             </div>
@@ -148,9 +148,9 @@
                                     </div>
                                 </div>
                                 <div class="bar-item">
-                                    <span class="bar-label">건강운</span>
+                                    <span class="bar-label">이성운</span>
                                     <div class="bar-container">
-                                        <div class="bar health-bar" style="width: 90%;">90</div>
+                                        <div class="bar romance-bar" style="width: 90%;">90</div>
                                     </div>
                                 </div>
                             </div>
@@ -167,8 +167,87 @@
                             <span>대인관계운</span>
                         </div>
                         <div class="legend-item">
-                            <span class="legend-color health"></span>
-                            <span>건강운</span>
+                            <span class="legend-color romance"></span>
+                            <span>이성운</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Academic Track Recommendation -->
+            <section class="academic-track section-wrapper">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <span class="section-icon">📚</span>
+                        문과 vs 이과 적합도 분석
+                    </h3>
+                    <div class="section-divider"></div>
+                </div>
+                <div class="track-container">
+                    <div class="track-comparison">
+                        <div class="track-card liberal-arts">
+                            <div class="track-header">
+                                <h4>📖 문과 적합도</h4>
+                                <div class="track-score">75%</div>
+                            </div>
+                            <div class="track-content">
+                                <div class="track-strengths">
+                                    <h5>강점 분야</h5>
+                                    <ul>
+                                        <li>언어적 사고력</li>
+                                        <li>창의적 표현력</li>
+                                        <li>인문학적 소양</li>
+                                        <li>의사소통 능력</li>
+                                    </ul>
+                                </div>
+                                <div class="track-subjects">
+                                    <h5>추천 과목</h5>
+                                    <div class="subject-tags">
+                                        <span class="subject-tag">국어</span>
+                                        <span class="subject-tag">영어</span>
+                                        <span class="subject-tag">사회</span>
+                                        <span class="subject-tag">역사</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="track-card science">
+                            <div class="track-header">
+                                <h4>🔬 이과 적합도</h4>
+                                <div class="track-score">85%</div>
+                            </div>
+                            <div class="track-content">
+                                <div class="track-strengths">
+                                    <h5>강점 분야</h5>
+                                    <ul>
+                                        <li>논리적 사고력</li>
+                                        <li>수리 분석 능력</li>
+                                        <li>체계적 문제해결</li>
+                                        <li>과학적 탐구심</li>
+                                    </ul>
+                                </div>
+                                <div class="track-subjects">
+                                    <h5>추천 과목</h5>
+                                    <div class="subject-tags">
+                                        <span class="subject-tag">수학</span>
+                                        <span class="subject-tag">물리</span>
+                                        <span class="subject-tag">화학</span>
+                                        <span class="subject-tag">생물</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="track-recommendation">
+                        <div class="recommendation-box">
+                            <h4>🎯 최종 추천</h4>
+                            <p id="trackRecommendation">
+                                사주 분석 결과, 이과 계열이 더 적합합니다. 특히 금(金)의 기운이 강해 정밀하고 체계적인 사고를 선호하며, 
+                                수학과 과학 분야에서 뛰어난 성과를 보일 것으로 예상됩니다. 
+                                다만 문과 영역의 언어 능력도 무시할 수 없으므로 이과를 선택하되 국어와 영어 실력도 꾸준히 기르시기 바랍니다.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -227,7 +306,7 @@
         </main>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=3.0"></script>
     <script>
         // 직접 HTML에서 결과 표시 - JavaScript 로딩 실패 대비
         document.addEventListener('DOMContentLoaded', function() {
@@ -242,34 +321,34 @@
             };
             
             const defaultResult = {
-                summary: `${defaultUserData.name} 님은 ${defaultUserData.birthTime}에 태어나신 ${defaultUserData.gender}으로, 강한 학습 의지와 창의적 사고력을 가지고 계십니다. 특히 체계적인 학습 환경에서 뛰어난 성과를 보일 것으로 예상되어 영재고나 자율형사립고가 가장 적합합니다.`,
+                summary: `${defaultUserData.name} 님은 ${defaultUserData.birthTime}에 태어나신 ${defaultUserData.gender}으로, 강한 학습 의지와 창의적 사고력을 가지고 계십니다. 특히 체계적인 학습 환경에서 뛰어난 성과를 보일 것으로 예상되어 일반고에서도 충분히 훌륭한 결과를 만들어낼 수 있습니다.`,
                 recommendedSchools: [
                     {
                         rank: 1,
-                        type: '과학영재학교',
-                        reason: '사주에서 금(金)의 기운이 강하여 정밀하고 체계적인 사고를 선호하며, 과학과 수학 분야에서 뛰어난 재능을 발휘할 수 있습니다. 영재고의 심화 교육과정이 잠재력을 최대한 발현시킬 것입니다.'
+                        type: '일반고(남녀공학)',
+                        reason: '사주에서 토(土)의 기운이 강하여 안정적이고 균형 잡힌 성향을 보입니다. 일반고의 다양한 교육과정과 친구들과의 폭넓은 교류를 통해 사회성과 학업 능력을 동시에 기를 수 있어 가장 적합합니다. 특히 다양한 배경의 친구들과 어울리며 포용력과 리더십을 발전시킬 수 있습니다.'
                     },
                     {
                         rank: 2,
                         type: '자율형사립고',
-                        reason: '화(火)의 기운이 적절히 조화되어 있어 활발한 대인관계와 리더십을 발휘할 수 있으며, 자율형사립고의 다양한 프로그램을 통해 전인적 성장이 가능합니다.'
+                        reason: '화(火)의 기운이 적절히 조화되어 있어 적극적인 학습 의지와 도전 정신을 가지고 있습니다. 자율형사립고의 심화 교육과정과 다양한 특별 프로그램을 통해 잠재력을 더욱 발전시킬 수 있습니다. 다만 경제적 여건을 충분히 고려하여 결정하시기 바랍니다.'
                     },
                     {
                         rank: 3,
-                        type: '일반고(남녀공학)',
-                        reason: '균형 잡힌 성격으로 다양한 환경에 잘 적응하며, 일반고에서도 충분히 좋은 성과를 거둘 수 있습니다.'
+                        type: '일반고(단성학교)',
+                        reason: '금(金)의 기운으로 집중력이 뛰어나며 차분한 학습 환경을 선호하는 성향이 있습니다. 단성학교의 안정적이고 집중된 교육 환경에서 학업에 몰입하며 좋은 성과를 거둘 수 있을 것입니다.'
                     }
                 ],
                 notRecommendedSchools: [
                     {
                         rank: 1,
-                        type: '외국어고',
-                        reason: '현재 사주 구조상 언어 습득보다는 논리적 사고가 더 강한 편이며, 외국어고의 암기 위주 학습법이 본래 성향과 맞지 않을 수 있습니다.'
+                        type: '과학영재학교',
+                        reason: '매우 뛰어난 과학적 재능과 극상위 성적이 필요하며, 전국에서 1% 미만만 입학 가능한 극도로 높은 경쟁률을 가지고 있습니다. 현실적으로 진학이 매우 어려우며, 일반고에서도 충분히 훌륭한 교육을 받을 수 있습니다.'
                     },
                     {
                         rank: 2,
                         type: '예술고',
-                        reason: '예술적 감각보다는 체계적이고 논리적인 사고가 강한 편이므로 예술고보다는 일반적인 학문 분야가 더 적합합니다.'
+                        reason: '예술적 감각보다는 체계적이고 논리적인 사고가 강한 편이므로, 예술 전문 교육보다는 일반적인 학문 분야가 더 적합합니다. 일반고에서 다양한 분야를 경험해보는 것이 유리할 것입니다.'
                     }
                 ]
             };
@@ -371,6 +450,37 @@
                 
                 if (cautionsEl) {
                     cautionsEl.textContent = '완벽주의 성향이 강해 스트레스를 받을 수 있으니, 적절한 휴식과 취미 활동을 통해 균형을 유지하는 것이 중요합니다.';
+                }
+                
+                // 문과/이과 적합도 설정
+                const liberalArtsScore = document.querySelector('.track-card.liberal-arts .track-score');
+                const scienceScore = document.querySelector('.track-card.science .track-score');
+                const trackRecommendationEl = document.getElementById('trackRecommendation');
+                
+                if (liberalArtsScore) {
+                    liberalArtsScore.textContent = '75%';
+                }
+                
+                if (scienceScore) {
+                    scienceScore.textContent = '85%';
+                }
+                
+                if (trackRecommendationEl) {
+                    trackRecommendationEl.textContent = '사주 분석 결과, 이과 계열이 더 적합합니다. 특히 금(金)의 기운이 강해 정밀하고 체계적인 사고를 선호하며, 수학과 과학 분야에서 뛰어난 성과를 보일 것으로 예상됩니다. 다만 문과 영역의 언어 능력도 무시할 수 없으므로 이과를 선택하되 국어와 영어 실력도 꾸준히 기르시기 바랍니다.';
+                }
+                
+                // 이과가 더 높은 점수이므로 이과 카드 강조
+                const liberalCard = document.querySelector('.track-card.liberal-arts');
+                const scienceCard = document.querySelector('.track-card.science');
+                
+                if (scienceCard) {
+                    scienceCard.style.transform = 'scale(1.02)';
+                    scienceCard.style.boxShadow = '0 8px 32px rgba(102, 126, 234, 0.3)';
+                }
+                
+                if (liberalCard) {
+                    liberalCard.style.transform = 'scale(1)';
+                    liberalCard.style.boxShadow = '';
                 }
             }, 500);
         });

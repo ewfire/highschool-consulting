@@ -36,102 +36,12 @@
                             <div class="date-inputs">
                                 <select id="birthYear" name="birthYear" required>
                                     <option value="">년도</option>
-                                    <option value="2016">2016년</option>
-                                    <option value="2015">2015년</option>
-                                    <option value="2014">2014년</option>
-                                    <option value="2013">2013년</option>
-                                    <option value="2012">2012년</option>
-                                    <option value="2011">2011년</option>
-                                    <option value="2010">2010년</option>
-                                    <option value="2009">2009년</option>
-                                    <option value="2008">2008년</option>
-                                    <option value="2007">2007년</option>
-                                    <option value="2006">2006년</option>
-                                    <option value="2005">2005년</option>
-                                    <option value="2004">2004년</option>
-                                    <option value="2003">2003년</option>
-                                    <option value="2002">2002년</option>
-                                    <option value="2001">2001년</option>
-                                    <option value="2000">2000년</option>
-                                    <option value="1999">1999년</option>
-                                    <option value="1998">1998년</option>
-                                    <option value="1997">1997년</option>
-                                    <option value="1996">1996년</option>
-                                    <option value="1995">1995년</option>
-                                    <option value="1994">1994년</option>
-                                    <option value="1993">1993년</option>
-                                    <option value="1992">1992년</option>
-                                    <option value="1991">1991년</option>
-                                    <option value="1990">1990년</option>
-                                    <option value="1989">1989년</option>
-                                    <option value="1988">1988년</option>
-                                    <option value="1987">1987년</option>
-                                    <option value="1986">1986년</option>
-                                    <option value="1985">1985년</option>
-                                    <option value="1984">1984년</option>
-                                    <option value="1983">1983년</option>
-                                    <option value="1982">1982년</option>
-                                    <option value="1981">1981년</option>
-                                    <option value="1980">1980년</option>
-                                    <option value="1979">1979년</option>
-                                    <option value="1978">1978년</option>
-                                    <option value="1977">1977년</option>
-                                    <option value="1976">1976년</option>
-                                    <option value="1975">1975년</option>
-                                    <option value="1974">1974년</option>
-                                    <option value="1973">1973년</option>
-                                    <option value="1972">1972년</option>
-                                    <option value="1971">1971년</option>
-                                    <option value="1970">1970년</option>
                                 </select>
                                 <select id="birthMonth" name="birthMonth" required>
                                     <option value="">월</option>
-                                    <option value="1">1월</option>
-                                    <option value="2">2월</option>
-                                    <option value="3">3월</option>
-                                    <option value="4">4월</option>
-                                    <option value="5">5월</option>
-                                    <option value="6">6월</option>
-                                    <option value="7">7월</option>
-                                    <option value="8">8월</option>
-                                    <option value="9">9월</option>
-                                    <option value="10">10월</option>
-                                    <option value="11">11월</option>
-                                    <option value="12">12월</option>
                                 </select>
                                 <select id="birthDay" name="birthDay" required>
                                     <option value="">일</option>
-                                    <option value="1">1일</option>
-                                    <option value="2">2일</option>
-                                    <option value="3">3일</option>
-                                    <option value="4">4일</option>
-                                    <option value="5">5일</option>
-                                    <option value="6">6일</option>
-                                    <option value="7">7일</option>
-                                    <option value="8">8일</option>
-                                    <option value="9">9일</option>
-                                    <option value="10">10일</option>
-                                    <option value="11">11일</option>
-                                    <option value="12">12일</option>
-                                    <option value="13">13일</option>
-                                    <option value="14">14일</option>
-                                    <option value="15">15일</option>
-                                    <option value="16">16일</option>
-                                    <option value="17">17일</option>
-                                    <option value="18">18일</option>
-                                    <option value="19">19일</option>
-                                    <option value="20">20일</option>
-                                    <option value="21">21일</option>
-                                    <option value="22">22일</option>
-                                    <option value="23">23일</option>
-                                    <option value="24">24일</option>
-                                    <option value="25">25일</option>
-                                    <option value="26">26일</option>
-                                    <option value="27">27일</option>
-                                    <option value="28">28일</option>
-                                    <option value="29">29일</option>
-                                    <option value="30">30일</option>
-                                    <option value="31">31일</option>
                                 </select>
                             </div>
                         </div>
@@ -199,147 +109,35 @@
         </main>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=3.0"></script>
     <script>
-        // 추가 안전장치 - 직접 폼 처리
+        // 간단한 안전장치만 유지 - API 자동 호출 방지
         document.addEventListener('DOMContentLoaded', function() {
-            // 브라우저 뒤로가기로 돌아온 경우 로딩 화면 숨기기
+            console.log('🔧 [SIMPLE] input.html 초기화 시작');
+            
+            // 로딩 화면 숨김 처리
             const loadingScreen = document.getElementById('loadingScreen');
             if (loadingScreen) {
                 loadingScreen.style.display = 'none';
+                console.log('✅ [SIMPLE] 로딩 화면 초기 숨김');
             }
             
-            // 뒤로가기로 온 경우 기존 데이터로 폼 복원
-            if (performance.navigation && performance.navigation.type === performance.navigation.TYPE_BACK_FORWARD) {
-                restoreFormDataInline();
+            // script.js 로딩 확인만 수행 (API 호출 안함)
+            if (typeof initializeInputPage === 'function') {
+                console.log('✅ [SIMPLE] script.js 정상 로딩됨');
+            } else {
+                console.log('⚠️ [SIMPLE] script.js 로딩 지연됨 - 재시도');
+                // 0.5초 후 재시도
+                setTimeout(() => {
+                    if (typeof initializeInputPage === 'function') {
+                        console.log('✅ [SIMPLE] script.js 지연 로딩 완료');
+                    } else {
+                        console.error('❌ [SIMPLE] script.js 로딩 실패');
+                    }
+                }, 500);
             }
             
-            const form = document.getElementById('sajuForm');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    // 기본 검증
-                    const name = document.getElementById('name').value;
-                    const birthYear = document.getElementById('birthYear').value;
-                    const birthMonth = document.getElementById('birthMonth').value;
-                    const birthDay = document.getElementById('birthDay').value;
-                    const birthTime = document.getElementById('birthTime').value;
-                    const gender = document.querySelector('input[name="gender"]:checked');
-                    
-                    if (!name || !birthYear || !birthMonth || !birthDay || !birthTime || !gender) {
-                        alert('모든 항목을 입력해주세요.');
-                        return;
-                    }
-                    
-                    // 데이터 저장
-                    const userData = {
-                        name: name,
-                        birthYear: birthYear,
-                        birthMonth: birthMonth,
-                        birthDay: birthDay,
-                        birthTime: birthTime,
-                        gender: gender.value
-                    };
-                    
-                    localStorage.setItem('sajuUserData', JSON.stringify(userData));
-                    
-                    // 데모 분석 결과 생성 및 저장
-                    const demoResult = {
-                        summary: `${name} 님은 ${birthTime}에 태어나신 ${gender.value}으로, 강한 학습 의지와 창의적 사고력을 가지고 계십니다. 특히 체계적인 학습 환경에서 뛰어난 성과를 보일 것으로 예상되어 영재고나 자율형사립고가 가장 적합합니다.`,
-                        recommendedSchools: [
-                            {
-                                rank: 1,
-                                type: '과학영재학교',
-                                reason: '사주에서 금(金)의 기운이 강하여 정밀하고 체계적인 사고를 선호하며, 과학과 수학 분야에서 뛰어난 재능을 발휘할 수 있습니다.'
-                            },
-                            {
-                                rank: 2,
-                                type: '자율형사립고',
-                                reason: '화(火)의 기운이 적절히 조화되어 있어 활발한 대인관계와 리더십을 발휘할 수 있으며, 자율형사립고의 다양한 프로그램을 통해 전인적 성장이 가능합니다.'
-                            },
-                            {
-                                rank: 3,
-                                type: '일반고(남녀공학)',
-                                reason: '균형 잡힌 성격으로 다양한 환경에 잘 적응하며, 일반고에서도 충분히 좋은 성과를 거둘 수 있습니다.'
-                            }
-                        ],
-                        notRecommendedSchools: [
-                            {
-                                rank: 1,
-                                type: '외국어고',
-                                reason: '현재 사주 구조상 언어 습득보다는 논리적 사고가 더 강한 편이며, 외국어고의 암기 위주 학습법이 본래 성향과 맞지 않을 수 있습니다.'
-                            },
-                            {
-                                rank: 2,
-                                type: '예술고',
-                                reason: '예술적 감각보다는 체계적이고 논리적인 사고가 강한 편이므로 예술고보다는 일반적인 학문 분야가 더 적합합니다.'
-                            }
-                        ],
-                        direction: {
-                            bestDirection: '북쪽',
-                            explanation: '북쪽 방향은 오행에서 학업운과 대인관계운을 상승시키는 길한 방위입니다.'
-                        },
-                        fortuneFlow: {
-                            grade1: {academic: 85, social: 70, health: 80},
-                            grade2: {academic: 90, social: 75, health: 85},
-                            grade3: {academic: 80, social: 85, health: 90}
-                        },
-                        personalTraits: {
-                            learningStyle: '체계적이고 논리적인 학습을 선호하며, 단계별 접근을 통해 깊이 있는 이해를 추구합니다.',
-                            socialTendency: '신중하면서도 따뜻한 성격으로 진실한 우정을 중시하며, 필요시 리더십을 발휘할 수 있습니다.',
-                            specialTalent: '분석적 사고와 창의적 문제해결 능력이 뛰어나며, 특히 과학과 수학 분야에서 재능이 돋보입니다.',
-                            cautions: '완벽주의 성향이 강해 스트레스를 받을 수 있으니, 적절한 휴식과 취미 활동을 통해 균형을 유지하는 것이 중요합니다.'
-                        }
-                    };
-                    
-                    localStorage.setItem('sajuAnalysisResult', JSON.stringify(demoResult));
-                    
-                    // 로딩 화면 표시
-                    if (loadingScreen) {
-                        loadingScreen.style.display = 'flex';
-                    }
-                    
-                    // 2초 후 결과 페이지로 이동
-                    setTimeout(function() {
-                        window.location.href = 'result.html';
-                    }, 2000);
-                });
-            }
-            
-            // 인라인 폼 데이터 복원 함수
-            function restoreFormDataInline() {
-                try {
-                    const savedData = localStorage.getItem('sajuUserData');
-                    if (savedData) {
-                        const userData = JSON.parse(savedData);
-                        
-                        // 폼 필드에 저장된 데이터 복원
-                        const nameField = document.getElementById('name');
-                        const yearField = document.getElementById('birthYear');
-                        const monthField = document.getElementById('birthMonth');
-                        const dayField = document.getElementById('birthDay');
-                        const timeField = document.getElementById('birthTime');
-                        const genderFields = document.querySelectorAll('input[name="gender"]');
-                        
-                        if (nameField && userData.name) nameField.value = userData.name;
-                        if (yearField && userData.birthYear) yearField.value = userData.birthYear;
-                        if (monthField && userData.birthMonth) monthField.value = userData.birthMonth;
-                        if (dayField && userData.birthDay) dayField.value = userData.birthDay;
-                        if (timeField && userData.birthTime) timeField.value = userData.birthTime;
-                        
-                        if (userData.gender) {
-                            genderFields.forEach(field => {
-                                if (field.value === userData.gender) {
-                                    field.checked = true;
-                                }
-                            });
-                        }
-                    }
-                } catch (e) {
-                    // 복원 실패시 무시
-                }
-            }
+            console.log('✅ [SIMPLE] 초기화 완료 - API 자동 호출 없음');
         });
     </script>
 </body>
