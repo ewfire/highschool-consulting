@@ -3,7 +3,7 @@ const GEMINI_API_KEY = 'AIzaSyBY1aPCt5gkJr7m8BCuTRUjtLl5PWHO4Dg'; // 실제 사�
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 // 버전 관리 및 데이터 클리어
-const SCRIPT_VERSION = '3.3';
+const SCRIPT_VERSION = '3.4';
 const STORAGE_VERSION_KEY = 'sajuApp_version';
 
 // Global variables
@@ -359,6 +359,7 @@ async function performSajuAnalysis(userData) {
 - 문과/이과: 사주 오행 분석을 바탕으로 한 학문적 성향 판단
 - 현실성: 대부분 학생은 일반고에 진학하므로 일반고 내에서의 최적 선택을 우선 고려
 - 학구열 vs 내신: 경쟁적 환경 선호도에 따라 "학구열 후끈" 또는 "내신받기 좋은" 구분
+- 성별 고려: 남성은 여고 배제, 여성은 남고 배제 (남녀공학은 모두 포함)
 
 **응답 형식 (반드시 JSON으로만 응답):**
 {
@@ -599,6 +600,33 @@ function generateDemoAnalysis(userData) {
         ]
     };
     
+    // 성별에 따른 학교 유형 필터링
+    const filterSchoolsByGender = (schoolArray, userGender) => {
+        return schoolArray.filter(school => {
+            if (userGender === '남성') {
+                // 남성의 경우 여고 배제
+                return !school.includes('(여고)');
+            } else if (userGender === '여성') {
+                // 여성의 경우 남고 배제
+                return !school.includes('(남고)');
+            }
+            return true; // 성별 정보가 없는 경우 모든 학교 포함
+        });
+    };
+    
+    // 성별에 맞는 학교 유형들로 필터링
+    const filteredSchoolTypes = {
+        competitive_regular: filterSchoolsByGender(realSchoolTypes.competitive_regular, userData.gender),
+        grade_friendly_regular: filterSchoolsByGender(realSchoolTypes.grade_friendly_regular, userData.gender),
+        autonomous: realSchoolTypes.autonomous, // 자율형사립고는 대부분 남녀공학
+        special: realSchoolTypes.special // 특목고도 대부분 남녀공학
+    };
+    
+    console.log('🔍 성별 필터링 결과:');
+    console.log('사용자 성별:', userData.gender);
+    console.log('필터링된 학구열 후끈 일반고:', filteredSchoolTypes.competitive_regular);
+    console.log('필터링된 내신받기 좋은 일반고:', filteredSchoolTypes.grade_friendly_regular);
+    
     const reasons = [
         '사주에서 수(水)의 기운이 강해 창의적이고 유연한 사고를 가지고 있습니다.',
         '목(木)의 기운이 왕성하여 성장 지향적이고 도전적인 성격입니다.',
@@ -619,20 +647,20 @@ function generateDemoAnalysis(userData) {
         // 40% 확률로 내신받기 좋은 일반고를 1순위로
         firstChoice = {
             rank: 1,
-            type: realSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * realSchoolTypes.grade_friendly_regular.length)],
+            type: filteredSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * filteredSchoolTypes.grade_friendly_regular.length)],
             reason: `${reasons[0]} 안정적인 내신 관리가 가능한 환경에서 꾸준히 성장하며 대학 진학을 준비할 수 있어 가장 적합합니다.`
         };
         
         if (Math.random() < 0.7) {
             secondChoice = {
                 rank: 2,
-                type: realSchoolTypes.competitive_regular[Math.floor(Math.random() * realSchoolTypes.competitive_regular.length)],
+                type: filteredSchoolTypes.competitive_regular[Math.floor(Math.random() * filteredSchoolTypes.competitive_regular.length)],
                 reason: `${reasons[1]} 학구열이 높은 환경에서 자극을 받으며 더 높은 목표를 향해 도전할 수 있을 것입니다.`
             };
         } else {
             secondChoice = {
                 rank: 2,
-                type: realSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * realSchoolTypes.grade_friendly_regular.length)],
+                type: filteredSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * filteredSchoolTypes.grade_friendly_regular.length)],
                 reason: `${reasons[1]} 비슷한 성향의 환경에서 안정적으로 학업에 집중할 수 있습니다.`
             };
         }
@@ -641,13 +669,13 @@ function generateDemoAnalysis(userData) {
         // 40% 확률로 학구열 후끈 일반고를 1순위로
         firstChoice = {
             rank: 1,
-            type: realSchoolTypes.competitive_regular[Math.floor(Math.random() * realSchoolTypes.competitive_regular.length)],
+            type: filteredSchoolTypes.competitive_regular[Math.floor(Math.random() * filteredSchoolTypes.competitive_regular.length)],
             reason: `${reasons[0]} 높은 학구열과 경쟁적 분위기에서 자신의 잠재력을 최대한 발휘할 수 있어 가장 적합합니다.`
         };
         
         secondChoice = {
             rank: 2,
-            type: realSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * realSchoolTypes.grade_friendly_regular.length)],
+            type: filteredSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * filteredSchoolTypes.grade_friendly_regular.length)],
             reason: `${reasons[1]} 보다 안정적인 환경에서 내신 관리를 하며 꾸준히 실력을 키워갈 수 있습니다.`
         };
         
@@ -655,13 +683,13 @@ function generateDemoAnalysis(userData) {
         // 20% 확률로 자율형사립고를 1순위로 (경제적 여건 고려)
         firstChoice = {
             rank: 1,
-            type: realSchoolTypes.autonomous[Math.floor(Math.random() * realSchoolTypes.autonomous.length)],
+            type: filteredSchoolTypes.autonomous[Math.floor(Math.random() * filteredSchoolTypes.autonomous.length)],
             reason: `${reasons[0]} 다양한 교육 프로그램과 우수한 교육 환경에서 전인적 성장이 가능하여 가장 적합합니다. (단, 경제적 여건을 고려해야 합니다)`
         };
         
         secondChoice = {
             rank: 2,
-            type: realSchoolTypes.competitive_regular[Math.floor(Math.random() * realSchoolTypes.competitive_regular.length)],
+            type: filteredSchoolTypes.competitive_regular[Math.floor(Math.random() * filteredSchoolTypes.competitive_regular.length)],
             reason: `${reasons[1]} 높은 학구열 속에서 우수한 동료들과 함께 성장할 수 있는 환경입니다.`
         };
     }
@@ -671,25 +699,25 @@ function generateDemoAnalysis(userData) {
     if (thirdChoiceRandom < 0.4) {
         thirdChoice = {
             rank: 3,
-            type: realSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * realSchoolTypes.grade_friendly_regular.length)],
+            type: filteredSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * filteredSchoolTypes.grade_friendly_regular.length)],
             reason: `${reasons[2]} 무난하고 안정적인 학교 생활을 통해 기본기를 탄탄히 다질 수 있습니다.`
         };
     } else if (thirdChoiceRandom < 0.7) {
         thirdChoice = {
             rank: 3,
-            type: realSchoolTypes.competitive_regular[Math.floor(Math.random() * realSchoolTypes.competitive_regular.length)],
+            type: filteredSchoolTypes.competitive_regular[Math.floor(Math.random() * filteredSchoolTypes.competitive_regular.length)],
             reason: `${reasons[2]} 학업 분위기가 좋은 환경에서 목표 의식을 가지고 공부할 수 있습니다.`
         };
     } else if (thirdChoiceRandom < 0.9) {
         thirdChoice = {
             rank: 3,
-            type: realSchoolTypes.autonomous[Math.floor(Math.random() * realSchoolTypes.autonomous.length)],
+            type: filteredSchoolTypes.autonomous[Math.floor(Math.random() * filteredSchoolTypes.autonomous.length)],
             reason: `${reasons[2]} 특별한 교육과정과 다양한 기회를 통해 개성을 살릴 수 있습니다.`
         };
     } else {
         thirdChoice = {
             rank: 3,
-            type: realSchoolTypes.special[Math.floor(Math.random() * realSchoolTypes.special.length)],
+            type: filteredSchoolTypes.special[Math.floor(Math.random() * filteredSchoolTypes.special.length)],
             reason: `${reasons[2]} 특정 분야의 심화 교육을 통해 전문성을 기를 수 있습니다. (단, 높은 경쟁률 고려 필요)`
         };
     }
@@ -700,7 +728,7 @@ function generateDemoAnalysis(userData) {
     const notRecommendedSchools = [
         {
             rank: 1,
-            type: realSchoolTypes.special[Math.floor(Math.random() * realSchoolTypes.special.length)],
+            type: filteredSchoolTypes.special[Math.floor(Math.random() * filteredSchoolTypes.special.length)],
             reason: '매우 특출한 재능과 높은 경쟁률이 요구되며, 특목고 입시 준비에 드는 시간과 노력 대비 일반고에서의 안정적 성장이 더 유리할 수 있습니다.'
         },
         {
