@@ -3,7 +3,7 @@ const GEMINI_API_KEY = 'AIzaSyBY1aPCt5gkJr7m8BCuTRUjtLl5PWHO4Dg'; // 실제 사�
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 // 버전 관리 및 데이터 클리어
-const SCRIPT_VERSION = '3.1';
+const SCRIPT_VERSION = '3.2';
 const STORAGE_VERSION_KEY = 'sajuApp_version';
 
 // Global variables
@@ -742,6 +742,104 @@ function generateDemoAnalysis(userData) {
     
     const academicTrack = generatePersonalizedAcademicTrack();
     
+    // 랜덤한 운세 수치
+    const generateRandomStats = () => ({
+        academic: Math.floor(Math.random() * 40) + 60, // 60-100
+        social: Math.floor(Math.random() * 40) + 60,   // 60-100
+        romance: Math.floor(Math.random() * 40) + 60    // 60-100
+    });
+    
+    // 개인화된 운세 흐름 생성 (생년월일 기반)
+    const generatePersonalizedFortune = () => {
+        const birthMonth = parseInt(userData.birthMonth);
+        const birthDay = parseInt(userData.birthDay);
+        const birthYear = parseInt(userData.birthYear);
+        const gender = userData.gender;
+        
+        // 생년월일을 시드로 사용하여 일관된 패턴 생성
+        const seed = birthYear * 10000 + birthMonth * 100 + birthDay;
+        
+        // 간단한 시드 기반 랜덤 함수
+        function seededRandom(seed, min, max) {
+            const x = Math.sin(seed) * 10000;
+            const random = x - Math.floor(x);
+            return Math.floor(random * (max - min + 1)) + min;
+        }
+        
+        // 각 학년별 기본 운세 계산
+        const grade1 = {
+            academic: seededRandom(seed + 1, 65, 95),
+            social: seededRandom(seed + 2, 60, 90), 
+            romance: seededRandom(seed + 3, 55, 85)
+        };
+        
+        const grade2 = {
+            academic: seededRandom(seed + 4, 70, 95),
+            social: seededRandom(seed + 5, 65, 95),
+            romance: seededRandom(seed + 6, 60, 90)
+        };
+        
+        const grade3 = {
+            academic: seededRandom(seed + 7, 60, 90), // 수능 스트레스로 약간 하락
+            social: seededRandom(seed + 8, 70, 95),
+            romance: seededRandom(seed + 9, 65, 95)
+        };
+        
+        // 출생월에 따른 운세 패턴 조정
+        if (birthMonth >= 3 && birthMonth <= 5) { // 봄
+            grade1.academic += 5;
+            grade2.social += 5;
+            grade3.romance += 5;
+        } else if (birthMonth >= 6 && birthMonth <= 8) { // 여름
+            grade1.social += 5;
+            grade2.romance += 5;
+            grade3.academic += 5;
+        } else if (birthMonth >= 9 && birthMonth <= 11) { // 가을
+            grade1.romance += 5;
+            grade2.academic += 5;
+            grade3.social += 5;
+        } else { // 겨울
+            grade1.social += 3;
+            grade2.academic += 3;
+            grade3.romance += 3;
+        }
+        
+        // 성별에 따른 미세 조정
+        if (gender === '여성') {
+            grade1.social += 2;
+            grade2.romance += 3;
+            grade3.academic += 2;
+        } else {
+            grade1.academic += 2;
+            grade2.social += 2;
+            grade3.romance += 3;
+        }
+        
+        // 최대값 제한 (100 초과 방지)
+        const limitMax = (value) => Math.min(100, value);
+        
+        return {
+            grade1: {
+                academic: limitMax(grade1.academic),
+                social: limitMax(grade1.social),
+                romance: limitMax(grade1.romance)
+            },
+            grade2: {
+                academic: limitMax(grade2.academic),
+                social: limitMax(grade2.social),
+                romance: limitMax(grade2.romance)
+            },
+            grade3: {
+                academic: limitMax(grade3.academic),
+                social: limitMax(grade3.social),
+                romance: limitMax(grade3.romance)
+            }
+        };
+    };
+    
+    const personalizedAcademicTrack = generatePersonalizedAcademicTrack();
+    const personalizedFortuneFlow = generatePersonalizedFortune();
+    
     const demoResult = {
         // 데모임을 명확히 표시
         isDemoData: true,
@@ -760,11 +858,7 @@ function generateDemoAnalysis(userData) {
             explanation: `${randomDirection} 방향은 현재 시점 ${new Date().toLocaleString()}에 생성된 랜덤 데이터입니다. 실제 사주 분석이 아닙니다.`
         },
         
-        fortuneFlow: {
-            grade1: {academic: 85, social: 70, romance: 80},
-            grade2: {academic: 90, social: 75, romance: 85},
-            grade3: {academic: 80, social: 85, romance: 90}
-        },
+        fortuneFlow: personalizedFortuneFlow,
         
         personalTraits: {
             learningStyle: '체계적이고 논리적인 학습을 선호하며, 단계별 접근을 통해 깊이 있는 이해를 추구합니다.',
@@ -773,7 +867,7 @@ function generateDemoAnalysis(userData) {
             cautions: '완벽주의 성향이 강해 스트레스를 받을 수 있으니, 적절한 휴식과 취미 활동을 통해 균형을 유지하는 것이 중요합니다.'
         },
         
-        academicTrack: academicTrack,
+        academicTrack: personalizedAcademicTrack,
         
         sajuElements: `데모 데이터: 오행 분석이 실행되지 않았습니다. 랜덤ID: ${randomId}`,
         studyTips: `데모 데이터: 실제 학습법 분석이 아닙니다. 타임스탬프: ${timestamp}`,
