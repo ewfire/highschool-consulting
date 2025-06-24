@@ -3,7 +3,7 @@ const GEMINI_API_KEY = 'AIzaSyBY1aPCt5gkJr7m8BCuTRUjtLl5PWHO4Dg'; // 실제 사�
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 // 버전 관리 및 데이터 클리어
-const SCRIPT_VERSION = '3.2';
+const SCRIPT_VERSION = '3.3';
 const STORAGE_VERSION_KEY = 'sajuApp_version';
 
 // Global variables
@@ -323,16 +323,27 @@ async function performSajuAnalysis(userData) {
 6. 학습 방향 및 진로 조언
 
 **⚠️ 현실적인 추천 가이드라인 (반드시 준수):**
-- 일반고(남녀공학/남고/여고): 80-85% 학생이 진학하는 주류 선택지
-- 자율형사립고: 8-10% 학생이 진학, 경제적 여건 고려 필요
-- 특목고(외고/국제고): 3-5% 학생만 진학 가능한 높은 경쟁률
-- 특성화고: 2-4% 학생이 진학하는 전문 교육 과정
-- 과학영재학교: 1% 미만의 최상위 학생만 진학 가능
+
+**고등학교 위계 구조:**
+- 학구열 후끈 일반고: 35-40% 비중, 입시 명문 일반고
+  • 학구열 후끈 일반고(남고)
+  • 학구열 후끈 일반고(여고)  
+  • 학구열 후끈 일반고(남녀공학)
+- 내신받기 좋은 일반고: 35-40% 비중, 평범한 일반고
+  • 내신받기 좋은 일반고(남고)
+  • 내신받기 좋은 일반고(여고)
+  • 내신받기 좋은 일반고(남녀공학)
+- 자율형사립고: 12-20% 비중, 경제적 여건 고려 필요
+- 특목고(과학고/외국어고): 3-7% 비중, 매우 높은 경쟁률
 
 **추천 우선순위:**
-1순위는 반드시 일반고 계열 중에서 선택 (남녀공학, 남고, 여고)
-2-3순위에서 특성에 맞는 다른 유형 고려 가능
-단, 과학영재학교나 특목고는 정말 특출난 재능이 확인될 때만 추천
+1순위는 반드시 일반고 계열 중에서 선택 (학구열 후끈 또는 내신받기 좋은)
+- 40% 확률로 "내신받기 좋은 일반고(남고/여고/남녀공학)" 우선 추천
+- 40% 확률로 "학구열 후끈 일반고(남고/여고/남녀공학)" 우선 추천  
+- 20% 확률로 자율형사립고 추천 (경제적 여건 언급 필수)
+
+2-3순위에서 다양한 유형 고려 가능하되 현실성 유지
+특목고는 정말 특출난 재능이 확인될 때만 3순위에서 제한적 추천
 
 **문과/이과 적합도 분석 가이드라인:**
 - 오행 중 목(木), 화(火)가 강하면 문과 성향 (언어, 예술, 사회과학)
@@ -347,6 +358,7 @@ async function performSajuAnalysis(userData) {
 - 이성운: 고등학교 시기 연애에 대한 관심도를 나타냄 (점수가 높을수록 연애에 관심이 많아 공부 집중도가 떨어질 수 있음)
 - 문과/이과: 사주 오행 분석을 바탕으로 한 학문적 성향 판단
 - 현실성: 대부분 학생은 일반고에 진학하므로 일반고 내에서의 최적 선택을 우선 고려
+- 학구열 vs 내신: 경쟁적 환경 선호도에 따라 "학구열 후끈" 또는 "내신받기 좋은" 구분
 
 **응답 형식 (반드시 JSON으로만 응답):**
 {
@@ -551,28 +563,39 @@ function generateDemoAnalysis(userData) {
     console.log('🎲 랜덤 ID:', randomId);
     console.log('⏰ 타임스탬프:', timestamp);
     
-    // 현실적인 학교 유형들 (비율 반영)
+    // 현실적인 학교 유형들 (새로운 위계 반영)
     const realSchoolTypes = {
-        // 일반고 (80-85% 비중)
-        regular: [
-            '일반고(남녀공학)', '일반고(남고)', '일반고(여고)', 
-            '인문계 일반고', '종합고등학교'
+        // 학구열 후끈 일반고 (35-40% 비중) - 입시 명문 일반고
+        competitive_regular: [
+            '학구열 후끈 일반고(남고)', 
+            '학구열 후끈 일반고(여고)', 
+            '학구열 후끈 일반고(남녀공학)',
+            '명문 일반고(남고)', 
+            '명문 일반고(여고)', 
+            '명문 일반고(남녀공학)',
+            '입시명문 일반고(남고)', 
+            '입시명문 일반고(여고)', 
+            '입시명문 일반고(남녀공학)'
         ],
-        // 자율형사립고 (8-10% 비중)
+        // 내신받기 좋은 일반고 (35-40% 비중) - 일반적인 평범한 일반고
+        grade_friendly_regular: [
+            '내신받기 좋은 일반고(남고)', 
+            '내신받기 좋은 일반고(여고)', 
+            '내신받기 좋은 일반고(남녀공학)',
+            '평범한 일반고(남고)', 
+            '평범한 일반고(여고)', 
+            '평범한 일반고(남녀공학)',
+            '안정적인 일반고(남고)', 
+            '안정적인 일반고(여고)', 
+            '안정적인 일반고(남녀공학)'
+        ],
+        // 자율형사립고 (12-20% 비중)
         autonomous: [
             '자율형사립고', '자율형공립고'
         ],
-        // 특목고 (3-5% 비중)
+        // 특목고 (3-7% 비중)
         special: [
-            '외국어고', '국제고', '과학고'
-        ],
-        // 특성화고 (2-4% 비중)
-        vocational: [
-            '상업정보고', '공업고', '농생명산업고', '예술고', '체육고'
-        ],
-        // 영재학교 (1% 미만)
-        gifted: [
-            '과학영재학교', '영재학교'
+            '과학고', '외국어고', '국제고'
         ]
     };
     
@@ -583,58 +606,112 @@ function generateDemoAnalysis(userData) {
         '토(土)의 안정성이 강해 차분하고 신중한 판단력을 가지고 있습니다.',
         '금(金)의 날카로움으로 분석적이고 정확한 사고를 선호합니다.',
         '음양의 조화가 뛰어나 균형 잡힌 사고와 행동을 보입니다.',
-        '천간과 지지의 배치가 특별하여 독특한 재능을 가지고 있습니다.'
+        '천간과 지지의 배치가 특별하여 독특한 재능을 가지고 있습니다.',
+        '사주 구조상 경쟁적 환경에서 실력을 발휘하는 타입입니다.',
+        '차분한 환경에서 꾸준히 실력을 쌓아가는 것이 적합합니다.'
     ];
     
-    // 현실적인 추천 (1순위는 반드시 일반고)
-    const recommendedSchools = [
-        {
+    // 현실적인 추천 (1순위는 반드시 일반고, 빈도 고려)
+    const schoolTypeSelection = Math.random();
+    let firstChoice, secondChoice, thirdChoice;
+    
+    if (schoolTypeSelection < 0.4) {
+        // 40% 확률로 내신받기 좋은 일반고를 1순위로
+        firstChoice = {
             rank: 1,
-            type: realSchoolTypes.regular[Math.floor(Math.random() * realSchoolTypes.regular.length)],
-            reason: `${reasons[0]} 일반고에서 다양한 친구들과 함께 성장하며 균형 잡힌 교육을 받을 수 있어 가장 적합합니다.`
-        },
-        {
-            rank: 2,
-            type: Math.random() < 0.7 ? 
-                realSchoolTypes.regular[Math.floor(Math.random() * realSchoolTypes.regular.length)] :
-                realSchoolTypes.autonomous[Math.floor(Math.random() * realSchoolTypes.autonomous.length)],
-            reason: `${reasons[1]} 안정적인 교육 환경에서 개인의 특성을 살려 성장할 수 있을 것입니다.`
-        },
-        {
-            rank: 3,
-            type: Math.random() < 0.5 ? 
-                realSchoolTypes.regular[Math.floor(Math.random() * realSchoolTypes.regular.length)] :
-                (Math.random() < 0.8 ? 
-                    realSchoolTypes.autonomous[Math.floor(Math.random() * realSchoolTypes.autonomous.length)] :
-                    realSchoolTypes.special[Math.floor(Math.random() * realSchoolTypes.special.length)]
-                ),
-            reason: `${reasons[2]} 이 교육 환경이 당신의 잠재력을 발현하는 데 도움이 될 것입니다.`
+            type: realSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * realSchoolTypes.grade_friendly_regular.length)],
+            reason: `${reasons[0]} 안정적인 내신 관리가 가능한 환경에서 꾸준히 성장하며 대학 진학을 준비할 수 있어 가장 적합합니다.`
+        };
+        
+        if (Math.random() < 0.7) {
+            secondChoice = {
+                rank: 2,
+                type: realSchoolTypes.competitive_regular[Math.floor(Math.random() * realSchoolTypes.competitive_regular.length)],
+                reason: `${reasons[1]} 학구열이 높은 환경에서 자극을 받으며 더 높은 목표를 향해 도전할 수 있을 것입니다.`
+            };
+        } else {
+            secondChoice = {
+                rank: 2,
+                type: realSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * realSchoolTypes.grade_friendly_regular.length)],
+                reason: `${reasons[1]} 비슷한 성향의 환경에서 안정적으로 학업에 집중할 수 있습니다.`
+            };
         }
-    ];
+        
+    } else if (schoolTypeSelection < 0.8) {
+        // 40% 확률로 학구열 후끈 일반고를 1순위로
+        firstChoice = {
+            rank: 1,
+            type: realSchoolTypes.competitive_regular[Math.floor(Math.random() * realSchoolTypes.competitive_regular.length)],
+            reason: `${reasons[0]} 높은 학구열과 경쟁적 분위기에서 자신의 잠재력을 최대한 발휘할 수 있어 가장 적합합니다.`
+        };
+        
+        secondChoice = {
+            rank: 2,
+            type: realSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * realSchoolTypes.grade_friendly_regular.length)],
+            reason: `${reasons[1]} 보다 안정적인 환경에서 내신 관리를 하며 꾸준히 실력을 키워갈 수 있습니다.`
+        };
+        
+    } else {
+        // 20% 확률로 자율형사립고를 1순위로 (경제적 여건 고려)
+        firstChoice = {
+            rank: 1,
+            type: realSchoolTypes.autonomous[Math.floor(Math.random() * realSchoolTypes.autonomous.length)],
+            reason: `${reasons[0]} 다양한 교육 프로그램과 우수한 교육 환경에서 전인적 성장이 가능하여 가장 적합합니다. (단, 경제적 여건을 고려해야 합니다)`
+        };
+        
+        secondChoice = {
+            rank: 2,
+            type: realSchoolTypes.competitive_regular[Math.floor(Math.random() * realSchoolTypes.competitive_regular.length)],
+            reason: `${reasons[1]} 높은 학구열 속에서 우수한 동료들과 함께 성장할 수 있는 환경입니다.`
+        };
+    }
+    
+    // 3순위는 다양하게
+    const thirdChoiceRandom = Math.random();
+    if (thirdChoiceRandom < 0.4) {
+        thirdChoice = {
+            rank: 3,
+            type: realSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * realSchoolTypes.grade_friendly_regular.length)],
+            reason: `${reasons[2]} 무난하고 안정적인 학교 생활을 통해 기본기를 탄탄히 다질 수 있습니다.`
+        };
+    } else if (thirdChoiceRandom < 0.7) {
+        thirdChoice = {
+            rank: 3,
+            type: realSchoolTypes.competitive_regular[Math.floor(Math.random() * realSchoolTypes.competitive_regular.length)],
+            reason: `${reasons[2]} 학업 분위기가 좋은 환경에서 목표 의식을 가지고 공부할 수 있습니다.`
+        };
+    } else if (thirdChoiceRandom < 0.9) {
+        thirdChoice = {
+            rank: 3,
+            type: realSchoolTypes.autonomous[Math.floor(Math.random() * realSchoolTypes.autonomous.length)],
+            reason: `${reasons[2]} 특별한 교육과정과 다양한 기회를 통해 개성을 살릴 수 있습니다.`
+        };
+    } else {
+        thirdChoice = {
+            rank: 3,
+            type: realSchoolTypes.special[Math.floor(Math.random() * realSchoolTypes.special.length)],
+            reason: `${reasons[2]} 특정 분야의 심화 교육을 통해 전문성을 기를 수 있습니다. (단, 높은 경쟁률 고려 필요)`
+        };
+    }
+    
+    const recommendedSchools = [firstChoice, secondChoice, thirdChoice];
     
     // 비추천 학교 (현실적으로 맞지 않는 유형)
     const notRecommendedSchools = [
         {
             rank: 1,
-            type: realSchoolTypes.gifted[Math.floor(Math.random() * realSchoolTypes.gifted.length)],
-            reason: '매우 특출한 과학적 재능이 필요하며, 극도로 높은 경쟁률로 인해 현실적으로 진학이 어려울 수 있습니다.'
+            type: realSchoolTypes.special[Math.floor(Math.random() * realSchoolTypes.special.length)],
+            reason: '매우 특출한 재능과 높은 경쟁률이 요구되며, 특목고 입시 준비에 드는 시간과 노력 대비 일반고에서의 안정적 성장이 더 유리할 수 있습니다.'
         },
         {
             rank: 2,
-            type: realSchoolTypes.vocational[Math.floor(Math.random() * realSchoolTypes.vocational.length)],
-            reason: '현재 사주 특성상 일반적인 학문 과정이 더 적합하며, 전문 기술 교육보다는 종합적 교육이 유리합니다.'
+            type: '예술고',
+            reason: '현재 사주 특성상 예술적 감각보다는 체계적이고 논리적인 학습이 더 적합하며, 일반적인 대학 진학 경로가 유리합니다.'
         }
     ];
     
     const directions = ['북쪽', '남쪽', '동쪽', '서쪽', '북동쪽', '남동쪽', '북서쪽', '남서쪽'];
     const randomDirection = directions[Math.floor(Math.random() * directions.length)];
-    
-    // 랜덤한 운세 수치
-    const generateRandomStats = () => ({
-        academic: Math.floor(Math.random() * 40) + 60, // 60-100
-        social: Math.floor(Math.random() * 40) + 60,   // 60-100
-        romance: Math.floor(Math.random() * 40) + 60    // 60-100
-    });
     
     // 개인화된 문과/이과 적합도 생성 (생년월일 기반)
     const generatePersonalizedAcademicTrack = () => {
@@ -740,103 +817,6 @@ function generateDemoAnalysis(userData) {
         };
     };
     
-    const academicTrack = generatePersonalizedAcademicTrack();
-    
-    // 랜덤한 운세 수치
-    const generateRandomStats = () => ({
-        academic: Math.floor(Math.random() * 40) + 60, // 60-100
-        social: Math.floor(Math.random() * 40) + 60,   // 60-100
-        romance: Math.floor(Math.random() * 40) + 60    // 60-100
-    });
-    
-    // 개인화된 운세 흐름 생성 (생년월일 기반)
-    const generatePersonalizedFortune = () => {
-        const birthMonth = parseInt(userData.birthMonth);
-        const birthDay = parseInt(userData.birthDay);
-        const birthYear = parseInt(userData.birthYear);
-        const gender = userData.gender;
-        
-        // 생년월일을 시드로 사용하여 일관된 패턴 생성
-        const seed = birthYear * 10000 + birthMonth * 100 + birthDay;
-        
-        // 간단한 시드 기반 랜덤 함수
-        function seededRandom(seed, min, max) {
-            const x = Math.sin(seed) * 10000;
-            const random = x - Math.floor(x);
-            return Math.floor(random * (max - min + 1)) + min;
-        }
-        
-        // 각 학년별 기본 운세 계산
-        const grade1 = {
-            academic: seededRandom(seed + 1, 65, 95),
-            social: seededRandom(seed + 2, 60, 90), 
-            romance: seededRandom(seed + 3, 55, 85)
-        };
-        
-        const grade2 = {
-            academic: seededRandom(seed + 4, 70, 95),
-            social: seededRandom(seed + 5, 65, 95),
-            romance: seededRandom(seed + 6, 60, 90)
-        };
-        
-        const grade3 = {
-            academic: seededRandom(seed + 7, 60, 90), // 수능 스트레스로 약간 하락
-            social: seededRandom(seed + 8, 70, 95),
-            romance: seededRandom(seed + 9, 65, 95)
-        };
-        
-        // 출생월에 따른 운세 패턴 조정
-        if (birthMonth >= 3 && birthMonth <= 5) { // 봄
-            grade1.academic += 5;
-            grade2.social += 5;
-            grade3.romance += 5;
-        } else if (birthMonth >= 6 && birthMonth <= 8) { // 여름
-            grade1.social += 5;
-            grade2.romance += 5;
-            grade3.academic += 5;
-        } else if (birthMonth >= 9 && birthMonth <= 11) { // 가을
-            grade1.romance += 5;
-            grade2.academic += 5;
-            grade3.social += 5;
-        } else { // 겨울
-            grade1.social += 3;
-            grade2.academic += 3;
-            grade3.romance += 3;
-        }
-        
-        // 성별에 따른 미세 조정
-        if (gender === '여성') {
-            grade1.social += 2;
-            grade2.romance += 3;
-            grade3.academic += 2;
-        } else {
-            grade1.academic += 2;
-            grade2.social += 2;
-            grade3.romance += 3;
-        }
-        
-        // 최대값 제한 (100 초과 방지)
-        const limitMax = (value) => Math.min(100, value);
-        
-        return {
-            grade1: {
-                academic: limitMax(grade1.academic),
-                social: limitMax(grade1.social),
-                romance: limitMax(grade1.romance)
-            },
-            grade2: {
-                academic: limitMax(grade2.academic),
-                social: limitMax(grade2.social),
-                romance: limitMax(grade2.romance)
-            },
-            grade3: {
-                academic: limitMax(grade3.academic),
-                social: limitMax(grade3.social),
-                romance: limitMax(grade3.romance)
-            }
-        };
-    };
-    
     const personalizedAcademicTrack = generatePersonalizedAcademicTrack();
     const personalizedFortuneFlow = generatePersonalizedFortune();
     
@@ -926,34 +906,34 @@ function initializeResultPage() {
         };
         
         analysisResult = {
-            summary: `${userData.name} 님은 ${userData.birthTime}에 태어나신 ${userData.gender}으로, 강한 학습 의지와 창의적 사고력을 가지고 계십니다. 특히 체계적인 학습 환경에서 뛰어난 성과를 보일 것으로 예상되어 영재고나 자율형사립고가 가장 적합합니다.`,
+            summary: `${userData.name} 님은 ${userData.birthTime}에 태어나신 ${userData.gender}으로, 차분하고 성실한 성격으로 꾸준한 학습을 통해 좋은 성과를 얻을 수 있을 것으로 예상됩니다. 안정적인 환경에서 내신 관리를 하며 대학 진학을 준비하는 것이 가장 적합합니다.`,
             recommendedSchools: [
                 {
                     rank: 1,
-                    type: '과학영재학교',
-                    reason: '사주에서 금(金)의 기운이 강하여 정밀하고 체계적인 사고를 선호하며, 과학과 수학 분야에서 뛰어난 재능을 발휘할 수 있습니다. 영재고의 심화 교육과정이 잠재력을 최대한 발현시킬 것입니다.'
+                    type: '내신받기 좋은 일반고(남녀공학)',
+                    reason: '사주에서 토(土)의 기운이 안정적이어서 차분하고 꾸준한 학습 환경을 선호합니다. 내신 관리가 용이한 일반고에서 체계적으로 대학 진학을 준비할 수 있어 가장 적합합니다.'
                 },
                 {
                     rank: 2,
-                    type: '자율형사립고',
-                    reason: '화(火)의 기운이 적절히 조화되어 있어 활발한 대인관계와 리더십을 발휘할 수 있으며, 자율형사립고의 다양한 프로그램을 통해 전인적 성장이 가능합니다. 3학년에 대인관계운이 상승하여 진로 설계와 대학 진학에 도움이 될 것입니다.'
+                    type: '학구열 후끈 일반고(남녀공학)',
+                    reason: '목(木)의 성장 에너지가 있어 적절한 자극과 경쟁 환경에서도 좋은 성과를 낼 수 있습니다. 학구열이 높은 환경에서 더 높은 목표를 향해 도전할 수 있을 것입니다.'
                 },
                 {
                     rank: 3,
-                    type: '일반고(남녀공학)',
-                    reason: '균형 잡힌 성격으로 다양한 환경에 잘 적응하며, 일반고에서도 충분히 좋은 성과를 거둘 수 있습니다. 특히 다양한 배경의 친구들과 어울리며 사회성을 기를 수 있어 향후 대학 생활과 사회 진출에 도움이 될 것입니다.'
+                    type: '자율형사립고',
+                    reason: '화(火)의 기운이 조화되어 있어 다양한 교육 프로그램과 활동에 적극적으로 참여할 수 있습니다. 다만 경제적 여건을 충분히 고려해야 합니다.'
                 }
             ],
             notRecommendedSchools: [
                 {
                     rank: 1,
-                    type: '외국어고',
-                    reason: '현재 사주 구조상 언어 습득보다는 논리적 사고가 더 강한 편이며, 외국어고의 암기 위주 학습법이 본래 성향과 맞지 않을 수 있습니다.'
+                    type: '과학고',
+                    reason: '특목고 입시 준비에 필요한 극도의 집중력과 특출한 과학적 재능이 요구되며, 높은 경쟁률 대비 일반고에서의 안정적 성장이 더 유리할 수 있습니다.'
                 },
                 {
                     rank: 2,
                     type: '예술고',
-                    reason: '예술적 감각보다는 체계적이고 논리적인 사고가 강한 편이므로 예술고보다는 일반적인 학문 분야가 더 적합합니다.'
+                    reason: '현재 사주 특성상 예술적 감각보다는 체계적이고 논리적인 학습이 더 적합하며, 일반적인 대학 진학 경로가 유리합니다.'
                 }
             ],
             direction: {
@@ -975,7 +955,11 @@ function initializeResultPage() {
                 liberalArts: 75,
                 science: 85,
                 recommendation: '이과',
-                reasoning: '문과/이과 추천 이유'
+                reasoning: '사주 분석 결과, 이과 계열이 더 적합합니다. 특히 금(金)의 기운이 강해 정밀하고 체계적인 사고를 선호하며, 수학과 과학 분야에서 뛰어난 성과를 보일 것으로 예상됩니다.',
+                liberalStrengths: ['언어 이해력', '문학 감상', '역사적 사고'],
+                scienceStrengths: ['논리적 사고', '수리 능력', '과학적 탐구'],
+                liberalSubjects: ['국어', '사회', '윤리'],
+                scienceSubjects: ['수학', '물리', '화학']
             }
         };
         
