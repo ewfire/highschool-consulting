@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini API 할당량 초과 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .log {
+            background: #000;
+            color: #00ff00;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #cce7ff; color: #004085; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .error-response {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 Gemini API 할당량 초과 응답 테스트</h1>
+        
+        <div class="warning">
+            <strong>⚠️ 주의사항:</strong><br>
+            이 테스트는 실제 API 할당량을 사용할 수 있습니다. 
+            할당량 초과 에러를 확인하기 위해 여러 번의 API 호출을 시도합니다.
+        </div>
+        
+        <button onclick="testQuotaExhaustion()">할당량 초과 테스트 시작</button>
+        <button onclick="testSingleCall()">단일 API 호출 테스트</button>
+        <button onclick="simulateQuotaError()">할당량 에러 시뮬레이션</button>
+        <button onclick="clearLog()">로그 지우기</button>
+        
+        <div id="status"></div>
+        <div id="log" class="log"></div>
+        
+        <h3>📋 예상되는 할당량 초과 응답 형태</h3>
+        <div class="error-response">
+HTTP Status: 429 (Too Many Requests)
+또는
+HTTP Status: 403 (Forbidden)
+
+응답 본문 예시:
+{
+  "error": {
+    "code": 429,
+    "message": "Quota exceeded for quota metric 'Generate requests' and limit 'Generate requests per minute per project' of service 'generativelanguage.googleapis.com' for consumer 'project_number:PROJECT_NUMBER'.",
+    "status": "RESOURCE_EXHAUSTED"
+  }
+}
+
+또는
+
+{
+  "error": {
+    "code": 403,
+    "message": "The request cannot be completed because you have exceeded your quota.",
+    "status": "QUOTA_EXCEEDED"
+  }
+}</div>
+    </div>
+
+    <script>
+        const GEMINI_API_KEY = 'AIzaSyBY1aPCt5gkJr7m8BCuTRUjtLl5PWHO4Dg';
+        const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+        
+        let callCount = 0;
+        let quotaErrorDetected = false;
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const typeIcon = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '📝';
+            logDiv.innerHTML += `[${timestamp}] ${typeIcon} ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+        
+        function setStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = message;
+            statusDiv.className = `status ${type}`;
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            document.getElementById('status').innerHTML = '';
+            callCount = 0;
+            quotaErrorDetected = false;
+        }
+        
+        async function makeAPICall(callIndex) {
+            const requestBody = {
+                contents: [{
+                    parts: [{
+                        text: `테스트 호출 #${callIndex} - 현재 시간: ${new Date().toISOString()}`
+                    }]
+                }],
+                generationConfig: {
+                    temperature: 0.1,
+                    maxOutputTokens: 50
+                }
+            };
+            
+            log(`🔄 API 호출 #${callIndex} 시작...`);
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+                
+                log(`📊 호출 #${callIndex} - 상태: ${response.status}, 시간: ${responseTime}ms`);
+                
+                // 응답 헤더 확인
+                const headers = {};
+                for (let [key, value] of response.headers.entries()) {
+                    headers[key] = value;
+                }
+                log(`📋 응답 헤더: ${JSON.stringify(headers, null, 2)}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ 호출 #${callIndex} 성공`, 'success');
+                    return { success: true, data, responseTime };
+                } else {
+                    // 에러 응답 상세 분석
+                    const errorText = await response.text();
+                    log(`❌ 호출 #${callIndex} 실패 - 상태: ${response.status}`, 'error');
+                    log(`🔍 에러 응답 원본: ${errorText}`, 'error');
+                    
+                    // JSON 파싱 시도
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        log(`📋 파싱된 에러 데이터: ${JSON.stringify(errorData, null, 2)}`, 'error');
+                        
+                        // 할당량 관련 에러 체크
+                        if (response.status === 429 || response.status === 403) {
+                            if (errorData.error && (
+                                errorData.error.message.includes('quota') || 
+                                errorData.error.message.includes('Quota') ||
+                                errorData.error.message.includes('limit') ||
+                                errorData.error.status === 'RESOURCE_EXHAUSTED' ||
+                                errorData.error.status === 'QUOTA_EXCEEDED'
+                            )) {
+                                log(`🚨 할당량 초과 에러 감지! 🚨`, 'error');
+                                quotaErrorDetected = true;
+                                return { 
+                                    success: false, 
+                                    isQuotaError: true, 
+                                    status: response.status,
+                                    errorData,
+                                    responseTime 
+                                };
+                            }
+                        }
+                        
+                        return { 
+                            success: false, 
+                            isQuotaError: false, 
+                            status: response.status,
+                            errorData,
+                            responseTime 
+                        };
+                    } catch (parseError) {
+                        log(`❌ 에러 응답 파싱 실패: ${parseError.message}`, 'error');
+                        return { 
+                            success: false, 
+                            isQuotaError: false, 
+                            status: response.status,
+                            errorText,
+                            responseTime 
+                        };
+                    }
+                }
+            } catch (networkError) {
+                log(`❌ 네트워크 에러 호출 #${callIndex}: ${networkError.message}`, 'error');
+                return { success: false, networkError: networkError.message };
+            }
+        }
+        
+        async function testQuotaExhaustion() {
+            log('=== 🚨 할당량 초과 테스트 시작 🚨 ===');
+            setStatus('할당량 초과 테스트 진행 중...', 'info');
+            
+            quotaErrorDetected = false;
+            callCount = 0;
+            const maxCalls = 20; // 최대 20번 호출
+            const delayBetweenCalls = 1000; // 1초 간격
+            
+            log(`📊 테스트 계획: 최대 ${maxCalls}번 호출, ${delayBetweenCalls}ms 간격`);
+            log(`⚠️ 할당량 에러가 발생하면 테스트를 중단합니다`);
+            
+            for (let i = 1; i <= maxCalls && !quotaErrorDetected; i++) {
+                callCount = i;
+                const result = await makeAPICall(i);
+                
+                if (result.isQuotaError) {
+                    log(`🎯 할당량 초과 에러 발견! ${i}번째 호출에서 발생`, 'error');
+                    log(`📊 에러 상태 코드: ${result.status}`, 'error');
+                    log(`📋 에러 상세 정보: ${JSON.stringify(result.errorData, null, 2)}`, 'error');
+                    setStatus(`할당량 초과 에러 발견! (${i}번째 호출)`, 'error');
+                    break;
+                } else if (!result.success && result.status === 429) {
+                    log(`⚠️ 429 에러 발생 - 요청 한도 초과 가능성`, 'warning');
+                } else if (!result.success && result.status === 403) {
+                    log(`⚠️ 403 에러 발생 - 권한 또는 할당량 문제 가능성`, 'warning');
+                }
+                
+                // 다음 호출까지 대기
+                if (i < maxCalls && !quotaErrorDetected) {
+                    log(`⏱️ ${delayBetweenCalls}ms 대기 중...`);
+                    await new Promise(resolve => setTimeout(resolve, delayBetweenCalls));
+                }
+            }
+            
+            if (!quotaErrorDetected) {
+                log(`✅ ${maxCalls}번 호출 완료 - 할당량 초과 에러 없음`, 'success');
+                setStatus(`${maxCalls}번 호출 완료 - 할당량 여유분 있음`, 'success');
+            }
+            
+            log(`📊 총 호출 횟수: ${callCount}`);
+        }
+        
+        async function testSingleCall() {
+            log('=== 단일 API 호출 테스트 ===');
+            setStatus('단일 호출 테스트 중...', 'info');
+            
+            const result = await makeAPICall(1);
+            
+            if (result.success) {
+                log('✅ 단일 호출 성공', 'success');
+                setStatus('API 정상 작동', 'success');
+            } else {
+                log('❌ 단일 호출 실패', 'error');
+                setStatus('API 호출 실패', 'error');
+            }
+        }
+        
+        function simulateQuotaError() {
+            log('=== 할당량 에러 시뮬레이션 ===');
+            
+            // 가능한 할당량 에러 응답들
+            const quotaErrors = [
+                {
+                    status: 429,
+                    error: {
+                        code: 429,
+                        message: "Quota exceeded for quota metric 'Generate requests' and limit 'Generate requests per minute per project' of service 'generativelanguage.googleapis.com' for consumer 'project_number:123456789'.",
+                        status: "RESOURCE_EXHAUSTED"
+                    }
+                },
+                {
+                    status: 403,
+                    error: {
+                        code: 403,
+                        message: "The request cannot be completed because you have exceeded your quota.",
+                        status: "QUOTA_EXCEEDED"
+                    }
+                },
+                {
+                    status: 429,
+                    error: {
+                        code: 429,
+                        message: "Too many requests. Quota exceeded.",
+                        status: "RESOURCE_EXHAUSTED",
+                        details: [
+                            {
+                                "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+                                "reason": "RATE_LIMIT_EXCEEDED",
+                                "domain": "googleapis.com",
+                                "metadata": {
+                                    "quota_metric": "generate_requests",
+                                    "quota_limit": "requests_per_minute_per_project"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ];
+            
+            quotaErrors.forEach((errorExample, index) => {
+                log(`📋 할당량 에러 예시 #${index + 1}:`);
+                log(`상태 코드: ${errorExample.status}`);
+                log(`응답 본문: ${JSON.stringify(errorExample, null, 2)}`);
+                log('---');
+            });
+            
+            log('📝 할당량 에러의 주요 특징:');
+            log('- HTTP 상태 코드: 429 (Too Many Requests) 또는 403 (Forbidden)');
+            log('- error.status: "RESOURCE_EXHAUSTED" 또는 "QUOTA_EXCEEDED"');
+            log('- error.message: "quota", "limit", "exceeded" 등의 키워드 포함');
+            log('- 일시적 에러로, 시간이 지나면 다시 사용 가능');
+            
+            setStatus('할당량 에러 시뮬레이션 완료', 'info');
+        }
+        
+        // 페이지 로드 시 정보 표시
+        window.addEventListener('load', function() {
+            log('🚀 Gemini API 할당량 테스트 페이지 로드 완료');
+            log('💡 Gemini 1.5 Flash 무료 할당량 정보:');
+            log('- 하루: 1,500 요청');
+            log('- 분당: 15 요청');
+            log('- 현재 시간: ' + new Date().toLocaleString());
+        });
+    </script>
+</body>
+</html> 

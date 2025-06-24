@@ -3,7 +3,7 @@ const GEMINI_API_KEY = 'AIzaSyBY1aPCt5gkJr7m8BCuTRUjtLl5PWHO4Dg'; // 실제 사�
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 // 버전 관리 및 데이터 클리어
-const SCRIPT_VERSION = '3.0';
+const SCRIPT_VERSION = '3.1';
 const STORAGE_VERSION_KEY = 'sajuApp_version';
 
 // Global variables
@@ -334,6 +334,15 @@ async function performSajuAnalysis(userData) {
 2-3순위에서 특성에 맞는 다른 유형 고려 가능
 단, 과학영재학교나 특목고는 정말 특출난 재능이 확인될 때만 추천
 
+**문과/이과 적합도 분석 가이드라인:**
+- 오행 중 목(木), 화(火)가 강하면 문과 성향 (언어, 예술, 사회과학)
+- 오행 중 금(金), 수(水)가 강하면 이과 성향 (수학, 과학, 공학)
+- 토(土)가 강하면 균형잡힌 성향
+- 출생월에 따른 계절 특성 반영 (봄-목, 여름-화, 가을-금, 겨울-수)
+- 출생시간에 따른 성격 특성 반영
+- 점수는 30-95% 범위에서 개인별 맞춤 설정
+- 두 영역 차이는 최소 5점 이상 두어 명확한 구분 제공
+
 **중요 참고사항:**
 - 이성운: 고등학교 시기 연애에 대한 관심도를 나타냄 (점수가 높을수록 연애에 관심이 많아 공부 집중도가 떨어질 수 있음)
 - 문과/이과: 사주 오행 분석을 바탕으로 한 학문적 성향 판단
@@ -377,7 +386,11 @@ async function performSajuAnalysis(userData) {
     "liberalArts": 75,
     "science": 85,
     "recommendation": "이과",
-    "reasoning": "문과/이과 추천 이유"
+    "reasoning": "문과/이과 추천 이유 (오행 분석 근거 포함)",
+    "liberalStrengths": ["구체적 문과 강점영역1", "구체적 문과 강점영역2", "구체적 문과 강점영역3"],
+    "scienceStrengths": ["구체적 이과 강점영역1", "구체적 이과 강점영역2", "구체적 이과 강점영역3"],
+    "liberalSubjects": ["추천 문과 과목1", "추천 문과 과목2", "추천 문과 과목3"],
+    "scienceSubjects": ["추천 이과 과목1", "추천 이과 과목2", "추천 이과 과목3"]
   },
   "studyTips": "구체적인 공부 방법 조언",
   "careerDirection": "진로 방향 조언"}`;
@@ -623,6 +636,112 @@ function generateDemoAnalysis(userData) {
         romance: Math.floor(Math.random() * 40) + 60    // 60-100
     });
     
+    // 개인화된 문과/이과 적합도 생성 (생년월일 기반)
+    const generatePersonalizedAcademicTrack = () => {
+        const birthMonth = parseInt(userData.birthMonth);
+        const birthDay = parseInt(userData.birthDay);
+        const birthYear = parseInt(userData.birthYear);
+        const gender = userData.gender;
+        
+        // 출생월에 따른 계절별 기본 성향
+        let baseLiberal = 50;
+        let baseScience = 50;
+        
+        // 봄(3-5월): 목의 기운 - 문과 성향
+        if (birthMonth >= 3 && birthMonth <= 5) {
+            baseLiberal += 15;
+            baseScience -= 5;
+        }
+        // 여름(6-8월): 화의 기운 - 문과 성향 
+        else if (birthMonth >= 6 && birthMonth <= 8) {
+            baseLiberal += 10;
+            baseScience -= 3;
+        }
+        // 가을(9-11월): 금의 기운 - 이과 성향
+        else if (birthMonth >= 9 && birthMonth <= 11) {
+            baseScience += 15;
+            baseLiberal -= 5;
+        }
+        // 겨울(12-2월): 수의 기운 - 이과 성향
+        else {
+            baseScience += 12;
+            baseLiberal -= 3;
+        }
+        
+        // 출생일에 따른 추가 조정
+        const dayMod = (birthDay % 10);
+        if (dayMod <= 3) {
+            baseLiberal += Math.floor(Math.random() * 10) + 5;
+        } else if (dayMod >= 7) {
+            baseScience += Math.floor(Math.random() * 10) + 5;
+        }
+        
+        // 출생년에 따른 미세 조정
+        const yearMod = birthYear % 12;
+        if (yearMod % 3 === 0) {
+            baseLiberal += Math.floor(Math.random() * 8) + 2;
+        } else if (yearMod % 3 === 1) {
+            baseScience += Math.floor(Math.random() * 8) + 2;
+        }
+        
+        // 성별에 따른 미세 조정 (통계적 경향 반영)
+        if (gender === '여성') {
+            baseLiberal += Math.floor(Math.random() * 6) + 2;
+        } else {
+            baseScience += Math.floor(Math.random() * 6) + 2;
+        }
+        
+        // 최종 점수 계산 (30-95% 범위, 최소 5점 차이)
+        let liberalScore = Math.max(30, Math.min(95, baseLiberal + Math.floor(Math.random() * 20) - 10));
+        let scienceScore = Math.max(30, Math.min(95, baseScience + Math.floor(Math.random() * 20) - 10));
+        
+        // 최소 5점 차이 보장
+        if (Math.abs(liberalScore - scienceScore) < 5) {
+            if (liberalScore > scienceScore) {
+                liberalScore = Math.min(95, liberalScore + 5);
+                scienceScore = Math.max(30, liberalScore - 8);
+            } else {
+                scienceScore = Math.min(95, scienceScore + 5);
+                liberalScore = Math.max(30, scienceScore - 8);
+            }
+        }
+        
+        // 강점 분야와 추천 과목 (점수에 따라 결정)
+        const liberalStrengths = liberalScore > scienceScore ? 
+            ["창의적 글쓰기", "언어 감각", "인문학적 사고", "소통 능력", "문화 이해력"] :
+            ["기초 언어 능력", "암기 학습", "문학 감상"];
+            
+        const scienceStrengths = scienceScore > liberalScore ?
+            ["논리적 사고", "수리 능력", "과학적 탐구", "분석 능력", "체계적 학습"] :
+            ["기초 수학", "과학 실험", "컴퓨터 활용"];
+            
+        const liberalSubjects = liberalScore > scienceScore ?
+            ["문학", "역사", "사회문화", "윤리와 사상", "제2외국어"] :
+            ["국어", "사회", "도덕"];
+            
+        const scienceSubjects = scienceScore > liberalScore ?
+            ["수학", "물리", "화학", "생명과학", "지구과학"] :
+            ["수학I", "통합과학", "정보"];
+        
+        const recommendation = liberalScore > scienceScore ? "문과" : "이과";
+        const reasoning = liberalScore > scienceScore ? 
+            `출생월(${birthMonth}월)과 생년월일 분석 결과, 언어적 감수성과 인문학적 사고력이 뛰어납니다. 문과 과목에서 ${liberalScore}%의 높은 적합도를 보여 문과 진학을 추천합니다.` :
+            `출생월(${birthMonth}월)과 생년월일 분석 결과, 논리적 사고력과 수리 능력이 우수합니다. 이과 과목에서 ${scienceScore}%의 높은 적합도를 보여 이과 진학을 추천합니다.`;
+        
+        return {
+            liberalArts: liberalScore,
+            science: scienceScore,
+            recommendation: recommendation,
+            reasoning: reasoning,
+            liberalStrengths: liberalStrengths.slice(0, 3),
+            scienceStrengths: scienceStrengths.slice(0, 3),
+            liberalSubjects: liberalSubjects.slice(0, 3),
+            scienceSubjects: scienceSubjects.slice(0, 3)
+        };
+    };
+    
+    const academicTrack = generatePersonalizedAcademicTrack();
+    
     const demoResult = {
         // 데모임을 명확히 표시
         isDemoData: true,
@@ -654,12 +773,7 @@ function generateDemoAnalysis(userData) {
             cautions: '완벽주의 성향이 강해 스트레스를 받을 수 있으니, 적절한 휴식과 취미 활동을 통해 균형을 유지하는 것이 중요합니다.'
         },
         
-        academicTrack: {
-            liberalArts: 75,
-            science: 85,
-            recommendation: '이과',
-            reasoning: '문과/이과 추천 이유'
-        },
+        academicTrack: academicTrack,
         
         sajuElements: `데모 데이터: 오행 분석이 실행되지 않았습니다. 랜덤ID: ${randomId}`,
         studyTips: `데모 데이터: 실제 학습법 분석이 아닙니다. 타임스탬프: ${timestamp}`,
@@ -1146,6 +1260,64 @@ function displayAcademicTrack(trackData) {
     if (scienceScore) {
         scienceScore.textContent = `${trackData.science}%`;
         console.log('✅ 이과 적합도 설정:', trackData.science);
+    }
+    
+    // 문과 강점분야 업데이트
+    if (trackData.liberalStrengths) {
+        const liberalStrengthsList = document.querySelector('.track-card.liberal-arts .track-strengths ul');
+        if (liberalStrengthsList) {
+            liberalStrengthsList.innerHTML = '';
+            trackData.liberalStrengths.forEach(strength => {
+                const li = document.createElement('li');
+                li.textContent = strength;
+                liberalStrengthsList.appendChild(li);
+            });
+            console.log('✅ 문과 강점분야 설정:', trackData.liberalStrengths);
+        }
+    }
+    
+    // 이과 강점분야 업데이트
+    if (trackData.scienceStrengths) {
+        const scienceStrengthsList = document.querySelector('.track-card.science .track-strengths ul');
+        if (scienceStrengthsList) {
+            scienceStrengthsList.innerHTML = '';
+            trackData.scienceStrengths.forEach(strength => {
+                const li = document.createElement('li');
+                li.textContent = strength;
+                scienceStrengthsList.appendChild(li);
+            });
+            console.log('✅ 이과 강점분야 설정:', trackData.scienceStrengths);
+        }
+    }
+    
+    // 문과 추천과목 업데이트
+    if (trackData.liberalSubjects) {
+        const liberalSubjectsContainer = document.querySelector('.track-card.liberal-arts .subject-tags');
+        if (liberalSubjectsContainer) {
+            liberalSubjectsContainer.innerHTML = '';
+            trackData.liberalSubjects.forEach(subject => {
+                const span = document.createElement('span');
+                span.className = 'subject-tag';
+                span.textContent = subject;
+                liberalSubjectsContainer.appendChild(span);
+            });
+            console.log('✅ 문과 추천과목 설정:', trackData.liberalSubjects);
+        }
+    }
+    
+    // 이과 추천과목 업데이트
+    if (trackData.scienceSubjects) {
+        const scienceSubjectsContainer = document.querySelector('.track-card.science .subject-tags');
+        if (scienceSubjectsContainer) {
+            scienceSubjectsContainer.innerHTML = '';
+            trackData.scienceSubjects.forEach(subject => {
+                const span = document.createElement('span');
+                span.className = 'subject-tag';
+                span.textContent = subject;
+                scienceSubjectsContainer.appendChild(span);
+            });
+            console.log('✅ 이과 추천과목 설정:', trackData.scienceSubjects);
+        }
     }
     
     // 최종 추천 업데이트

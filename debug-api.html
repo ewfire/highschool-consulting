@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 호출 디버깅</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .log {
+            background: #000;
+            color: #00ff00;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            height: 500px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #cce7ff; color: #004085; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 API 호출 디버깅</h1>
+        
+        <button onclick="testSimpleAPI()">간단한 API 테스트</button>
+        <button onclick="testFullSajuAPI()">전체 사주 API 테스트</button>
+        <button onclick="clearLog()">로그 지우기</button>
+        
+        <div id="status"></div>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        const GEMINI_API_KEY = 'AIzaSyBY1aPCt5gkJr7m8BCuTRUjtLl5PWHO4Dg';
+        const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const typeIcon = type === 'error' ? '❌' : type === 'success' ? '✅' : '📝';
+            logDiv.innerHTML += `[${timestamp}] ${typeIcon} ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+        
+        function setStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = message;
+            statusDiv.className = `status ${type}`;
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            document.getElementById('status').innerHTML = '';
+        }
+        
+        async function testSimpleAPI() {
+            log('=== 간단한 API 테스트 시작 ===');
+            setStatus('API 테스트 진행 중...', 'info');
+            
+            const requestBody = {
+                contents: [{
+                    parts: [{
+                        text: '안녕하세요! 간단한 응답을 해주세요.'
+                    }]
+                }],
+                generationConfig: {
+                    temperature: 0.7,
+                    maxOutputTokens: 100
+                }
+            };
+            
+            try {
+                log('📤 요청 준비...');
+                log(`URL: ${GEMINI_API_URL}?key=${GEMINI_API_KEY.slice(-4)}`);
+                log(`요청 본문: ${JSON.stringify(requestBody, null, 2)}`);
+                
+                const startTime = Date.now();
+                log('🌐 Fetch 요청 시작...');
+                
+                const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const endTime = Date.now();
+                log(`📥 응답 받음 - 상태: ${response.status}, 시간: ${endTime - startTime}ms`);
+                
+                // 응답 헤더 확인
+                const headers = {};
+                for (let [key, value] of response.headers.entries()) {
+                    headers[key] = value;
+                }
+                log(`📋 응답 헤더: ${JSON.stringify(headers, null, 2)}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ API 호출 성공!', 'success');
+                    log(`📊 응답 데이터: ${JSON.stringify(data, null, 2)}`);
+                    setStatus('API 호출 성공!', 'success');
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ API 호출 실패 - 상태: ${response.status}`, 'error');
+                    log(`❌ 에러 응답: ${errorText}`, 'error');
+                    setStatus(`API 호출 실패 - ${response.status}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ 네트워크 에러: ${error.message}`, 'error');
+                log(`❌ 에러 스택: ${error.stack}`, 'error');
+                setStatus('네트워크 에러', 'error');
+            }
+        }
+        
+        async function testFullSajuAPI() {
+            log('=== 전체 사주 API 테스트 시작 ===');
+            setStatus('사주 API 테스트 진행 중...', 'info');
+            
+            const requestId = Math.random().toString(36).substr(2, 16);
+            const selectedPrompt = 'detailed';
+            
+            const basePrompt = `사주팔자 분석 전문가로서 다음 정보를 바탕으로 고등학교 추천 분석을 수행해주세요.
+
+**분석 대상 정보:**
+- 이름: 김철수
+- 생년월일: 2008년 3월 15일
+- 출생시간: 오시
+- 성별: 남성
+- 요청 ID: ${requestId}
+
+**분석 요구사항:**
+1. 사주오행 분석을 통한 성격 및 재능 파악
+2. 고등학교 3년간의 운세 흐름 예측
+3. 최적의 고등학교 유형 3개 추천 (구체적인 이유 포함)
+4. 피해야 할 고등학교 유형 2개 (이유 포함)
+5. 학습 방향 및 진로 조언
+
+**응답 형식 (반드시 JSON으로만 응답):**
+{
+  "requestId": "${requestId}",
+  "promptVariation": "${selectedPrompt}",
+  "sajuElements": "오행 분석 내용",
+  "personality": "성격 분석",
+  "learningStyle": "학습 스타일",
+  "socialTendency": "사회적 성향",
+  "recommendedSchools": [
+    {"rank": 1, "type": "학교유형1", "reason": "추천 이유"},
+    {"rank": 2, "type": "학교유형2", "reason": "추천 이유"},
+    {"rank": 3, "type": "학교유형3", "reason": "추천 이유"}
+  ],
+  "notRecommendedSchools": [
+    {"rank": 1, "type": "학교유형1", "reason": "비추천 이유"},
+    {"rank": 2, "type": "학교유형2", "reason": "비추천 이유"}
+  ],
+  "summary": "종합적인 분석 요약",
+  "direction": {
+    "bestDirection": "방향",
+    "title": "방향 제목",
+    "explanation": "방향 설명"
+  },
+  "fortuneFlow": {
+    "grade1": {"academic": 85, "social": 78, "health": 92},
+    "grade2": {"academic": 88, "social": 82, "health": 85},
+    "grade3": {"academic": 90, "social": 85, "health": 88}
+  },
+  "personalTraits": {
+    "learningStyle": "학습 스타일 상세",
+    "socialTendency": "사회적 성향 상세",
+    "specialTalent": "특별한 재능",
+    "cautions": "주의사항"
+  },
+  "studyTips": "구체적인 공부 방법 조언",
+  "careerDirection": "진로 방향 조언"
+}`;
+            
+            const requestBody = {
+                contents: [{
+                    parts: [{
+                        text: basePrompt
+                    }]
+                }],
+                generationConfig: {
+                    temperature: 0.7,
+                    topK: 40,
+                    topP: 0.95,
+                    maxOutputTokens: 4096,
+                    stopSequences: [],
+                    candidateCount: 1
+                },
+                safetySettings: [
+                    {
+                        category: "HARM_CATEGORY_HARASSMENT",
+                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                    },
+                    {
+                        category: "HARM_CATEGORY_HATE_SPEECH", 
+                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                    },
+                    {
+                        category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                    },
+                    {
+                        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                    }
+                ]
+            };
+            
+            try {
+                log('📤 사주 분석 요청 준비...');
+                log(`프롬프트 길이: ${basePrompt.length} 문자`);
+                log(`요청 본문 크기: ${JSON.stringify(requestBody).length} bytes`);
+                
+                const startTime = Date.now();
+                log('🌐 Fetch 요청 시작...');
+                
+                const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'User-Agent': 'HighSchool-Recommender/1.0'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const endTime = Date.now();
+                log(`📥 응답 받음 - 상태: ${response.status}, 시간: ${endTime - startTime}ms`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ API 호출 성공!', 'success');
+                    log(`📊 전체 응답: ${JSON.stringify(data, null, 2)}`);
+                    
+                    if (data.candidates && data.candidates.length > 0) {
+                        const generatedText = data.candidates[0].content.parts[0].text;
+                        log(`📝 생성된 텍스트: ${generatedText}`);
+                        
+                        // JSON 파싱 시도
+                        try {
+                            let cleanedText = generatedText
+                                .replace(/```json\s*/g, '')
+                                .replace(/```\s*/g, '')
+                                .replace(/^\s*[\`\'\"]*/g, '')
+                                .replace(/[\`\'\\"]*\s*$/g, '')
+                                .trim();
+                            
+                            const analysisResult = JSON.parse(cleanedText);
+                            log('✅ JSON 파싱 성공!', 'success');
+                            log(`📊 파싱된 결과: ${JSON.stringify(analysisResult, null, 2)}`);
+                            setStatus('사주 API 테스트 성공!', 'success');
+                        } catch (parseError) {
+                            log(`❌ JSON 파싱 실패: ${parseError.message}`, 'error');
+                            setStatus('JSON 파싱 실패', 'error');
+                        }
+                    }
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ API 호출 실패 - 상태: ${response.status}`, 'error');
+                    log(`❌ 에러 응답: ${errorText}`, 'error');
+                    
+                    // 에러 데이터 파싱 시도
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        log(`📋 파싱된 에러 데이터: ${JSON.stringify(errorData, null, 2)}`, 'error');
+                        
+                        // 할당량 초과 확인
+                        if ((response.status === 429 || response.status === 403) && 
+                            errorData.error && (
+                                errorData.error.message.includes('quota') || 
+                                errorData.error.message.includes('Quota') ||
+                                errorData.error.message.includes('limit') ||
+                                errorData.error.status === 'RESOURCE_EXHAUSTED' ||
+                                errorData.error.status === 'QUOTA_EXCEEDED'
+                            )) {
+                            log('🚨 할당량 초과 에러 감지!', 'error');
+                            setStatus('할당량 초과!', 'error');
+                        } else {
+                            setStatus(`API 에러 - ${response.status}`, 'error');
+                        }
+                    } catch (parseError) {
+                        setStatus(`API 호출 실패 - ${response.status}`, 'error');
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ 네트워크 에러: ${error.message}`, 'error');
+                log(`❌ 에러 스택: ${error.stack}`, 'error');
+                setStatus('네트워크 에러', 'error');
+            }
+        }
+        
+        // 페이지 로드 시 환경 정보 표시
+        window.addEventListener('load', function() {
+            log('🚀 API 디버깅 페이지 로드 완료');
+            log(`🌐 현재 URL: ${window.location.href}`);
+            log(`🔒 보안 컨텍스트: ${window.isSecureContext ? '안전' : '비안전'}`);
+            log(`📡 네트워크 상태: ${navigator.onLine ? '온라인' : '오프라인'}`);
+            log(`🔑 API 키 끝자리: ${GEMINI_API_KEY.slice(-4)}`);
+            log('준비 완료 - 테스트 버튼을 클릭해보세요!');
+        });
+    </script>
+</body>
+</html> 
