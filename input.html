@@ -122,15 +122,17 @@
                 console.log('✅ [SIMPLE] 로딩 화면 초기 숨김');
             }
             
-            // script.js 로딩 확인만 수행 (API 호출 안함)
+            // script.js 로딩 확인 및 초기화 함수 호출
             if (typeof initializeInputPage === 'function') {
-                console.log('✅ [SIMPLE] script.js 정상 로딩됨');
+                console.log('✅ [SIMPLE] script.js 정상 로딩됨 - initializeInputPage 호출');
+                initializeInputPage();
             } else {
                 console.log('⚠️ [SIMPLE] script.js 로딩 지연됨 - 재시도');
                 // 0.5초 후 재시도
                 setTimeout(() => {
                     if (typeof initializeInputPage === 'function') {
-                        console.log('✅ [SIMPLE] script.js 지연 로딩 완료');
+                        console.log('✅ [SIMPLE] script.js 지연 로딩 완료 - initializeInputPage 호출');
+                        initializeInputPage();
                     } else {
                         console.error('❌ [SIMPLE] script.js 로딩 실패');
                     }
