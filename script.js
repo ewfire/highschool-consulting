@@ -3,7 +3,7 @@ const GEMINI_API_KEY = 'AIzaSyBY1aPCt5gkJr7m8BCuTRUjtLl5PWHO4Dg'; // 실제 사�
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 // 버전 관리 및 데이터 클리어
-const SCRIPT_VERSION = '3.7';
+const SCRIPT_VERSION = '3.8';
 const STORAGE_VERSION_KEY = 'sajuApp_version';
 
 // Global variables
@@ -29,15 +29,31 @@ function goToInput() {
 // Initialize page based on current location
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== DOMContentLoaded 이벤트 발생 ===');
+    console.log('🌐 현재 환경 정보:');
+    console.log('- hostname:', window.location.hostname);
+    console.log('- pathname:', window.location.pathname);
+    console.log('- href:', window.location.href);
+    console.log('- userAgent:', navigator.userAgent);
+    
     const currentPage = window.location.pathname.split('/').pop();
     console.log('현재 페이지:', currentPage);
     
     if (currentPage === 'input.html' || currentPage === '') {
         console.log('📄 입력 페이지 감지 - initializeInputPage 호출');
-        initializeInputPage();
+        try {
+            initializeInputPage();
+            console.log('✅ initializeInputPage 호출 완료');
+        } catch (error) {
+            console.error('❌ initializeInputPage 호출 중 오류:', error);
+        }
     } else if (currentPage === 'result.html') {
         console.log('📊 결과 페이지 감지 - initializeResultPage 호출');
-        initializeResultPage();
+        try {
+            initializeResultPage();
+            console.log('✅ initializeResultPage 호출 완료');
+        } catch (error) {
+            console.error('❌ initializeResultPage 호출 중 오류:', error);
+        }
     } else {
         console.log('⚠️ 알 수 없는 페이지:', currentPage);
     }
@@ -142,57 +158,106 @@ function setupFormSubmission() {
     cleanForm.addEventListener('submit', async function(e) {
         console.log('=== 🚀 SCRIPT.JS 폼 제출 이벤트 발생 ===');
         console.log('⏰ 제출 시간:', new Date().toISOString());
+        console.log('🌐 환경 정보:');
+        console.log('- hostname:', window.location.hostname);
+        console.log('- isLocalhost:', window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+        
         e.preventDefault();
         
-        const formData = new FormData(cleanForm);
-        const userData = {
-            name: formData.get('name'),
-            birthYear: formData.get('birthYear'),
-            birthMonth: formData.get('birthMonth'),
-            birthDay: formData.get('birthDay'),
-            birthTime: formData.get('birthTime'),
-            gender: formData.get('gender')
-        };
-
-        console.log('📝 폼에서 수집된 사용자 데이터:', userData);
-
-        // 폼 검증
-        console.log('🔍 폼 검증 시작');
-        if (!validateForm(userData)) {
-            console.log('❌ 폼 검증 실패 - 제출 중단');
-            return;
-        }
-        console.log('✅ 폼 검증 통과');
-
-        // 폼 검증 통과 후 바로 API 호출 진행
-        console.log('✅ 폼 검증 완료 - API 호출 시작');
-
-        // 사용자 데이터 저장
-        currentUserData = userData;
-        localStorage.setItem('sajuUserData', JSON.stringify(userData));
-        console.log('💾 사용자 데이터 localStorage에 저장 완료');
-
-        // 로딩 화면 표시
-        console.log('⏳ 로딩 화면 표시');
-        showLoadingScreen();
-
         try {
-            console.log('🤖 🌟 실제 AI 분석 시작 - Google Gemini API 호출 🌟');
+            console.log('📝 폼 데이터 수집 시작');
+            const formData = new FormData(cleanForm);
+            const userData = {
+                name: formData.get('name'),
+                birthYear: formData.get('birthYear'),
+                birthMonth: formData.get('birthMonth'),
+                birthDay: formData.get('birthDay'),
+                birthTime: formData.get('birthTime'),
+                gender: formData.get('gender')
+            };
+
+            console.log('📝 폼에서 수집된 사용자 데이터:', userData);
+
+            // 폼 검증
+            console.log('🔍 폼 검증 시작');
+            if (!validateForm(userData)) {
+                console.log('❌ 폼 검증 실패 - 제출 중단');
+                return;
+            }
+            console.log('✅ 폼 검증 통과');
+
+            // 폼 검증 통과 후 바로 API 호출 진행
+            console.log('✅ 폼 검증 완료 - 분석 시작');
+
+            // 사용자 데이터 저장
+            console.log('💾 사용자 데이터 localStorage 저장 시도');
+            currentUserData = userData;
+            try {
+                localStorage.setItem('sajuUserData', JSON.stringify(userData));
+                console.log('✅ 사용자 데이터 localStorage에 저장 완료');
+            } catch (storageError) {
+                console.error('❌ localStorage 저장 실패:', storageError);
+            }
+
+            // 로딩 화면 표시
+            console.log('⏳ 로딩 화면 표시 시도');
+            try {
+                showLoadingScreen();
+                console.log('✅ 로딩 화면 표시 완료');
+            } catch (loadingError) {
+                console.error('❌ 로딩 화면 표시 실패:', loadingError);
+            }
+
+            console.log('🤖 분석 처리 시작');
             
             // 실제 서버에서는 바로 데모 데이터 생성 후 이동
             if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-                console.log('🌐 실제 서버 환경 - 데모 데이터 생성 후 바로 이동');
+                console.log('🌐 실제 서버 환경 감지 - 데모 데이터 경로');
                 
                 // 짧은 로딩 시간 후 이동 (UX 개선)
                 setTimeout(() => {
-                    const analysisResult = generateDemoAnalysis(userData);
-                    localStorage.setItem('sajuAnalysisResult', JSON.stringify(analysisResult));
-                    console.log('💾 데모 분석 결과 저장 완료');
-                    
-                    // 로딩 화면 숨기고 이동
-                    hideLoadingScreen();
-                    console.log('🚀 결과 페이지로 즉시 이동');
-                    window.location.href = './result.html';
+                    console.log('🎭 데모 분석 데이터 생성 시작');
+                    try {
+                        const analysisResult = generateDemoAnalysis(userData);
+                        console.log('✅ 데모 분석 데이터 생성 완료');
+                        console.log('📊 생성된 데이터 타입:', typeof analysisResult);
+                        console.log('📊 생성된 데이터 키:', Object.keys(analysisResult));
+                        
+                        try {
+                            localStorage.setItem('sajuAnalysisResult', JSON.stringify(analysisResult));
+                            console.log('💾 데모 분석 결과 저장 완료');
+                        } catch (storageError) {
+                            console.error('❌ 분석 결과 저장 실패:', storageError);
+                        }
+                        
+                        // 로딩 화면 숨기고 이동
+                        console.log('⏹️ 로딩 화면 숨김 시도');
+                        try {
+                            hideLoadingScreen();
+                            console.log('✅ 로딩 화면 숨김 완료');
+                        } catch (hideError) {
+                            console.error('❌ 로딩 화면 숨김 실패:', hideError);
+                        }
+                        
+                        console.log('🚀 결과 페이지로 이동 시도');
+                        console.log('🔗 이동할 URL: ./result.html');
+                        try {
+                            window.location.href = './result.html';
+                            console.log('✅ 페이지 이동 명령 실행됨');
+                        } catch (redirectError) {
+                            console.error('❌ 페이지 이동 실패:', redirectError);
+                            // 대안 이동 방법 시도
+                            try {
+                                window.location.replace('./result.html');
+                                console.log('✅ 대안 페이지 이동 실행됨');
+                            } catch (replaceError) {
+                                console.error('❌ 대안 페이지 이동도 실패:', replaceError);
+                            }
+                        }
+                    } catch (demoError) {
+                        console.error('❌ 데모 데이터 생성 중 오류:', demoError);
+                        console.error('❌ 데모 데이터 오류 스택:', demoError.stack);
+                    }
                 }, 1000); // 1초 로딩 시간
                 return;
             }
@@ -215,20 +280,31 @@ function setupFormSubmission() {
             }, 2000);
             
         } catch (error) {
-            console.error(`❌ 네트워크 에러: ${error.message}`);
-            console.error(`❌ 에러 스택: ${error.stack}`);
-            console.log('API 호출 중 오류가 발생하여 데모 데이터로 테스트합니다.');
-            console.log(`오류: ${error.message}`);
+            console.error('❌ 폼 제출 처리 중 전체 오류:', error);
+            console.error('❌ 오류 스택:', error.stack);
+            console.error('❌ 오류 이름:', error.name);
+            console.error('❌ 오류 메시지:', error.message);
             
-            // 에러 발생 시에도 데모 데이터로 진행
-            const fallbackResult = generateDemoAnalysis(userData);
-            localStorage.setItem('sajuAnalysisResult', JSON.stringify(fallbackResult));
-            console.log('💾 폴백 데이터 저장 완료');
+            console.log('🔄 에러 복구 시도 시작');
             
-            // 로딩 화면 숨기고 바로 결과 페이지로 이동
-            hideLoadingScreen();
-            console.log('🚀 에러 발생으로 결과 페이지로 즉시 이동');
-            window.location.href = './result.html';
+            try {
+                // 에러 발생 시에도 데모 데이터로 진행
+                console.log('🎭 에러 복구: 데모 데이터 생성 시도');
+                const fallbackResult = generateDemoAnalysis(userData);
+                console.log('✅ 에러 복구: 데모 데이터 생성 완료');
+                
+                localStorage.setItem('sajuAnalysisResult', JSON.stringify(fallbackResult));
+                console.log('💾 에러 복구: 폴백 데이터 저장 완료');
+                
+                // 로딩 화면 숨기고 바로 결과 페이지로 이동
+                hideLoadingScreen();
+                console.log('🚀 에러 복구: 결과 페이지로 즉시 이동');
+                window.location.href = './result.html';
+            } catch (recoveryError) {
+                console.error('❌ 에러 복구도 실패:', recoveryError);
+                hideLoadingScreen();
+                alert('분석 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+            }
         }
     });
     
@@ -598,125 +674,114 @@ async function performSajuAnalysis(userData) {
 
 // Generate demo analysis for testing
 function generateDemoAnalysis(userData) {
-    console.log('=== 데모 분석 데이터 생성 시작 ===', userData);
+    console.log('=== 데모 분석 데이터 생성 시작 ===');
+    console.log('🌐 생성 환경 정보:');
+    console.log('- hostname:', window.location.hostname);
+    console.log('- 현재 시간:', new Date().toISOString());
+    console.log('👤 입력 사용자 데이터:', userData);
     
-    // 매번 다른 결과를 위한 강화된 랜덤 시드
-    const randomSeed = Date.now() + Math.random() * 1000000;
-    Math.seedrandom = function(seed) {
-        let m = 0x80000000;
-        let a = 1103515245;
-        let c = 12345;
-        let state = seed ? seed : Math.floor(Math.random() * (m - 1));
-        return function() {
-            state = (a * state + c) % m;
-            return state / (m - 1);
+    try {
+        // 매번 다른 결과를 위한 강화된 랜덤 시드
+        const randomSeed = Date.now() + Math.random() * 1000000;
+        console.log('🎲 랜덤 시드 생성:', randomSeed);
+        
+        const randomId = `demo_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+        console.log('🆔 분석 ID 생성:', randomId);
+        
+        console.log('🎭 데모 분석 데이터 생성 시작');
+        console.log('⚠️ 이것은 데모 데이터입니다! API 호출이 실패했습니다! 🚨');
+        
+        const timestamp = Date.now();
+        console.log('⏰ 생성 타임스탬프:', timestamp);
+        
+        // 오행 기반 성격 분석
+        console.log('🔍 사용자 데이터 분석 시작');
+        if (!userData || !userData.birthMonth) {
+            console.error('❌ 사용자 데이터가 유효하지 않음:', userData);
+            throw new Error('유효하지 않은 사용자 데이터');
+        }
+        
+        const birthMonth = parseInt(userData.birthMonth);
+        console.log('📅 출생월:', birthMonth);
+        
+        const seasonElement = birthMonth <= 2 || birthMonth === 12 ? '수(水)' : 
+                             birthMonth <= 5 ? '목(木)' : 
+                             birthMonth <= 8 ? '화(火)' : 
+                             birthMonth <= 11 ? '금(金)' : '토(土)';
+        console.log('🌟 계절 오행:', seasonElement);
+        
+        // 학교 유형 생성
+        console.log('🏫 학교 유형 생성 시작');
+        const schoolTypes = {
+            competitive: ['교육열 일반고'],
+            gradeGood: ['내신따기 좋은 일반고'],
+            autonomous: ['자율형 사립고'],
+            special: ['영재고', '외국어고']
         };
-    };
-    const customRandom = Math.seedrandom(randomSeed);
-    
-    console.log('🎲 랜덤 시드 생성:', randomSeed);
-    
-    const randomId = `demo_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
-    
-    console.log('입력 사용자 데이터:', userData);
-    
-    console.log('🎭 데모 분석 데이터 생성 시작');
-    console.log('⚠️ 이것은 데모 데이터입니다! API 호출이 실패했습니다! 🚨');
-    
-    const timestamp = Date.now();
-    
-    // 오행 기반 성격 분석
-    const birthMonth = parseInt(userData.birthMonth);
-    const seasonElement = birthMonth <= 2 || birthMonth === 12 ? '수(水)' : 
-                         birthMonth <= 5 ? '목(木)' : 
-                         birthMonth <= 8 ? '화(火)' : 
-                         birthMonth <= 11 ? '금(金)' : '토(土)';
-    
-    // 성별에 맞는 학교 유형 생성
-    const getGenderAppropriateSchools = (types, gender) => {
-        return types.filter(type => {
-            if (gender === '남성') return !type.includes('여고');
-            if (gender === '여성') return !type.includes('남고');
-            return true;
+        
+        // 랜덤 선택으로 1, 2순위 결정
+        const rank1Random = Math.random();
+        let rank1Type, rank2Type;
+        
+        if (rank1Random < 0.5) {
+            rank1Type = schoolTypes.competitive[0];
+            rank2Type = schoolTypes.gradeGood[0];
+        } else {
+            rank1Type = schoolTypes.gradeGood[0];
+            rank2Type = schoolTypes.competitive[0];
+        }
+        
+        console.log('🎯 학교 유형 선택 결과:', {
+            gender: userData.gender,
+            rank1Type,
+            rank2Type
         });
-    };
-    
-    const schoolTypes = {
-        competitive: ['교육열 일반고'],
-        gradeGood: ['내신따기 좋은 일반고'],
-        autonomous: ['자율형 사립고'],
-        special: ['영재고', '외국어고']
-    };
-    
-    const filteredTypes = {
-        competitive: getGenderAppropriateSchools(schoolTypes.competitive, userData.gender),
-        gradeGood: getGenderAppropriateSchools(schoolTypes.gradeGood, userData.gender),
-        autonomous: schoolTypes.autonomous,
-        special: schoolTypes.special
-    };
-    
-    // 랜덤 선택으로 1, 2순위 결정
-    const rank1Random = Math.random();
-    let rank1Type, rank2Type;
-    
-    if (rank1Random < 0.5) {
-        rank1Type = filteredTypes.competitive[Math.floor(Math.random() * filteredTypes.competitive.length)];
-        rank2Type = filteredTypes.gradeGood[Math.floor(Math.random() * filteredTypes.gradeGood.length)];
-    } else {
-        rank1Type = filteredTypes.gradeGood[Math.floor(Math.random() * filteredTypes.gradeGood.length)];
-        rank2Type = filteredTypes.competitive[Math.floor(Math.random() * filteredTypes.competitive.length)];
-    }
-    
-    console.log('🎯 성별 필터링 결과:', {
-        gender: userData.gender,
-        rank1Type,
-        rank2Type,
-        filteredCompetitive: filteredTypes.competitive,
-        filteredGradeGood: filteredTypes.gradeGood
-    });
-    
-    // 남고/여고/공학 추천 (더 다양한 패턴)
-    const genderSchoolOptions = {
-        male: ['남녀공학', '남고', '남녀공학'], // 70% 확률로 남녀공학
-        female: ['남녀공학', '여고', '남녀공학'], // 70% 확률로 남녀공학
-        other: ['남녀공학']
-    };
-    
-    const genderOptions = genderSchoolOptions[userData.gender === '남성' ? 'male' : userData.gender === '여성' ? 'female' : 'other'] || ['남녀공학'];
-    const genderRecommendation = genderOptions[Math.floor(Math.random() * genderOptions.length)];
-    
-    // 적합도 점수도 랜덤하게 (75-95% 범위)
-    const suitabilityScore = 75 + Math.floor(Math.random() * 21);
-    
-    console.log('👥 성별 구성 추천 생성:', {
-        gender: userData.gender,
-        recommendation: genderRecommendation,
-        suitabilityScore: suitabilityScore
-    });
-    
-    // 문과/이과 점수 (오행 기반 + 랜덤성 추가)
-    const isScience = seasonElement === '금(金)' || seasonElement === '수(水)';
-    const baseScience = isScience ? 70 : 50;
-    const baseLliberal = isScience ? 50 : 70;
-    
-    // 더 다양한 점수 범위 (30-95)
-    const scienceScore = Math.min(95, Math.max(30, baseScience + Math.floor(Math.random() * 30) - 10));
-    const liberalScore = Math.min(95, Math.max(30, baseLliberal + Math.floor(Math.random() * 30) - 10));
-    
-    console.log('📊 문과/이과 점수 생성:', {
-        seasonElement,
-        isScience,
-        scienceScore,
-        liberalScore
-    });
-    
-    // 방향 결정
-    const directions = ['북', '북동', '동', '남동', '남', '남서', '서', '북서'];
-    const directionAngles = { '북': 0, '북동': 45, '동': 90, '남동': 135, '남': 180, '남서': 225, '서': 270, '북서': 315 };
-    const selectedDirection = directions[Math.floor(Math.random() * directions.length)];
-    
-    // 3년간 운세 생성 (더 다양한 패턴)
-    const generateFortuneData = () => {
+        
+        // 남고/여고/공학 추천 (더 다양한 패턴)
+        console.log('👥 성별 구성 추천 생성 시작');
+        const genderSchoolOptions = {
+            male: ['남녀공학', '남고', '남녀공학'], // 70% 확률로 남녀공학
+            female: ['남녀공학', '여고', '남녀공학'], // 70% 확률로 남녀공학
+            other: ['남녀공학']
+        };
+        
+        const genderOptions = genderSchoolOptions[userData.gender === '남성' ? 'male' : userData.gender === '여성' ? 'female' : 'other'] || ['남녀공학'];
+        const genderRecommendation = genderOptions[Math.floor(Math.random() * genderOptions.length)];
+        
+        // 적합도 점수도 랜덤하게 (75-95% 범위)
+        const suitabilityScore = 75 + Math.floor(Math.random() * 21);
+        
+        console.log('👥 성별 구성 추천 생성:', {
+            gender: userData.gender,
+            recommendation: genderRecommendation,
+            suitabilityScore: suitabilityScore
+        });
+        
+        // 문과/이과 점수 (오행 기반 + 랜덤성 추가)
+        console.log('📚 문과/이과 점수 생성 시작');
+        const isScience = seasonElement === '금(金)' || seasonElement === '수(水)';
+        const baseScience = isScience ? 70 : 50;
+        const baseLliberal = isScience ? 50 : 70;
+        
+        // 더 다양한 점수 범위 (30-95)
+        const scienceScore = Math.min(95, Math.max(30, baseScience + Math.floor(Math.random() * 30) - 10));
+        const liberalScore = Math.min(95, Math.max(30, baseLliberal + Math.floor(Math.random() * 30) - 10));
+        
+        console.log('📊 문과/이과 점수 생성:', {
+            seasonElement,
+            isScience,
+            scienceScore,
+            liberalScore
+        });
+        
+        // 방향 결정
+        console.log('🧭 방향 결정 시작');
+        const directions = ['북', '북동', '동', '남동', '남', '남서', '서', '북서'];
+        const selectedDirection = directions[Math.floor(Math.random() * directions.length)];
+        console.log('🧭 선택된 방향:', selectedDirection);
+        
+        // 3년간 운세 생성 (더 다양한 패턴)
+        console.log('🔮 3년간 운세 생성 시작');
         const patterns = [
             // 패턴 1: 점진적 상승
             { base: [65, 80, 92], variance: 10 },
@@ -729,6 +794,7 @@ function generateDemoAnalysis(userData) {
         ];
         
         const selectedPattern = patterns[Math.floor(Math.random() * patterns.length)];
+        console.log('📈 선택된 운세 패턴:', selectedPattern);
         
         const examScores = selectedPattern.base.map(base => 
             Math.min(98, Math.max(50, base + Math.floor(Math.random() * selectedPattern.variance * 2) - selectedPattern.variance))
@@ -737,6 +803,9 @@ function generateDemoAnalysis(userData) {
         const romanceScores = examScores.map(score => 
             Math.min(95, Math.max(40, 100 - score + Math.floor(Math.random() * 20) - 10))
         );
+        
+        console.log('📊 생성된 시험운 점수:', examScores);
+        console.log('💕 생성된 이성운 점수:', romanceScores);
         
         // 다양한 설명 패턴
         const examDescriptions = [
@@ -773,7 +842,9 @@ function generateDemoAnalysis(userData) {
         const descIndex = Math.floor(Math.random() * examDescriptions.length);
         const romanceIndex = Math.floor(Math.random() * romanceDescriptions.length);
         
-        return {
+        console.log('📝 선택된 설명 패턴:', { descIndex, romanceIndex });
+        
+        const fortuneData = {
             grade1: {
                 year: "2024년",
                 phase: "적응기",
@@ -799,12 +870,11 @@ function generateDemoAnalysis(userData) {
                 romanceDescription: romanceDescriptions[romanceIndex][2]
             }
         };
-    };
-    
-    const fortuneData = generateFortuneData();
-    
-    // 성별 구성 추천 이유 생성 함수
-    const generateGenderSchoolReasons = (element, recommendation, gender) => {
+        
+        console.log('🔮 운세 데이터 생성 완료');
+        
+        // 성별 구성 추천 이유 생성
+        console.log('💭 성별 구성 추천 이유 생성 시작');
         const elementTraits = {
             '목(木)': { trait: '성장 지향적', social: '협력적', learning: '탐구적' },
             '화(火)': { trait: '열정적', social: '활발한 소통', learning: '표현 중심' },
@@ -813,159 +883,163 @@ function generateDemoAnalysis(userData) {
             '수(水)': { trait: '지혜로운', social: '깊은 사고', learning: '성찰적' }
         };
         
-        const trait = elementTraits[element] || elementTraits['토(土)'];
+        const trait = elementTraits[seasonElement] || elementTraits['토(土)'];
         
-        if (recommendation === '남녀공학') {
-            return [
-                `${element} 기운의 ${trait.trait} 성향: 사주에서 ${element}의 조화로운 에너지가 다양한 성별과의 상호작용을 통해 더욱 발전할 것입니다`,
-                `${trait.social} 소통 능력: ${element} 사주는 균형잡힌 관계 형성을 선호하며, 남녀공학에서 이 능력이 최대로 발휘될 것입니다`,
+        let genderReasons = [];
+        if (genderRecommendation === '남녀공학') {
+            genderReasons = [
+                `${seasonElement} 기운의 ${trait.trait} 성향: 사주에서 ${seasonElement}의 조화로운 에너지가 다양한 성별과의 상호작용을 통해 더욱 발전할 것입니다`,
+                `${trait.social} 소통 능력: ${seasonElement} 사주는 균형잡힌 관계 형성을 선호하며, 남녀공학에서 이 능력이 최대로 발휘될 것입니다`,
                 `${trait.learning} 학습 스타일: 당신의 사주는 다양한 관점을 수용하는 특성이 강해 남녀공학의 다양성이 학습 효과를 크게 높일 것입니다`,
-                `음양 조화의 완성: ${element} 기운은 음양의 균형을 중시하므로 남녀공학 환경에서 자연스러운 에너지 순환을 이룰 것입니다`
+                `음양 조화의 완성: ${seasonElement} 기운은 음양의 균형을 중시하므로 남녀공학 환경에서 자연스러운 에너지 순환을 이룰 것입니다`
             ];
-        } else if (recommendation === '남고' && gender === '남성') {
-            return [
-                `${element} 기운의 집중력 극대화: 사주에서 ${element}의 강한 에너지가 남성들끼리의 경쟁 환경에서 더욱 집중된 학습력을 발휘할 것입니다`,
-                `동성 간 깊은 유대감: ${element} 사주는 진정한 우정을 중시하는 특성이 있어 남고의 형제애적 분위기에서 확실한 성장을 이룰 것입니다`,
+        } else if (genderRecommendation === '남고' && userData.gender === '남성') {
+            genderReasons = [
+                `${seasonElement} 기운의 집중력 극대화: 사주에서 ${seasonElement}의 강한 에너지가 남성들끼리의 경쟁 환경에서 더욱 집중된 학습력을 발휘할 것입니다`,
+                `동성 간 깊은 유대감: ${seasonElement} 사주는 진정한 우정을 중시하는 특성이 있어 남고의 형제애적 분위기에서 확실한 성장을 이룰 것입니다`,
                 `${trait.learning} 특성 강화: 당신의 사주는 깊이 있는 탐구를 선호하므로 남고의 집중적 학습 환경이 완벽하게 맞을 것입니다`,
-                `리더십 발현: ${element} 기운은 남성적 에너지와 조화되어 남고에서 자연스러운 리더십을 확실히 발휘할 것입니다`
+                `리더십 발현: ${seasonElement} 기운은 남성적 에너지와 조화되어 남고에서 자연스러운 리더십을 확실히 발휘할 것입니다`
             ];
-        } else if (recommendation === '여고' && gender === '여성') {
-            return [
-                `${element} 기운의 섬세함 발달: 사주에서 ${element}의 정교한 에너지가 여성들만의 세심한 환경에서 더욱 정밀하게 발전할 것입니다`,
-                `${trait.social} 깊이 있는 관계: ${element} 사주는 진심어린 소통을 중시하므로 여고의 친밀한 분위기에서 평생 우정을 확실히 쌓을 것입니다`,
+        } else if (genderRecommendation === '여고' && userData.gender === '여성') {
+            genderReasons = [
+                `${seasonElement} 기운의 섬세함 발달: 사주에서 ${seasonElement}의 정교한 에너지가 여성들만의 세심한 환경에서 더욱 정밀하게 발전할 것입니다`,
+                `${trait.social} 깊이 있는 관계: ${seasonElement} 사주는 진심어린 소통을 중시하므로 여고의 친밀한 분위기에서 평생 우정을 확실히 쌓을 것입니다`,
                 `학업 집중도 향상: 당신의 ${trait.learning} 성향이 여고의 차분한 학습 환경과 완벽하게 조화되어 최상의 성과를 낼 것입니다`,
-                `내적 성장 촉진: ${element} 기운은 내면의 성찰을 중시하므로 여고의 안정적 환경에서 확실한 자아 발견을 이룰 것입니다`
+                `내적 성장 촉진: ${seasonElement} 기운은 내면의 성찰을 중시하므로 여고의 안정적 환경에서 확실한 자아 발견을 이룰 것입니다`
+            ];
+        } else {
+            // 기본값
+            genderReasons = [
+                `${seasonElement} 기운의 균형 추구: 사주 분석 결과 다양한 에너지의 조화를 통해 성장하는 특성이 뚜렷합니다`,
+                `사회적 적응력 강화: ${seasonElement} 사주는 실제 사회와 유사한 환경에서 더욱 자연스러운 발전을 이룰 것입니다`,
+                `${trait.learning} 능력 향상: 다양한 관점의 학습 자극이 당신의 사주 특성과 완벽하게 맞아떨어질 것입니다`,
+                `전인적 성장: ${seasonElement} 기운은 편중되지 않은 균형잡힌 환경에서 최고의 잠재력을 발휘할 것입니다`
             ];
         }
         
-        // 기본값 (남녀공학)
-        return [
-            `${element} 기운의 균형 추구: 사주 분석 결과 다양한 에너지의 조화를 통해 성장하는 특성이 뚜렷합니다`,
-            `사회적 적응력 강화: ${element} 사주는 실제 사회와 유사한 환경에서 더욱 자연스러운 발전을 이룰 것입니다`,
-            `${trait.learning} 능력 향상: 다양한 관점의 학습 자극이 당신의 사주 특성과 완벽하게 맞아떨어질 것입니다`,
-            `전인적 성장: ${element} 기운은 편중되지 않은 균형잡힌 환경에서 최고의 잠재력을 발휘할 것입니다`
-        ];
-    };
-    
-    // 다른 성별 구성 옵션에 대한 사주 기반 평가 생성 함수
-    const generateAlternativeGenderOptions = (recommendation, gender, element) => {
-        const elementTraits = {
-            '목(木)': '성장 지향적',
-            '화(火)': '열정적',
-            '토(土)': '안정 추구',
-            '금(金)': '논리적',
-            '수(水)': '지혜로운'
+        // 대안 옵션 설명 생성
+        let alternativeOptions = '';
+        if (genderRecommendation === '남녀공학') {
+            if (userData.gender === '남성') {
+                alternativeOptions = `남고는 ${seasonElement} 기운의 ${trait.trait} 특성을 집중적으로 발전시킬 수 있으나, 당신의 사주는 다양성을 통한 성장을 더 선호하는 구조입니다.`;
+            } else {
+                alternativeOptions = `여고는 ${seasonElement} 기운의 ${trait.trait} 특성을 심화시킬 수 있으나, 당신의 사주는 균형잡힌 환경에서 더 큰 발전을 이룰 운명입니다.`;
+            }
+        } else if (genderRecommendation === '남고') {
+            alternativeOptions = `남녀공학도 좋지만, 당신의 ${seasonElement} 사주는 동성 간의 깊은 유대와 집중적 학습 환경에서 더욱 확실한 성과를 거둘 것입니다.`;
+        } else if (genderRecommendation === '여고') {
+            alternativeOptions = `남녀공학도 괜찮지만, 당신의 ${seasonElement} 사주는 차분하고 섬세한 여성들만의 환경에서 더욱 뛰어난 잠재력을 발휘할 것입니다.`;
+        } else {
+            alternativeOptions = `다른 옵션들도 나쁘지 않으나, 당신의 ${seasonElement} 사주 특성상 추천된 환경이 가장 적합합니다.`;
+        }
+        
+        // 새로운 5섹션 구조로 반환
+        return {
+            requestId: randomId,
+            promptVariation: "demo",
+            sajuElements: `${seasonElement} 기운이 강한 사주로, ${seasonElement === '목(木)' ? '성장과 창의성' :
+                          seasonElement === '화(火)' ? '열정과 적극성' :
+                          seasonElement === '토(土)' ? '안정과 신중함' :
+                          seasonElement === '금(金)' ? '논리와 분석력' : '지혜와 탐구심'}이 뛰어납니다.`,
+            
+            section1_schoolTypes: {
+                rank1: {
+                    type: rank1Type,
+                    reason: `사주에서 ${seasonElement} 기운이 강하여 ${rank1Type.includes('교육열') ? '경쟁적인 환경에서 탁월한 성과를 발휘하는 성격' : '안정적인 환경에서 꾸준히 성장하는 확실한 성향'}입니다. ${rank1Type}이 당신에게 최적의 선택이며, ${rank1Type.includes('교육열') ? '우수한 친구들과 함께 공부하며 학업 동기를 극대화하고, 체계적인 입시 시스템을 통해 목표 대학에 반드시 진학할 것' : '내신 관리를 안정적으로 하며 자신만의 속도로 확실한 학업 성취를 이룰 것'}입니다.`
+                },
+                rank2: {
+                    type: rank2Type,
+                    reason: `사주의 보조적 특성으로 ${rank2Type}도 당신에게 잘 맞습니다. ${rank2Type.includes('자율형') ? '다양한 교육과정과 우수한 교육 환경을 통해 잠재력을 확실히 발휘할 수 있으나, 경제적 부담을 반드시 고려해야 합니다.' : rank2Type.includes('교육열') ? '경쟁적인 환경에서 강한 동기부여를 받으며 성장할 수 있는 확실한 대안입니다.' : '안정적인 학습 환경에서 꾸준한 성장을 도모할 수 있는 현실적이고 확실한 선택입니다.'}`
+                },
+                specialNote: "특목고는 진학 확률과 선택 비중이 10%밖에 되지 않으므로, 일반고 옵션을 충분히 고려하시고 현실적인 대안을 반드시 준비하시기 바랍니다."
+            },
+            
+            section2_genderSchool: {
+                recommendation: genderRecommendation,
+                suitabilityScore: suitabilityScore,
+                reasons: genderReasons,
+                alternatives: {
+                    otherOptions: alternativeOptions
+                }
+            },
+            
+            section3_academicTrack: {
+                liberalArtsScore: liberalScore,
+                scienceScore: scienceScore,
+                recommendation: scienceScore > liberalScore ? "이과" : "문과",
+                liberalStrengths: [
+                    "언어적 사고력: 표현력과 소통 능력이 매우 우수합니다",
+                    "인문학적 소양: 사회 현상에 대한 관심과 이해도가 탁월합니다", 
+                    "창의적 사고: 새로운 아이디어를 창출하는 능력이 뛰어납니다",
+                    "비판적 분석: 복합적 상황을 종합적으로 판단하는 능력이 확실합니다"
+                ],
+                scienceStrengths: [
+                    "논리적 사고력: 체계적이고 분석적인 사고에서 탁월한 능력을 발휘합니다",
+                    "수리 능력: 복잡한 수학적 개념을 이해하고 응용하는 능력이 매우 우수합니다",
+                    "과학적 탐구심: 호기심이 많고 원리를 파헤치는 것을 확실히 좋아합니다", 
+                    "체계적 접근: 문제를 단계별로 해결하는 방법론적 사고력이 뛰어납니다"
+                ],
+                liberalSubjects: ["국어", "영어", "사회", "역사"],
+                scienceSubjects: ["수학", "물리", "화학", "생명과학"],
+                finalRecommendation: `${scienceScore > liberalScore ? '이과를 강력히 추천' : '문과를 확실히 추천'}합니다. 사주 분석 결과 ${seasonElement} 기운으로 ${scienceScore > liberalScore ? '논리적 사고와 체계적 접근을 확실히 선호하는 성향이 강하며, 수학과 과학 분야에서 탁월한 성과를 반드시 거둘 것입니다.' : '언어적 표현력과 창의적 사고가 매우 뛰어나며, 인문학과 사회과학 분야에서 확실한 재능을 발휘할 것입니다.'} 다만 ${scienceScore > liberalScore ? '문과 영역의 국어와 영어 실력도 꾸준히 기르시어' : '이과 영역의 수학과 과학 기초도 탄탄히 하여'} 균형잡힌 학습 능력을 반드시 갖추시기 바랍니다.`
+            },
+            
+            section4_direction: {
+                bestDirection: selectedDirection,
+                directionTitle: `${selectedDirection}쪽이 당신에게 가장 길한 방향입니다`,
+                explanation: `사주에서 ${seasonElement} 기운이 ${selectedDirection} 방향과 완벽하게 조화됩니다. 이 방향은 학업운과 성장운을 크게 향상시키며, 새로운 시작과 발전에 매우 유리한 기운을 확실히 가지고 있습니다.`,
+                benefits: [
+                    "학업운 상승: 집중력과 이해력이 크게 향상될 것입니다",
+                    "대인관계 개선: 좋은 친구들과 선생님들을 반드시 만날 것입니다",
+                    "성장 동력: 지속적인 발전과 성취를 확실히 이룰 수 있는 환경이 조성될 것입니다", 
+                    "건강운: 신체적, 정신적 건강이 안정적으로 유지될 것입니다"
+                ],
+                practicalAdvice: `집에서 ${selectedDirection}쪽 방향에 위치한 고등학교를 반드시 우선적으로 고려하세요. 통학 거리나 교통편도 함께 고려하되, 가능한 범위 내에서 ${selectedDirection}쪽 학교를 선택하시면 확실히 더욱 좋은 학교생활을 할 수 있을 것입니다.`
+            },
+            
+            section5_fortune: {
+                ...fortuneData,
+                summary: {
+                    examTrend: "시간이 지날수록 꾸준히 상승하여 3학년에 최고조에 달할 것입니다. 특히 2-3학년 시기가 학업적 성취를 위한 확실한 황금기가 될 것입니다.",
+                    romanceTrend: "2학년이 가장 활발한 시기가 될 것이며, 1학년과 3학년은 상대적으로 차분한 편일 것입니다. 학업과 이성관계의 적절한 균형을 반드시 유지하는 것이 중요합니다."
+                }
+            },
+            
+            summary: `${userData.name} 님은 ${seasonElement} 기운이 강한 사주로, ${genderRecommendation}에서 ${scienceScore > liberalScore ? '이과' : '문과'} 과정을 선택하시어 ${selectedDirection}쪽 방향의 ${rank1Type}에 반드시 진학하시는 것을 강력히 추천드립니다.`
         };
         
-        const trait = elementTraits[element] || '균형잡힌';
-        
-        if (recommendation === '남녀공학') {
-            if (gender === '남성') {
-                return `남고는 ${element} 기운의 ${trait} 특성을 집중적으로 발전시킬 수 있으나, 당신의 사주는 다양성을 통한 성장을 더 선호하는 구조입니다.`;
-            } else {
-                return `여고는 ${element} 기운의 ${trait} 특성을 심화시킬 수 있으나, 당신의 사주는 균형잡힌 환경에서 더 큰 발전을 이룰 운명입니다.`;
-            }
-        } else if (recommendation === '남고') {
-            return `남녀공학도 좋지만, 당신의 ${element} 사주는 동성 간의 깊은 유대와 집중적 학습 환경에서 더욱 확실한 성과를 거둘 것입니다.`;
-        } else if (recommendation === '여고') {
-            return `남녀공학도 괜찮지만, 당신의 ${element} 사주는 차분하고 섬세한 여성들만의 환경에서 더욱 뛰어난 잠재력을 발휘할 것입니다.`;
-        }
-        
-        return `다른 옵션들도 나쁘지 않으나, 당신의 ${element} 사주 특성상 추천된 환경이 가장 적합합니다.`;
-    };
-    
-    // 새로운 5섹션 구조로 반환
-    return {
-        requestId: randomId,
-        promptVariation: "demo",
-        sajuElements: `${seasonElement} 기운이 강한 사주로, ${seasonElement === '목(木)' ? '성장과 창의성' :
-                      seasonElement === '화(火)' ? '열정과 적극성' :
-                      seasonElement === '토(土)' ? '안정과 신중함' :
-                      seasonElement === '금(金)' ? '논리와 분석력' : '지혜와 탐구심'}이 뛰어납니다.`,
-        
-        section1_schoolTypes: {
-            rank1: {
-                type: rank1Type,
-                reason: `사주에서 ${seasonElement} 기운이 강하여 ${rank1Type.includes('교육열') ? '경쟁적인 환경에서 탁월한 성과를 발휘하는 성격' : '안정적인 환경에서 꾸준히 성장하는 확실한 성향'}입니다. ${rank1Type}이 당신에게 최적의 선택이며, ${rank1Type.includes('교육열') ? '우수한 친구들과 함께 공부하며 학업 동기를 극대화하고, 체계적인 입시 시스템을 통해 목표 대학에 반드시 진학할 것' : '내신 관리를 안정적으로 하며 자신만의 속도로 확실한 학업 성취를 이룰 것'}입니다.`
-            },
-            rank2: {
-                type: rank2Type,
-                reason: `사주의 보조적 특성으로 ${rank2Type}도 당신에게 잘 맞습니다. ${rank2Type.includes('자율형') ? '다양한 교육과정과 우수한 교육 환경을 통해 잠재력을 확실히 발휘할 수 있으나, 경제적 부담을 반드시 고려해야 합니다.' : rank2Type.includes('교육열') ? '경쟁적인 환경에서 강한 동기부여를 받으며 성장할 수 있는 확실한 대안입니다.' : '안정적인 학습 환경에서 꾸준한 성장을 도모할 수 있는 현실적이고 확실한 선택입니다.'}`
-            },
-            specialNote: "특목고는 진학 확률과 선택 비중이 10%밖에 되지 않으므로, 일반고 옵션을 충분히 고려하시고 현실적인 대안을 반드시 준비하시기 바랍니다."
-        },
-        
-        section2_genderSchool: {
-            recommendation: genderRecommendation,
-            suitabilityScore: suitabilityScore,
-            reasons: generateGenderSchoolReasons(seasonElement, genderRecommendation, userData.gender),
-            alternatives: {
-                otherOptions: generateAlternativeGenderOptions(genderRecommendation, userData.gender, seasonElement)
-            }
-        },
-        
-        section3_academicTrack: {
-            liberalArtsScore: liberalScore,
-            scienceScore: scienceScore,
-            recommendation: scienceScore > liberalScore ? "이과" : "문과",
-            liberalStrengths: [
-                "언어적 사고력: 표현력과 소통 능력이 매우 우수합니다",
-                "인문학적 소양: 사회 현상에 대한 관심과 이해도가 탁월합니다", 
-                "창의적 사고: 새로운 아이디어를 창출하는 능력이 뛰어납니다",
-                "비판적 분석: 복합적 상황을 종합적으로 판단하는 능력이 확실합니다"
-            ],
-            scienceStrengths: [
-                "논리적 사고력: 체계적이고 분석적인 사고에서 탁월한 능력을 발휘합니다",
-                "수리 능력: 복잡한 수학적 개념을 이해하고 응용하는 능력이 매우 우수합니다",
-                "과학적 탐구심: 호기심이 많고 원리를 파헤치는 것을 확실히 좋아합니다", 
-                "체계적 접근: 문제를 단계별로 해결하는 방법론적 사고력이 뛰어납니다"
-            ],
-            liberalSubjects: ["국어", "영어", "사회", "역사"],
-            scienceSubjects: ["수학", "물리", "화학", "생명과학"],
-            finalRecommendation: `${scienceScore > liberalScore ? '이과를 강력히 추천' : '문과를 확실히 추천'}합니다. 사주 분석 결과 ${seasonElement} 기운으로 ${scienceScore > liberalScore ? '논리적 사고와 체계적 접근을 확실히 선호하는 성향이 강하며, 수학과 과학 분야에서 탁월한 성과를 반드시 거둘 것입니다.' : '언어적 표현력과 창의적 사고가 매우 뛰어나며, 인문학과 사회과학 분야에서 확실한 재능을 발휘할 것입니다.'} 다만 ${scienceScore > liberalScore ? '문과 영역의 국어와 영어 실력도 꾸준히 기르시어' : '이과 영역의 수학과 과학 기초도 탄탄히 하여'} 균형잡힌 학습 능력을 반드시 갖추시기 바랍니다.`
-        },
-        
-        section4_direction: {
-            bestDirection: selectedDirection,
-            directionTitle: `${selectedDirection}쪽이 당신에게 가장 길한 방향입니다`,
-            explanation: `사주에서 ${seasonElement} 기운이 ${selectedDirection} 방향과 완벽하게 조화됩니다. 이 방향은 학업운과 성장운을 크게 향상시키며, 새로운 시작과 발전에 매우 유리한 기운을 확실히 가지고 있습니다.`,
-            benefits: [
-                "학업운 상승: 집중력과 이해력이 크게 향상될 것입니다",
-                "대인관계 개선: 좋은 친구들과 선생님들을 반드시 만날 것입니다",
-                "성장 동력: 지속적인 발전과 성취를 확실히 이룰 수 있는 환경이 조성될 것입니다", 
-                "건강운: 신체적, 정신적 건강이 안정적으로 유지될 것입니다"
-            ],
-            practicalAdvice: `집에서 ${selectedDirection}쪽 방향에 위치한 고등학교를 반드시 우선적으로 고려하세요. 통학 거리나 교통편도 함께 고려하되, 가능한 범위 내에서 ${selectedDirection}쪽 학교를 선택하시면 확실히 더욱 좋은 학교생활을 할 수 있을 것입니다.`
-        },
-        
-        section5_fortune: {
-            ...fortuneData,
-            summary: {
-                examTrend: "시간이 지날수록 꾸준히 상승하여 3학년에 최고조에 달할 것입니다. 특히 2-3학년 시기가 학업적 성취를 위한 확실한 황금기가 될 것입니다.",
-                romanceTrend: "2학년이 가장 활발한 시기가 될 것이며, 1학년과 3학년은 상대적으로 차분한 편일 것입니다. 학업과 이성관계의 적절한 균형을 반드시 유지하는 것이 중요합니다."
-            }
-        },
-        
-        summary: `${userData.name} 님은 ${seasonElement} 기운이 강한 사주로, ${genderRecommendation}에서 ${scienceScore > liberalScore ? '이과' : '문과'} 과정을 선택하시어 ${selectedDirection}쪽 방향의 ${rank1Type}에 반드시 진학하시는 것을 강력히 추천드립니다.`
-    };
+    } catch (error) {
+        console.error('❌ 데모 분석 생성 중 오류:', error);
+        throw error;
+    }
 }
 
 // Result page initialization
 function initializeResultPage() {
     console.log('=== 결과 페이지 초기화 시작 ===');
+    console.log('🌐 결과 페이지 환경 정보:');
+    console.log('- hostname:', window.location.hostname);
+    console.log('- pathname:', window.location.pathname);
+    console.log('- href:', window.location.href);
+    console.log('- referrer:', document.referrer);
     
     try {
+        console.log('📦 localStorage 데이터 확인 시작');
         let userData = localStorage.getItem('sajuUserData');
         let analysisResult = null; // 항상 새로운 분석 결과 생성하도록 변경
         
-        console.log('📦 localStorage에서 가져온 사용자 데이터:', userData);
+        console.log('📦 localStorage에서 가져온 사용자 데이터 존재 여부:', !!userData);
+        console.log('📦 localStorage에서 가져온 사용자 데이터 길이:', userData ? userData.length : 0);
         
         // 사용자 데이터 파싱
         try {
+            console.log('🔍 사용자 데이터 파싱 시도');
             userData = userData ? JSON.parse(userData) : null;
-            console.log('✅ 사용자 데이터 파싱 성공:', userData);
-        } catch (e) {
-            console.error('❌ 사용자 데이터 파싱 실패:', e);
+            console.log('✅ 사용자 데이터 파싱 성공');
+            console.log('👤 파싱된 사용자 데이터:', userData);
+        } catch (parseError) {
+            console.error('❌ 사용자 데이터 파싱 실패:', parseError);
+            console.error('❌ 파싱 실패한 원본 데이터:', userData);
             userData = null;
         }
         
@@ -980,35 +1054,61 @@ function initializeResultPage() {
                 birthTime: '오시',
                 gender: '남성'
             };
+            console.log('🔧 기본 사용자 데이터 생성됨:', userData);
         }
         
         // 매번 새로운 분석 결과 생성
-        console.log('🔄 새로운 분석 결과 생성 중...');
-        analysisResult = generateDemoAnalysis(userData);
-        console.log('✅ 새로운 분석 결과 생성 완료:', analysisResult);
+        console.log('🔄 새로운 분석 결과 생성 시작');
+        try {
+            analysisResult = generateDemoAnalysis(userData);
+            console.log('✅ 새로운 분석 결과 생성 완료');
+            console.log('📊 생성된 분석 결과 타입:', typeof analysisResult);
+            console.log('📊 생성된 분석 결과 키:', Object.keys(analysisResult));
+            console.log('📊 생성된 분석 결과 크기:', JSON.stringify(analysisResult).length, 'bytes');
+        } catch (generateError) {
+            console.error('❌ 분석 결과 생성 실패:', generateError);
+            console.error('❌ 분석 결과 생성 오류 스택:', generateError.stack);
+            throw generateError; // 다음 catch 블록으로 전달
+        }
         
         // localStorage에 새로운 결과 저장 (안전하게)
         try {
+            console.log('💾 새로운 분석 결과 localStorage 저장 시도');
             localStorage.setItem('sajuAnalysisResult', JSON.stringify(analysisResult));
-            console.log('💾 새로운 분석 결과를 localStorage에 저장 완료');
+            console.log('✅ 새로운 분석 결과를 localStorage에 저장 완료');
         } catch (storageError) {
             console.warn('⚠️ localStorage 저장 실패:', storageError);
+            console.warn('⚠️ 저장 실패 원인:', storageError.name, storageError.message);
             // 저장 실패해도 계속 진행
         }
         
-        console.log('📊 최종 사용할 데이터:');
-        console.log('userData:', userData);
-        console.log('analysisResult type:', typeof analysisResult);
+        console.log('📊 최종 사용할 데이터 확인:');
+        console.log('- userData 타입:', typeof userData);
+        console.log('- userData 내용:', userData);
+        console.log('- analysisResult 타입:', typeof analysisResult);
+        console.log('- analysisResult 존재 여부:', !!analysisResult);
         
         console.log('🎨 결과 표시 시작');
-        displayAnalysisResult(userData, analysisResult);
+        try {
+            displayAnalysisResult(userData, analysisResult);
+            console.log('✅ 결과 표시 완료');
+        } catch (displayError) {
+            console.error('❌ 결과 표시 중 오류:', displayError);
+            console.error('❌ 결과 표시 오류 스택:', displayError.stack);
+            throw displayError; // 다음 catch 블록으로 전달
+        }
+        
         console.log('✅ 결과 페이지 초기화 완료');
         
     } catch (error) {
-        console.error('❌ 결과 페이지 초기화 중 오류 발생:', error);
+        console.error('❌ 결과 페이지 초기화 중 전체 오류 발생:', error);
+        console.error('❌ 초기화 오류 스택:', error.stack);
+        console.error('❌ 초기화 오류 이름:', error.name);
+        console.error('❌ 초기화 오류 메시지:', error.message);
         
         // 최후의 수단: 기본 데이터로 다시 시도
         try {
+            console.log('🔄 최후의 수단: 기본 데이터로 복구 시도');
             const fallbackUserData = {
                 name: '홍길동',
                 birthYear: '2008',
@@ -1018,25 +1118,48 @@ function initializeResultPage() {
                 gender: '남성'
             };
             
+            console.log('🎭 폴백 분석 결과 생성 시도');
             const fallbackResult = generateDemoAnalysis(fallbackUserData);
+            console.log('✅ 폴백 분석 결과 생성 완료');
+            
+            console.log('🎨 폴백 데이터로 결과 표시 시도');
             displayAnalysisResult(fallbackUserData, fallbackResult);
             console.log('✅ 폴백 데이터로 복구 완료');
             
         } catch (fallbackError) {
             console.error('❌ 폴백 데이터로도 복구 실패:', fallbackError);
+            console.error('❌ 폴백 복구 오류 스택:', fallbackError.stack);
             
             // 페이지에 에러 메시지 표시
+            console.log('🚨 최종 에러 처리: 에러 메시지 표시');
             const container = document.querySelector('.main-content');
             if (container) {
                 container.innerHTML = `
                     <div style="text-align: center; padding: 50px; color: #666;">
                         <h2>🔄 분석 결과를 불러오는 중입니다...</h2>
                         <p>잠시만 기다려주세요.</p>
-                        <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            새로고침
-                        </button>
+                        <div style="margin-top: 20px;">
+                            <button onclick="window.location.reload()" style="margin-right: 10px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                새로고침
+                            </button>
+                            <button onclick="window.location.href='./input.html'" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                다시 분석하기
+                            </button>
+                        </div>
+                        <div style="margin-top: 30px; font-size: 12px; color: #999;">
+                            <details>
+                                <summary>기술 정보 (개발자용)</summary>
+                                <pre style="text-align: left; background: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 10px;">
+오류: ${error.message}
+스택: ${error.stack}
+                                </pre>
+                            </details>
+                        </div>
                     </div>
                 `;
+                console.log('✅ 에러 메시지 표시 완료');
+            } else {
+                console.error('❌ main-content 컨테이너를 찾을 수 없음');
             }
         }
     }
