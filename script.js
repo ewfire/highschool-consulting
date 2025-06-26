@@ -859,7 +859,6 @@ function generateDemoAnalysis(userData) {
         
         const fortuneData = {
             grade1: {
-                year: "2024년",
                 phase: "적응기",
                 examLuck: examScores[0],
                 romanceLuck: romanceScores[0],
@@ -867,7 +866,6 @@ function generateDemoAnalysis(userData) {
                 romanceDescription: romanceDescriptions[romanceIndex][0]
             },
             grade2: {
-                year: "2025년",
                 phase: "발전기",
                 examLuck: examScores[1],
                 romanceLuck: romanceScores[1],
@@ -875,7 +873,6 @@ function generateDemoAnalysis(userData) {
                 romanceDescription: romanceDescriptions[romanceIndex][1]
             },
             grade3: {
-                year: "2026년",
                 phase: "완성기",
                 examLuck: examScores[2],
                 romanceLuck: romanceScores[2],
@@ -1465,17 +1462,12 @@ function displaySection5Fortune(data) {
         
         const gradeNum = index + 1;
         
-        // 제목과 년도 업데이트
+        // 제목 업데이트
         const titleEl = document.getElementById(`${grade}Title`);
-        const yearEl = document.getElementById(`${grade}Year`);
         
         if (titleEl && gradeData.phase) {
             const phaseIcon = index === 0 ? '🌱' : index === 1 ? '🚀' : '🎯';
             titleEl.textContent = `${phaseIcon} ${gradeNum}학년 (${gradeData.phase})`;
-        }
-        
-        if (yearEl && gradeData.year) {
-            yearEl.textContent = gradeData.year;
         }
         
         // 시험운 업데이트
