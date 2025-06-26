@@ -1378,4 +1378,814 @@ body {
     .info-cards {
         grid-template-columns: 1fr;
     }
+}
+
+/* Analysis Cards - 각 섹션을 독립적인 카드로 */
+.analysis-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e6e6;
+    transition: all 0.3s ease;
+    margin-bottom: 32px;
+    width: 100%;
+}
+
+.analysis-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.card-icon {
+    font-size: 2rem;
+    padding: 12px;
+    background: linear-gradient(135deg, #570df8 0%, #37cdbe 100%);
+    border-radius: 12px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 56px;
+    height: 56px;
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #3d4451;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.card-divider {
+    height: 3px;
+    background: linear-gradient(90deg, #570df8 0%, #37cdbe 50%, #f093fb 100%);
+    border-radius: 2px;
+    margin-bottom: 24px;
+}
+
+/* 학교 추천 카드 */
+.school-recommendation-card {
+    /* 특별한 스타일이 필요한 경우 추가 */
+}
+
+/* 방향 분석 카드 */
+.direction-card {
+    /* 특별한 스타일이 필요한 경우 추가 */
+}
+
+/* 운세 카드 */
+.fortune-card {
+    /* 특별한 스타일이 필요한 경우 추가 */
+}
+
+/* 문이과 카드 */
+.track-card {
+    /* 특별한 스타일이 필요한 경우 추가 */
+}
+
+/* Recommendation List */
+.recommendation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+/* Recommendation Cards */
+.recommendation-card {
+    padding: 24px;
+    border-radius: 16px;
+    border: 2px solid transparent;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.recommendation-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+}
+
+.gold-card {
+    background: linear-gradient(135deg, #fff9e6 0%, #fffbf0 100%);
+    border-color: #ffd700;
+}
+
+.silver-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-color: #c0c0c0;
+}
+
+.bronze-card {
+    background: linear-gradient(135deg, #fff8f0 0%, #fffaf7 100%);
+    border-color: #cd7f32;
+}
+
+.recommendation-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.rank-badge {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: white;
+}
+
+.rank-1 {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #b45309;
+}
+
+.rank-2 {
+    background: linear-gradient(135deg, #c0c0c0 0%, #e5e5e5 100%);
+    color: #6b7280;
+}
+
+.rank-3 {
+    background: linear-gradient(135deg, #cd7f32 0%, #e5a663 100%);
+    color: #7c2d12;
+}
+
+.trophy-icon {
+    font-size: 1.5rem;
+}
+
+.school-type-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #3d4451;
+    margin: 0 0 12px 0;
+}
+
+.recommendation-reason {
+    color: #6b7280;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Notice Box */
+.notice-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #f7fee7 100%);
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    font-weight: 500;
+    color: #166534;
+}
+
+.notice-icon {
+    font-size: 1.2rem;
+    color: #16a34a;
+}
+
+.notice-text {
+    margin: 0;
+}
+
+/* Direction Content */
+.direction-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    text-align: center;
+}
+
+.compass-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.compass {
+    position: relative;
+    width: 200px;
+    height: 200px;
+}
+
+.compass-circle {
+    width: 100%;
+    height: 100%;
+    border: 3px solid #570df8;
+    border-radius: 50%;
+    position: relative;
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.compass-pointer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: center;
+    width: 4px;
+    height: 80px;
+    background: linear-gradient(180deg, #570df8 0%, #37cdbe 100%);
+    border-radius: 2px;
+    margin-left: -2px;
+    margin-top: -40px;
+    transition: transform 0.5s ease;
+}
+
+.pointer-arrow {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.2rem;
+    color: #570df8;
+    font-weight: bold;
+}
+
+.compass-directions {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.compass-directions span {
+    position: absolute;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #6b7280;
+    transition: all 0.3s ease;
+}
+
+.compass-directions span.highlighted {
+    color: #570df8;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-shadow: 0 2px 4px rgba(87, 13, 248, 0.2);
+}
+
+.north { top: 10px; left: 50%; transform: translateX(-50%); }
+.east { right: 10px; top: 50%; transform: translateY(-50%); }
+.south { bottom: 10px; left: 50%; transform: translateX(-50%); }
+.west { left: 10px; top: 50%; transform: translateY(-50%); }
+
+.direction-info {
+    text-align: center;
+}
+
+.direction-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #3d4451;
+    margin: 0 0 12px 0;
+}
+
+.direction-description {
+    color: #6b7280;
+    line-height: 1.6;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Fortune Content */
+.fortune-content {
+    /* 운세 카드 내부 스타일 */
+}
+
+.fortune-introduction {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.fortune-introduction p {
+    color: #6b7280;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.yearly-fortune {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.year-card {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid #e5e6e6;
+}
+
+.year-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.year-header h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #3d4451;
+    margin: 0;
+}
+
+.year-period {
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.fortune-scores {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.score-item {
+    /* 점수 아이템 스타일 */
+}
+
+.score-label {
+    font-weight: 600;
+    color: #3d4451;
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.score-bar-container {
+    background: #e5e6e6;
+    height: 32px;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.score-bar {
+    height: 100%;
+    background: linear-gradient(135deg, #570df8 0%, #37cdbe 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    transition: width 0.3s ease;
+}
+
+.score-bar-container.romance .score-bar {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.score-description {
+    color: #6b7280;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.fortune-summary {
+    margin-top: 24px;
+}
+
+.summary-box {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.summary-box h4 {
+    color: #166534;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+}
+
+.summary-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.summary-item {
+    color: #166534;
+    line-height: 1.6;
+}
+
+/* Track Analysis - 문과/이과 분석 통일된 스타일 */
+.track-analysis {
+    width: 100%;
+}
+
+.track-comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.track-card {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 24px;
+    border: 2px solid #e5e6e6;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.track-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+}
+
+.track-card.science {
+    border-color: #570df8;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.track-card.liberal-arts {
+    border-color: #f093fb;
+    background: linear-gradient(135deg, #fdf4ff 0%, #f3e8ff 100%);
+}
+
+.track-card.recommended-track {
+    border-width: 3px;
+    box-shadow: 0 4px 20px rgba(87, 13, 248, 0.15);
+}
+
+.track-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e5e6e6;
+}
+
+.track-header h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #3d4451;
+    margin: 0;
+}
+
+.track-score {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #570df8;
+    line-height: 1;
+}
+
+.track-card.liberal-arts .track-score {
+    color: #f093fb;
+}
+
+.track-content h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #3d4451;
+    margin: 0 0 12px 0;
+}
+
+.track-content ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style: none;
+}
+
+.track-content li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+    font-size: 0.95rem;
+    color: #6b7280;
+    position: relative;
+    padding-left: 8px;
+}
+
+.track-content li::before {
+    content: "•";
+    color: #570df8;
+    font-weight: bold;
+    position: absolute;
+    left: -12px;
+}
+
+.track-content li strong {
+    color: #3d4451;
+    font-weight: 600;
+}
+
+.track-note {
+    margin: 16px 0 0 0;
+    font-size: 0.9rem;
+    color: #9ca3af;
+    font-style: italic;
+    line-height: 1.5;
+}
+
+.final-recommendation {
+    margin-top: 32px;
+}
+
+.recommendation-box {
+    background: linear-gradient(135deg, #f0fdf4 0%, #f7fee7 100%);
+    border: 2px solid #bbf7d0;
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.recommendation-box h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #166534;
+    margin: 0 0 12px 0;
+}
+
+.recommendation-box p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #166534;
+    margin: 0;
+}
+
+.recommendation-box strong {
+    font-weight: 700;
+}
+
+/* Responsive Design for Track Analysis */
+@media (max-width: 768px) {
+    .track-comparison {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .track-card {
+        padding: 20px;
+    }
+    
+    .track-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    
+    .track-score {
+        font-size: 1.5rem;
+    }
+    
+    .track-header h4 {
+        font-size: 1.1rem;
+    }
+    
+    .track-content h5 {
+        font-size: 0.95rem;
+    }
+    
+    .track-content li {
+        font-size: 0.9rem;
+    }
+    
+    .recommendation-box {
+        padding: 20px;
+    }
+    
+    .recommendation-box h4 {
+        font-size: 1rem;
+    }
+    
+    .recommendation-box p {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .track-card {
+        padding: 16px;
+    }
+    
+    .track-header {
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+    
+    .track-score {
+        font-size: 1.3rem;
+    }
+    
+    .track-header h4 {
+        font-size: 1rem;
+    }
+    
+    .track-content h5 {
+        font-size: 0.9rem;
+    }
+    
+    .track-content li {
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+    }
+    
+    .recommendation-box {
+        padding: 16px;
+    }
+    
+    .recommendation-box h4 {
+        font-size: 0.95rem;
+    }
+    
+    .recommendation-box p {
+        font-size: 0.9rem;
+    }
+}
+
+.track-card.liberal-arts .track-content li::before {
+    color: #f093fb;
+}
+
+/* Gender School Card Styles */
+.gender-school-card {
+    /* 기본 analysis-card 스타일 상속 */
+}
+
+.gender-school-content {
+    /* 성별 구성 추천 카드 내부 컨텐츠 */
+}
+
+.gender-recommendation-summary {
+    background: linear-gradient(135deg, #f0fdf4 0%, #f7fee7 100%);
+    border: 2px solid #bbf7d0;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.recommended-gender-type h4 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #166534;
+    margin: 0 0 12px 0;
+}
+
+.suitability-score {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #16a34a;
+    background: rgba(22, 101, 52, 0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.gender-analysis {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.recommendation-reasons h5,
+.alternative-considerations h5 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #3d4451;
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.recommendation-reasons ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style: none;
+}
+
+.recommendation-reasons li {
+    margin-bottom: 12px;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    color: #6b7280;
+    position: relative;
+    padding-left: 8px;
+}
+
+.recommendation-reasons li::before {
+    content: "•";
+    color: #16a34a;
+    font-weight: bold;
+    position: absolute;
+    left: -12px;
+}
+
+.recommendation-reasons li strong {
+    color: #3d4451;
+    font-weight: 600;
+}
+
+.alternative-considerations {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e5e6e6;
+}
+
+.alternatives-content p {
+    margin: 0;
+    color: #6b7280;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.gender-school-note {
+    margin-top: 24px;
+}
+
+.note-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fef9e7 100%);
+    border: 1px solid #fcd34d;
+    border-radius: 12px;
+}
+
+.note-icon {
+    font-size: 1.2rem;
+    color: #d97706;
+    margin-top: 2px;
+}
+
+.note-box p {
+    margin: 0;
+    color: #92400e;
+    line-height: 1.5;
+    font-size: 0.9rem;
+}
+
+.note-box strong {
+    font-weight: 700;
+    color: #78350f;
+}
+
+/* Responsive Design for Gender School Card */
+@media (max-width: 768px) {
+    .gender-recommendation-summary {
+        padding: 20px;
+    }
+    
+    .recommended-gender-type h4 {
+        font-size: 1.2rem;
+    }
+    
+    .suitability-score {
+        font-size: 1rem;
+    }
+    
+    .recommendation-reasons li,
+    .alternatives-content p {
+        font-size: 0.9rem;
+    }
+    
+    .note-box {
+        padding: 14px 16px;
+    }
+    
+    .note-box p {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .gender-recommendation-summary {
+        padding: 16px;
+    }
+    
+    .recommended-gender-type h4 {
+        font-size: 1.1rem;
+    }
+    
+    .suitability-score {
+        font-size: 0.95rem;
+        padding: 6px 12px;
+    }
+    
+    .recommendation-reasons li,
+    .alternatives-content p {
+        font-size: 0.85rem;
+    }
 } 

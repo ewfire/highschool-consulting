@@ -22,266 +22,296 @@
             <!-- Result Header -->
             <section class="result-header">
                 <h2 class="result-title">
-                    📊 <span id="userName"></span> 님을 위한 최적의 고등학교 분석 결과
+                    📊 <span id="userName">김학생</span> 님을 위한 맞춤 고등학교 분석 결과
                 </h2>
                 <div class="result-summary">
-                    <p id="analysisDescription"></p>
+                    <p id="analysisDescription">사주팔자 분석을 통해 가장 적합한 고등학교 유형과 진로 방향을 제시해드립니다.</p>
                 </div>
             </section>
 
-            <!-- Recommended Schools -->
-            <section class="recommendations section-wrapper">
-                <div class="section-header">
-                    <h3 class="section-title">
-                        <span class="section-icon">🏫</span>
-                        고등학교 진학 추천 분석
-                    </h3>
-                    <div class="section-divider"></div>
+            <!-- 고등학교 진학 추천 분석 카드 -->
+            <section class="analysis-card school-recommendation-card">
+                <div class="card-header">
+                    <div class="card-icon">📚</div>
+                    <h3 class="card-title">고등학교 진학 추천 분석</h3>
                 </div>
-                <div id="schoolRecommendations" class="recommendations-list">
-                    <!-- 동적으로 생성될 추천/비추천 학교 목록 -->
+                <div class="card-divider"></div>
+
+                <!-- 추천 학교 유형들 -->
+                <div class="recommendation-list">
+                    <!-- 1순위 추천 -->
+                    <div class="recommendation-card gold-card">
+                        <div class="recommendation-header">
+                            <div class="rank-badge rank-1">1순위 추천</div>
+                            <div class="trophy-icon">🥇</div>
+                        </div>
+                        <h4 class="school-type-title">내신받기 좋은 일반고(여고)</h4>
+                        <p class="recommendation-reason">
+                            토와 화의 기운이 강한 사주에서 안정적인 환경에서 자신의 능력을 
+                            발휘하는 것이 좋습니다. 내신받기 좋은 일반고(여고)에서 
+                            좋은 성적을 거두며 안정적인 환경에서 자신의 능력을 
+                            발휘할 수 있는 환경을 제공하며, 꾸준한 노력으로 
+                            좋은 성적을 거둘 수 있습니다. 또한, 여고 환경은 집중도 
+                            향상에 도움이 될 수 있습니다.
+                        </p>
+                    </div>
+
+                    <!-- 2순위 추천 -->
+                    <div class="recommendation-card silver-card">
+                        <div class="recommendation-header">
+                            <div class="rank-badge rank-2">2순위 추천</div>
+                            <div class="trophy-icon">🥈</div>
+                        </div>
+                        <h4 class="school-type-title">학구열 좋은 일반고(남녀공학)</h4>
+                        <p class="recommendation-reason">
+                            다양한 경험을 통해 성장하는 것을 좋아하는 성향이 있습니다. 
+                            남녀공학의 다양한 학습 분위기와 활동적인 환경이 
+                            좋은 영향을 줄 수 있습니다. 단, 학업에 지장을 주지 않는 
+                            것이 중요합니다.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 참고사항 -->
+                <div class="notice-box">
+                    <div class="notice-icon">✅</div>
+                    <span class="notice-text">강력 추천하는 학교 (적합도 순)</span>
                 </div>
             </section>
 
-            <!-- Direction Analysis -->
-            <section class="direction-analysis section-wrapper">
-                <div class="section-header">
-                    <h3 class="section-title">
-                        <span class="section-icon">🧭</span>
-                        나에게 가장 길한 고등학교 방향
-                    </h3>
-                    <div class="section-divider"></div>
+            <!-- 남고/여고/공학 추천 카드 -->
+            <section class="analysis-card gender-school-card">
+                <div class="card-header">
+                    <div class="card-icon">👥</div>
+                    <h3 class="card-title">나에게 가장 길한 고등학교 성별 구성</h3>
                 </div>
-                <div class="direction-container">
-                    <div class="compass">
-                        <div class="compass-circle">
-                            <div class="compass-pointer" id="compassPointer">
-                                <div class="pointer-arrow">↑</div>
-                            </div>
-                            <div class="compass-directions">
-                                <span class="north">북</span>
-                                <span class="east">동</span>
-                                <span class="south">남</span>
-                                <span class="west">서</span>
+                <div class="card-divider"></div>
+
+                <div class="gender-school-content">
+                    <div class="gender-recommendation-summary">
+                        <div class="recommended-gender-type">
+                            <h4 id="recommendedGenderType">🎯 추천: 분석 중...</h4>
+                            <div class="suitability-score" id="genderSuitabilityScore">적합도 계산 중...</div>
+                        </div>
+                    </div>
+
+                    <div class="gender-analysis">
+                        <div class="recommendation-reasons">
+                            <h5>✨ 추천 이유</h5>
+                            <ul id="genderRecommendationReasons">
+                                <li>분석 중...</li>
+                            </ul>
+                        </div>
+
+                        <div class="alternative-considerations">
+                            <h5>🤔 기타 고려사항</h5>
+                            <div class="alternatives-content" id="alternativeOptions">
+                                <p>분석 중...</p>
                             </div>
                         </div>
                     </div>
+
+                    <div class="gender-school-note">
+                        <div class="note-box">
+                            <div class="note-icon">💡</div>
+                            <p><strong>참고:</strong> 사주 분석을 바탕으로 한 추천이며, 최종 결정은 본인의 성향과 학교별 특성을 종합적으로 고려하여 내리시기 바랍니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 나에게 가장 길한 고등학교 방향 카드 -->
+            <section class="analysis-card direction-card">
+                <div class="card-header">
+                    <div class="card-icon">🧭</div>
+                    <h3 class="card-title">나에게 가장 길한 고등학교 방향</h3>
+                </div>
+                <div class="card-divider"></div>
+
+                <div class="direction-content">
+                    <div class="compass-container">
+                        <div class="compass">
+                            <div class="compass-circle">
+                                <div class="compass-pointer" id="compassPointer" style="transform: rotate(0deg);">
+                                    <div class="pointer-arrow">↑</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="direction-info">
-                        <h4 id="directionTitle"></h4>
-                        <p id="directionExplanation"></p>
+                        <h4 class="direction-title" id="directionTitle">방향 분석 중...</h4>
+                        <p class="direction-description" id="directionExplanation">
+                            사주 분석을 통해 가장 길한 방향을 계산하고 있습니다...
+                        </p>
                     </div>
                 </div>
             </section>
 
-            <!-- Fortune Timeline -->
-            <section class="fortune-timeline section-wrapper">
-                <div class="section-header">
-                    <h3 class="section-title">
-                        <span class="section-icon">📈</span>
-                        고등학교 3년간 운세 흐름
-                    </h3>
-                    <div class="section-divider"></div>
+            <!-- 고등학교 3년간 시험운 & 이성운 카드 -->
+            <section class="analysis-card fortune-card">
+                <div class="card-header">
+                    <div class="card-icon">📈</div>
+                    <h3 class="card-title">고등학교 3년간 시험운 & 이성운</h3>
                 </div>
-                <div class="timeline-container">
-                    <div class="fortune-bars">
-                        <div class="year-group">
-                            <h4>1학년</h4>
-                            <div class="bars">
-                                <div class="bar-item">
-                                    <span class="bar-label">학업운</span>
-                                    <div class="bar-container">
-                                        <div class="bar academic-bar" style="width: 85%;">85</div>
+                <div class="card-divider"></div>
+
+                <div class="fortune-content">
+                    <div class="fortune-introduction">
+                        <p>고등학교 3년간의 시험운과 이성운을 100점 만점으로 분석한 결과입니다.</p>
+                    </div>
+
+                    <div class="yearly-fortune">
+                        <div class="year-card">
+                            <div class="year-header">
+                                <h4 id="grade1Title">🌱 1학년 (적응기)</h4>
+                                <span class="year-period" id="grade1Year">2024년</span>
+                            </div>
+                            <div class="fortune-scores">
+                                <div class="score-item">
+                                    <div class="score-label">📝 시험운</div>
+                                    <div class="score-bar-container">
+                                        <div class="score-bar" id="grade1ExamBar" style="width: 0%;">
+                                            <span class="score-value" id="grade1ExamScore">0점</span>
+                                        </div>
                                     </div>
+                                    <p class="score-description" id="grade1ExamDesc">시험운 분석 중...</p>
                                 </div>
-                                <div class="bar-item">
-                                    <span class="bar-label">대인관계운</span>
-                                    <div class="bar-container">
-                                        <div class="bar social-bar" style="width: 70%;">70</div>
+                                <div class="score-item">
+                                    <div class="score-label">💕 이성운</div>
+                                    <div class="score-bar-container romance">
+                                        <div class="score-bar" id="grade1RomanceBar" style="width: 0%;">
+                                            <span class="score-value" id="grade1RomanceScore">0점</span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="bar-item">
-                                    <span class="bar-label">이성운</span>
-                                    <div class="bar-container">
-                                        <div class="bar romance-bar" style="width: 80%;">80</div>
-                                    </div>
+                                    <p class="score-description" id="grade1RomanceDesc">이성운 분석 중...</p>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="year-group">
-                            <h4>2학년</h4>
-                            <div class="bars">
-                                <div class="bar-item">
-                                    <span class="bar-label">학업운</span>
-                                    <div class="bar-container">
-                                        <div class="bar academic-bar" style="width: 90%;">90</div>
+
+                        <div class="year-card">
+                            <div class="year-header">
+                                <h4 id="grade2Title">🚀 2학년 (발전기)</h4>
+                                <span class="year-period" id="grade2Year">2025년</span>
+                            </div>
+                            <div class="fortune-scores">
+                                <div class="score-item">
+                                    <div class="score-label">📝 시험운</div>
+                                    <div class="score-bar-container">
+                                        <div class="score-bar" id="grade2ExamBar" style="width: 0%;">
+                                            <span class="score-value" id="grade2ExamScore">0점</span>
+                                        </div>
                                     </div>
+                                    <p class="score-description" id="grade2ExamDesc">시험운 분석 중...</p>
                                 </div>
-                                <div class="bar-item">
-                                    <span class="bar-label">대인관계운</span>
-                                    <div class="bar-container">
-                                        <div class="bar social-bar" style="width: 75%;">75</div>
+                                <div class="score-item">
+                                    <div class="score-label">💕 이성운</div>
+                                    <div class="score-bar-container romance">
+                                        <div class="score-bar" id="grade2RomanceBar" style="width: 0%;">
+                                            <span class="score-value" id="grade2RomanceScore">0점</span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="bar-item">
-                                    <span class="bar-label">이성운</span>
-                                    <div class="bar-container">
-                                        <div class="bar romance-bar" style="width: 85%;">85</div>
-                                    </div>
+                                    <p class="score-description" id="grade2RomanceDesc">이성운 분석 중...</p>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="year-group">
-                            <h4>3학년</h4>
-                            <div class="bars">
-                                <div class="bar-item">
-                                    <span class="bar-label">학업운</span>
-                                    <div class="bar-container">
-                                        <div class="bar academic-bar" style="width: 80%;">80</div>
+
+                        <div class="year-card">
+                            <div class="year-header">
+                                <h4 id="grade3Title">🎯 3학년 (완성기)</h4>
+                                <span class="year-period" id="grade3Year">2026년</span>
+                            </div>
+                            <div class="fortune-scores">
+                                <div class="score-item">
+                                    <div class="score-label">📝 시험운</div>
+                                    <div class="score-bar-container">
+                                        <div class="score-bar" id="grade3ExamBar" style="width: 0%;">
+                                            <span class="score-value" id="grade3ExamScore">0점</span>
+                                        </div>
                                     </div>
+                                    <p class="score-description" id="grade3ExamDesc">시험운 분석 중...</p>
                                 </div>
-                                <div class="bar-item">
-                                    <span class="bar-label">대인관계운</span>
-                                    <div class="bar-container">
-                                        <div class="bar social-bar" style="width: 85%;">85</div>
+                                <div class="score-item">
+                                    <div class="score-label">💕 이성운</div>
+                                    <div class="score-bar-container romance">
+                                        <div class="score-bar" id="grade3RomanceBar" style="width: 0%;">
+                                            <span class="score-value" id="grade3RomanceScore">0점</span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="bar-item">
-                                    <span class="bar-label">이성운</span>
-                                    <div class="bar-container">
-                                        <div class="bar romance-bar" style="width: 90%;">90</div>
-                                    </div>
+                                    <p class="score-description" id="grade3RomanceDesc">이성운 분석 중...</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="timeline-legend">
-                        <div class="legend-item">
-                            <span class="legend-color academic"></span>
-                            <span>학업운</span>
-                        </div>
-                        <div class="legend-item">
-                            <span class="legend-color social"></span>
-                            <span>대인관계운</span>
-                        </div>
-                        <div class="legend-item">
-                            <span class="legend-color romance"></span>
-                            <span>이성운</span>
+
+                    <div class="fortune-summary">
+                        <div class="summary-box">
+                            <h4>📈 3년 종합 분석</h4>
+                            <div class="summary-content">
+                                <div class="summary-item">
+                                    <strong>시험운:</strong> <span id="examTrendSummary">분석 중...</span>
+                                </div>
+                                <div class="summary-item">
+                                    <strong>이성운:</strong> <span id="romanceTrendSummary">분석 중...</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Academic Track Recommendation -->
-            <section class="academic-track section-wrapper">
-                <div class="section-header">
-                    <h3 class="section-title">
-                        <span class="section-icon">📚</span>
-                        문과 vs 이과 적합도 분석
-                    </h3>
-                    <div class="section-divider"></div>
+            <!-- 문이과 적성 분석 카드 -->
+            <section class="analysis-card track-card">
+                <div class="card-header">
+                    <div class="card-icon">📊</div>
+                    <h3 class="card-title">문이과 나의 적성은?</h3>
                 </div>
-                <div class="track-container">
+                <div class="card-divider"></div>
+
+                <div class="track-analysis">
                     <div class="track-comparison">
+                        <div class="track-card science recommended-track">
+                            <div class="track-header">
+                                <h4>🔬 이과 (추천)</h4>
+                                <div class="track-score" id="scienceScore">0%</div>
+                            </div>
+                            <div class="track-content">
+                                <h5>🎯 추천 이유</h5>
+                                <ul>
+                                    <li><strong>논리적 사고력:</strong> 사주의 금(金) 기운으로 체계적이고 분석적인 사고에 뛰어남</li>
+                                    <li><strong>수리 능력:</strong> 복잡한 수학적 개념을 이해하고 응용하는 능력이 우수함</li>
+                                    <li><strong>과학적 탐구심:</strong> 호기심이 많고 원리를 파헤치는 것을 좋아함</li>
+                                    <li><strong>미래 전망:</strong> 4차 산업혁명 시대에 유망한 분야들이 이과 계열에 많음</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
                         <div class="track-card liberal-arts">
                             <div class="track-header">
-                                <h4>📖 문과 적합도</h4>
-                                <div class="track-score">75%</div>
+                                <h4>📖 문과</h4>
+                                <div class="track-score" id="liberalScore">0%</div>
                             </div>
                             <div class="track-content">
-                                <div class="track-strengths">
-                                    <h5>강점 분야</h5>
-                                    <ul>
-                                        <li>언어적 사고력</li>
-                                        <li>창의적 표현력</li>
-                                        <li>인문학적 소양</li>
-                                        <li>의사소통 능력</li>
-                                    </ul>
-                                </div>
-                                <div class="track-subjects">
-                                    <h5>추천 과목</h5>
-                                    <div class="subject-tags">
-                                        <span class="subject-tag">국어</span>
-                                        <span class="subject-tag">영어</span>
-                                        <span class="subject-tag">사회</span>
-                                        <span class="subject-tag">역사</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="track-card science">
-                            <div class="track-header">
-                                <h4>🔬 이과 적합도</h4>
-                                <div class="track-score">85%</div>
-                            </div>
-                            <div class="track-content">
-                                <div class="track-strengths">
-                                    <h5>강점 분야</h5>
-                                    <ul>
-                                        <li>논리적 사고력</li>
-                                        <li>수리 분석 능력</li>
-                                        <li>체계적 문제해결</li>
-                                        <li>과학적 탐구심</li>
-                                    </ul>
-                                </div>
-                                <div class="track-subjects">
-                                    <h5>추천 과목</h5>
-                                    <div class="subject-tags">
-                                        <span class="subject-tag">수학</span>
-                                        <span class="subject-tag">물리</span>
-                                        <span class="subject-tag">화학</span>
-                                        <span class="subject-tag">생물</span>
-                                    </div>
-                                </div>
+                                <h5>💭 특징</h5>
+                                <ul>
+                                    <li><strong>언어 능력:</strong> 표현력과 소통 능력이 우수함</li>
+                                    <li><strong>인문학적 소양:</strong> 사회 현상에 대한 관심과 이해도가 높음</li>
+                                    <li><strong>창의적 사고:</strong> 새로운 아이디어를 창출하는 능력이 있음</li>
+                                </ul>
+                                <p class="track-note">문과도 충분히 적합하나, 이과에서 더 큰 잠재력을 발휘할 수 있을 것으로 예상됩니다.</p>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="track-recommendation">
+
+                    <div class="final-recommendation">
                         <div class="recommendation-box">
-                            <h4>🎯 최종 추천</h4>
-                            <p id="trackRecommendation">
-                                사주 분석 결과, 이과 계열이 더 적합합니다. 특히 금(金)의 기운이 강해 정밀하고 체계적인 사고를 선호하며, 
-                                수학과 과학 분야에서 뛰어난 성과를 보일 것으로 예상됩니다. 
-                                다만 문과 영역의 언어 능력도 무시할 수 없으므로 이과를 선택하되 국어와 영어 실력도 꾸준히 기르시기 바랍니다.
+                            <h4>🎯 최종 결론</h4>
+                            <p id="finalRecommendationText">
+                                <strong>이과를 추천</strong>합니다. 사주 분석 결과 논리적 사고와 체계적 접근을 선호하는 성향이 강하며, 
+                                수학과 과학 분야에서 뛰어난 성과를 거둘 가능성이 높습니다. 
+                                다만 문과 영역의 국어와 영어 실력도 꾸준히 기르시어 균형잡힌 학습 능력을 갖추시기 바랍니다.
                             </p>
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Additional Info -->
-            <section class="additional-info section-wrapper">
-                <div class="section-header">
-                    <h3 class="section-title">
-                        <span class="section-icon">💡</span>
-                        개인 맞춤 정보
-                    </h3>
-                    <div class="section-divider"></div>
-                </div>
-                <div class="info-cards">
-                    <div class="info-card">
-                        <div class="card-icon">🎯</div>
-                        <h4>학습 스타일</h4>
-                        <p id="learningStyle"></p>
-                    </div>
-                    <div class="info-card">
-                        <div class="card-icon">👥</div>
-                        <h4>사회성</h4>
-                        <p id="socialTendency"></p>
-                    </div>
-                    <div class="info-card">
-                        <div class="card-icon">🌟</div>
-                        <h4>특별한 재능</h4>
-                        <p id="specialTalent"></p>
-                    </div>
-                    <div class="info-card">
-                        <div class="card-icon">⚠️</div>
-                        <h4>주의사항</h4>
-                        <p id="cautions"></p>
                     </div>
                 </div>
             </section>
@@ -289,11 +319,11 @@
             <!-- Closing Message -->
             <section class="closing-message">
                 <div class="message-box">
-                    <h4>💡 잠깐!</h4>
+                    <h4>💫 마무리 말씀</h4>
                     <p>
-                        이 분석은 여러분의 고등학교 선택에 도움을 주기 위한 참고 자료입니다. 
-                        가장 중요한 것은 여러분의 관심사와 꿈입니다. 
-                        충분한 고민과 실제 학교 방문을 통해 여러분에게 최적의 결정을 내리시길 바랍니다!
+                        이 분석은 사주팔자를 바탕으로 한 참고 자료입니다. 
+                        최종 결정은 본인의 관심사, 적성, 가정 상황 등을 종합적으로 고려하여 내리시기 바랍니다. 
+                        어떤 선택을 하든 최선을 다하는 마음가짐이 가장 중요합니다! 🌟
                     </p>
                 </div>
             </section>
@@ -306,184 +336,6 @@
         </main>
     </div>
 
-    <script src="script.js?v=3.2"></script>
-    <script>
-        // 직접 HTML에서 결과 표시 - JavaScript 로딩 실패 대비
-        document.addEventListener('DOMContentLoaded', function() {
-            // 기본 데이터 설정
-            const defaultUserData = {
-                name: '테스트 사용자',
-                birthYear: '2008',
-                birthMonth: '5',
-                birthDay: '20',
-                birthTime: '오시',
-                gender: '남성'
-            };
-            
-            const defaultResult = {
-                summary: `${defaultUserData.name} 님은 ${defaultUserData.birthTime}에 태어나신 ${defaultUserData.gender}으로, 강한 학습 의지와 창의적 사고력을 가지고 계십니다. 특히 체계적인 학습 환경에서 뛰어난 성과를 보일 것으로 예상되어 일반고에서도 충분히 훌륭한 결과를 만들어낼 수 있습니다.`,
-                recommendedSchools: [
-                    {
-                        rank: 1,
-                        type: '일반고(남녀공학)',
-                        reason: '사주에서 토(土)의 기운이 강하여 안정적이고 균형 잡힌 성향을 보입니다. 일반고의 다양한 교육과정과 친구들과의 폭넓은 교류를 통해 사회성과 학업 능력을 동시에 기를 수 있어 가장 적합합니다. 특히 다양한 배경의 친구들과 어울리며 포용력과 리더십을 발전시킬 수 있습니다.'
-                    },
-                    {
-                        rank: 2,
-                        type: '자율형사립고',
-                        reason: '화(火)의 기운이 적절히 조화되어 있어 적극적인 학습 의지와 도전 정신을 가지고 있습니다. 자율형사립고의 심화 교육과정과 다양한 특별 프로그램을 통해 잠재력을 더욱 발전시킬 수 있습니다. 다만 경제적 여건을 충분히 고려하여 결정하시기 바랍니다.'
-                    },
-                    {
-                        rank: 3,
-                        type: '일반고(단성학교)',
-                        reason: '금(金)의 기운으로 집중력이 뛰어나며 차분한 학습 환경을 선호하는 성향이 있습니다. 단성학교의 안정적이고 집중된 교육 환경에서 학업에 몰입하며 좋은 성과를 거둘 수 있을 것입니다.'
-                    }
-                ],
-                notRecommendedSchools: [
-                    {
-                        rank: 1,
-                        type: '과학영재학교',
-                        reason: '매우 뛰어난 과학적 재능과 극상위 성적이 필요하며, 전국에서 1% 미만만 입학 가능한 극도로 높은 경쟁률을 가지고 있습니다. 현실적으로 진학이 매우 어려우며, 일반고에서도 충분히 훌륭한 교육을 받을 수 있습니다.'
-                    },
-                    {
-                        rank: 2,
-                        type: '예술고',
-                        reason: '예술적 감각보다는 체계적이고 논리적인 사고가 강한 편이므로, 예술 전문 교육보다는 일반적인 학문 분야가 더 적합합니다. 일반고에서 다양한 분야를 경험해보는 것이 유리할 것입니다.'
-                    }
-                ]
-            };
-            
-            // localStorage에서 실제 데이터 시도
-            let userData, analysisResult;
-            try {
-                userData = JSON.parse(localStorage.getItem('sajuUserData')) || defaultUserData;
-                analysisResult = JSON.parse(localStorage.getItem('sajuAnalysisResult')) || defaultResult;
-            } catch (e) {
-                userData = defaultUserData;
-                analysisResult = defaultResult;
-            }
-            
-            // 직접 HTML 업데이트
-            setTimeout(function() {
-                // 사용자 이름 설정
-                const userNameEl = document.getElementById('userName');
-                if (userNameEl) {
-                    userNameEl.textContent = userData.name;
-                }
-                
-                // 분석 요약 설정
-                const summaryEl = document.getElementById('analysisDescription');
-                if (summaryEl) {
-                    summaryEl.textContent = analysisResult.summary;
-                }
-                
-                // 학교 추천 설정
-                const schoolContainer = document.getElementById('schoolRecommendations');
-                if (schoolContainer) {
-                    let html = '<div class="recommendation-section">';
-                    html += '<h4 class="recommendation-subtitle">✅ 강력 추천하는 학교 (적합도 순)</h4>';
-                    
-                    analysisResult.recommendedSchools.forEach((school, index) => {
-                        const rankIcon = index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉';
-                        html += `
-                            <div class="school-card recommended-card rank-${school.rank || (index + 1)}">
-                                <div class="school-ranking">${rankIcon}</div>
-                                <div class="school-badge recommended-badge">${school.rank || (index + 1)}순위 추천</div>
-                                <h5 class="school-name">${school.type}</h5>
-                                <p class="school-reason">${school.reason}</p>
-                            </div>
-                        `;
-                    });
-                    
-                    html += '</div><div class="recommendation-section">';
-                    html += '<h4 class="recommendation-subtitle">❌ 권하지 않는 학교 (부적합도 순)</h4>';
-                    
-                    analysisResult.notRecommendedSchools.forEach((school, index) => {
-                        html += `
-                            <div class="school-card not-recommended-card rank-${school.rank || (index + 1)}">
-                                <div class="school-ranking">❌ ${school.rank || (index + 1)}위</div>
-                                <div class="school-badge not-recommended-badge">${school.rank || (index + 1)}순위 비추천</div>
-                                <h5 class="school-name">${school.type}</h5>
-                                <p class="school-reason">${school.reason}</p>
-                            </div>
-                        `;
-                    });
-                    
-                    html += '</div>';
-                    schoolContainer.innerHTML = html;
-                }
-                
-                // 길한 방향 설정
-                const directionTitleEl = document.getElementById('directionTitle');
-                const directionExplanationEl = document.getElementById('directionExplanation');
-                const compassPointerEl = document.getElementById('compassPointer');
-                
-                if (directionTitleEl) {
-                    directionTitleEl.textContent = '북쪽이 당신에게 길한 방향입니다';
-                }
-                
-                if (directionExplanationEl) {
-                    directionExplanationEl.textContent = '북쪽 방향은 오행에서 학업운과 대인관계운을 상승시키는 길한 방위입니다. 이 방향에 위치한 학교에서 더욱 안정적이고 발전적인 학교생활을 할 수 있을 것입니다.';
-                }
-                
-                if (compassPointerEl) {
-                    compassPointerEl.style.transform = 'rotate(0deg)'; // 북쪽
-                }
-                
-                // 개인 특성 설정
-                const learningStyleEl = document.getElementById('learningStyle');
-                const socialTendencyEl = document.getElementById('socialTendency');
-                const specialTalentEl = document.getElementById('specialTalent');
-                const cautionsEl = document.getElementById('cautions');
-                
-                if (learningStyleEl) {
-                    learningStyleEl.textContent = '체계적이고 논리적인 학습을 선호하며, 단계별 접근을 통해 깊이 있는 이해를 추구합니다.';
-                }
-                
-                if (socialTendencyEl) {
-                    socialTendencyEl.textContent = '신중하면서도 따뜻한 성격으로 진실한 우정을 중시하며, 필요시 리더십을 발휘할 수 있습니다.';
-                }
-                
-                if (specialTalentEl) {
-                    specialTalentEl.textContent = '분석적 사고와 창의적 문제해결 능력이 뛰어나며, 특히 과학과 수학 분야에서 재능이 돋보입니다.';
-                }
-                
-                if (cautionsEl) {
-                    cautionsEl.textContent = '완벽주의 성향이 강해 스트레스를 받을 수 있으니, 적절한 휴식과 취미 활동을 통해 균형을 유지하는 것이 중요합니다.';
-                }
-                
-                // 문과/이과 적합도 설정
-                const liberalArtsScore = document.querySelector('.track-card.liberal-arts .track-score');
-                const scienceScore = document.querySelector('.track-card.science .track-score');
-                const trackRecommendationEl = document.getElementById('trackRecommendation');
-                
-                if (liberalArtsScore) {
-                    liberalArtsScore.textContent = '75%';
-                }
-                
-                if (scienceScore) {
-                    scienceScore.textContent = '85%';
-                }
-                
-                if (trackRecommendationEl) {
-                    trackRecommendationEl.textContent = '사주 분석 결과, 이과 계열이 더 적합합니다. 특히 금(金)의 기운이 강해 정밀하고 체계적인 사고를 선호하며, 수학과 과학 분야에서 뛰어난 성과를 보일 것으로 예상됩니다. 다만 문과 영역의 언어 능력도 무시할 수 없으므로 이과를 선택하되 국어와 영어 실력도 꾸준히 기르시기 바랍니다.';
-                }
-                
-                // 이과가 더 높은 점수이므로 이과 카드 강조
-                const liberalCard = document.querySelector('.track-card.liberal-arts');
-                const scienceCard = document.querySelector('.track-card.science');
-                
-                if (scienceCard) {
-                    scienceCard.style.transform = 'scale(1.02)';
-                    scienceCard.style.boxShadow = '0 8px 32px rgba(102, 126, 234, 0.3)';
-                }
-                
-                if (liberalCard) {
-                    liberalCard.style.transform = 'scale(1)';
-                    liberalCard.style.boxShadow = '';
-                }
-            }, 500);
-        });
-    </script>
+    <script src="script.js?v=3.9"></script>
 </body>
 </html> 

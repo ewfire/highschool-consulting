@@ -3,7 +3,7 @@ const GEMINI_API_KEY = 'AIzaSyBY1aPCt5gkJr7m8BCuTRUjtLl5PWHO4Dg'; // 실제 사�
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 // 버전 관리 및 데이터 클리어
-const SCRIPT_VERSION = '3.4';
+const SCRIPT_VERSION = '3.7';
 const STORAGE_VERSION_KEY = 'sajuApp_version';
 
 // Global variables
@@ -305,7 +305,9 @@ async function performSajuAnalysis(userData) {
     console.log('- 요청 ID:', requestId);
     console.log('- 프롬프트 변형:', selectedPrompt);
     
-    const basePrompt = `사주팔자 분석 전문가로서 다음 정보를 바탕으로 고등학교 추천 분석을 수행해주세요.
+    const basePrompt = `사주팔자 분석 전문가로서 다음 정보를 바탕으로 고등학교 선택 가이드를 제공해주세요.
+
+**중요: 분석 결과는 단호하고 확신에 찬 어조로 작성해주세요. "~것으로 예상됩니다", "~할 수 있습니다" 같은 애매한 표현보다는 "~합니다", "~될 것입니다", "~해야 합니다" 같은 확실한 표현을 사용하세요.**
 
 **분석 대상 정보:**
 - 이름: ${userData.name}
@@ -314,99 +316,143 @@ async function performSajuAnalysis(userData) {
 - 성별: ${userData.gender}
 - 요청 ID: ${requestId}
 
-**분석 요구사항:**
-1. 사주오행 분석을 통한 성격 및 재능 파악
-2. 고등학교 3년간의 운세 흐름 예측 (학업운, 대인관계운, 이성운)
-3. 최적의 고등학교 유형 3개 추천 (구체적인 이유 포함)
-4. 피해야 할 고등학교 유형 2개 (이유 포함)
-5. 문과 vs 이과 적합도 분석 (각각 점수화 및 추천 이유)
-6. 학습 방향 및 진로 조언
+**분석해야 할 5개 섹션:**
 
-**⚠️ 현실적인 추천 가이드라인 (반드시 준수):**
+**1. 추천 고등학교 유형 (1순위, 2순위)**
+- 고등학교 유형: 교육열 일반고, 내신따기 좋은 일반고, 자율형사립고, 특수목적고(영재고, 외국어고)
+- 참고: 특목고는 진학 확률과 선택 비중이 10%밖에 되지 않음
+- 1순위와 2순위만 선정하고 각각의 사주 분석 기반 추천 이유를 단호하게 제시
+- 예시: "당신은 반드시 ~고에 진학해야 합니다", "~고가 당신에게 최적의 선택입니다"
 
-**고등학교 위계 구조:**
-- 학구열 후끈 일반고: 35-40% 비중, 입시 명문 일반고
-  • 학구열 후끈 일반고(남고)
-  • 학구열 후끈 일반고(여고)  
-  • 학구열 후끈 일반고(남녀공학)
-- 내신받기 좋은 일반고: 35-40% 비중, 평범한 일반고
-  • 내신받기 좋은 일반고(남고)
-  • 내신받기 좋은 일반고(여고)
-  • 내신받기 좋은 일반고(남녀공학)
-- 자율형사립고: 12-20% 비중, 경제적 여건 고려 필요
-- 특목고(과학고/외국어고): 3-7% 비중, 매우 높은 경쟁률
+**2. 남고/여고/공학 중 최적 선택**
+- 남고, 여고, 남녀공학 중 가장 적합한 곳과 그 이유를 확신 있게 제시
+- 사주의 음양오행을 바탕으로 사회성과 학습환경 적합도를 단정적으로 분석
+- 성별에 따른 제약사항 고려 (남성은 여고 배제, 여성은 남고 배제)
+- 예시: "당신에게는 ~이 절대적으로 유리합니다", "~을 선택하는 것이 현명합니다"
 
-**추천 우선순위:**
-1순위는 반드시 일반고 계열 중에서 선택 (학구열 후끈 또는 내신받기 좋은)
-- 40% 확률로 "내신받기 좋은 일반고(남고/여고/남녀공학)" 우선 추천
-- 40% 확률로 "학구열 후끈 일반고(남고/여고/남녀공학)" 우선 추천  
-- 20% 확률로 자율형사립고 추천 (경제적 여건 언급 필수)
+**3. 문과/이과 적성 분석**
+- 문과와 이과 각각의 적합도를 점수로 제시 (30-95점 범위)
+- 사주 오행 분석 기반 추천 (목화 → 문과, 금수 → 이과, 토 → 균형)
+- 최종 추천과 구체적인 이유를 단호하게 설명
+- 예시: "당신은 확실히 ~과가 맞습니다", "~과를 선택하면 성공할 것입니다"
 
-2-3순위에서 다양한 유형 고려 가능하되 현실성 유지
-특목고는 정말 특출난 재능이 확인될 때만 3순위에서 제한적 추천
+**4. 길한 방향**
+- 8방위 중 고등학교 선택시 가장 길한 방향을 확실하게 제시
+- 사주 오행과 방위의 조화를 단정적으로 분석
+- 해당 방향이 가져다줄 구체적인 효과를 확신 있게 설명
+- 예시: "~방향이 당신의 운명을 바꿀 것입니다", "반드시 ~방향 학교를 선택하세요"
 
-**문과/이과 적합도 분석 가이드라인:**
-- 오행 중 목(木), 화(火)가 강하면 문과 성향 (언어, 예술, 사회과학)
-- 오행 중 금(金), 수(水)가 강하면 이과 성향 (수학, 과학, 공학)
-- 토(土)가 강하면 균형잡힌 성향
-- 출생월에 따른 계절 특성 반영 (봄-목, 여름-화, 가을-금, 겨울-수)
-- 출생시간에 따른 성격 특성 반영
-- 점수는 30-95% 범위에서 개인별 맞춤 설정
-- 두 영역 차이는 최소 5점 이상 두어 명확한 구분 제공
+**5. 3년간 시험운과 이성운**
+- 고등학교 1, 2, 3학년 각각의 시험운과 이성운을 100점 만점으로 제시
+- 시험운: 학업 성취도와 시험 성과를 확실하게 예측
+- 이성운: 연애에 대한 관심도를 단정적으로 분석
+- 예시: "~학년에는 반드시 ~한 결과를 얻을 것입니다", "~학년이 당신의 전환점이 됩니다"
 
-**중요 참고사항:**
-- 이성운: 고등학교 시기 연애에 대한 관심도를 나타냄 (점수가 높을수록 연애에 관심이 많아 공부 집중도가 떨어질 수 있음)
-- 문과/이과: 사주 오행 분석을 바탕으로 한 학문적 성향 판단
-- 현실성: 대부분 학생은 일반고에 진학하므로 일반고 내에서의 최적 선택을 우선 고려
-- 학구열 vs 내신: 경쟁적 환경 선호도에 따라 "학구열 후끈" 또는 "내신받기 좋은" 구분
-- 성별 고려: 남성은 여고 배제, 여성은 남고 배제 (남녀공학은 모두 포함)
+**어조 가이드라인:**
+- ❌ 피해야 할 표현: "~것으로 보입니다", "~할 수 있을 것 같습니다", "~하는 것이 좋겠습니다"
+- ✅ 사용해야 할 표현: "~합니다", "~될 것입니다", "~해야 합니다", "~이 확실합니다", "반드시 ~하세요"
+- 전문가로서의 확신과 권위를 보여주되, 과도하게 단정적이지 않게 균형을 맞추세요
+
+**오행 분석 가이드라인:**
+- 목(木): 봄(3-5월), 동쪽, 성장과 창의, 언어능력
+- 화(火): 여름(6-8월), 남쪽, 열정과 표현, 예술적 재능
+- 토(土): 환절기, 중앙, 안정과 포용, 균형잡힌 성향
+- 금(金): 가을(9-11월), 서쪽, 논리와 분석, 수리능력
+- 수(水): 겨울(12-2월), 북쪽, 지혜와 탐구, 과학적 사고
 
 **응답 형식 (반드시 JSON으로만 응답):**
 {
   "requestId": "${requestId}",
   "promptVariation": "${selectedPrompt}",
   "sajuElements": "오행 분석 내용",
-  "personality": "성격 분석",
-  "learningStyle": "학습 스타일",
-  "socialTendency": "사회적 성향",
-  "recommendedSchools": [
-    {"rank": 1, "type": "학교유형1", "reason": "추천 이유"},
-    {"rank": 2, "type": "학교유형2", "reason": "추천 이유"},
-    {"rank": 3, "type": "학교유형3", "reason": "추천 이유"}
-  ],
-  "notRecommendedSchools": [
-    {"rank": 1, "type": "학교유형1", "reason": "비추천 이유"},
-    {"rank": 2, "type": "학교유형2", "reason": "비추천 이유"}
-  ],
-  "summary": "종합적인 분석 요약",
-  "direction": {
-    "bestDirection": "방향",
-    "title": "방향 제목",
-    "explanation": "방향 설명"
+  "section1_schoolTypes": {
+    "rank1": {
+      "type": "1순위 학교 유형",
+      "reason": "사주 분석 기반 상세한 추천 이유"
+    },
+    "rank2": {
+      "type": "2순위 학교 유형", 
+      "reason": "사주 분석 기반 상세한 추천 이유"
+    },
+    "specialNote": "특목고 진학률 10% 참고사항 및 기타 유형 언급"
   },
-  "fortuneFlow": {
-    "grade1": {"academic": 85, "social": 78, "romance": 72},
-    "grade2": {"academic": 88, "social": 82, "romance": 75},
-    "grade3": {"academic": 90, "social": 85, "romance": 78}
+  "section2_genderSchool": {
+    "recommendation": "남고/여고/남녀공학 중 추천",
+    "suitabilityScore": 90,
+    "reasons": [
+      "추천 이유 1",
+      "추천 이유 2", 
+      "추천 이유 3",
+      "추천 이유 4"
+    ],
+    "alternatives": {
+      "otherOptions": "다른 옵션들에 대한 간단한 평가"
+    }
   },
-  "personalTraits": {
-    "learningStyle": "학습 스타일 상세",
-    "socialTendency": "사회적 성향 상세",
-    "specialTalent": "특별한 재능",
-    "cautions": "주의사항"
+  "section3_academicTrack": {
+    "liberalArtsScore": 75,
+    "scienceScore": 85,
+    "recommendation": "이과/문과",
+    "liberalStrengths": [
+      "문과 강점 1",
+      "문과 강점 2",
+      "문과 강점 3",
+      "문과 강점 4"
+    ],
+    "scienceStrengths": [
+      "이과 강점 1", 
+      "이과 강점 2",
+      "이과 강점 3",
+      "이과 강점 4"
+    ],
+    "liberalSubjects": ["국어", "영어", "사회", "역사"],
+    "scienceSubjects": ["수학", "물리", "화학", "생명과학"],
+    "finalRecommendation": "최종 결론과 조언"
   },
-  "academicTrack": {
-    "liberalArts": 75,
-    "science": 85,
-    "recommendation": "이과",
-    "reasoning": "문과/이과 추천 이유 (오행 분석 근거 포함)",
-    "liberalStrengths": ["구체적 문과 강점영역1", "구체적 문과 강점영역2", "구체적 문과 강점영역3"],
-    "scienceStrengths": ["구체적 이과 강점영역1", "구체적 이과 강점영역2", "구체적 이과 강점영역3"],
-    "liberalSubjects": ["추천 문과 과목1", "추천 문과 과목2", "추천 문과 과목3"],
-    "scienceSubjects": ["추천 이과 과목1", "추천 이과 과목2", "추천 이과 과목3"]
+  "section4_direction": {
+    "bestDirection": "북동",
+    "directionTitle": "북동쪽이 가장 길한 방향입니다",
+    "explanation": "방향 선택 이유",
+    "benefits": [
+      "학업운 상승: 설명",
+      "대인관계 개선: 설명", 
+      "성장 동력: 설명",
+      "건강운: 설명"
+    ],
+    "practicalAdvice": "실용적 조언"
   },
-  "studyTips": "구체적인 공부 방법 조언",
-  "careerDirection": "진로 방향 조언"}`;
+  "section5_fortune": {
+    "grade1": {
+      "year": "2024년",
+      "phase": "적응기",
+      "examLuck": 75,
+      "romanceLuck": 65,
+      "examDescription": "시험운 설명",
+      "romanceDescription": "이성운 설명"
+    },
+    "grade2": {
+      "year": "2025년", 
+      "phase": "발전기",
+      "examLuck": 90,
+      "romanceLuck": 85,
+      "examDescription": "시험운 설명",
+      "romanceDescription": "이성운 설명"
+    },
+    "grade3": {
+      "year": "2026년",
+      "phase": "완성기", 
+      "examLuck": 95,
+      "romanceLuck": 70,
+      "examDescription": "시험운 설명",
+      "romanceDescription": "이성운 설명"
+    },
+    "summary": {
+      "examTrend": "3년간 시험운 종합 분석",
+      "romanceTrend": "3년간 이성운 종합 분석"
+    }
+  },
+  "summary": "전체 분석 종합 요약"
+}`;
 
     // 실제 API 호출 시작 로그
     console.log(`🤖 실제 Gemini API 호출을 시작합니다!`);
@@ -553,345 +599,356 @@ async function performSajuAnalysis(userData) {
 
 // Generate demo analysis for testing
 function generateDemoAnalysis(userData) {
-    console.log('🎭 데모 분석 데이터 생성 시작');
+    console.log('=== 데모 분석 데이터 생성 시작 ===', userData);
+    
+    // 매번 다른 결과를 위한 강화된 랜덤 시드
+    const randomSeed = Date.now() + Math.random() * 1000000;
+    Math.seedrandom = function(seed) {
+        let m = 0x80000000;
+        let a = 1103515245;
+        let c = 12345;
+        let state = seed ? seed : Math.floor(Math.random() * (m - 1));
+        return function() {
+            state = (a * state + c) % m;
+            return state / (m - 1);
+        };
+    };
+    const customRandom = Math.seedrandom(randomSeed);
+    
+    console.log('🎲 랜덤 시드 생성:', randomSeed);
+    
+    const randomId = `demo_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+    
     console.log('입력 사용자 데이터:', userData);
+    
+    console.log('🎭 데모 분석 데이터 생성 시작');
     console.log('⚠️ 이것은 데모 데이터입니다! API 호출이 실패했습니다! 🚨');
     
-    // 매번 완전히 다른 랜덤 결과 생성
     const timestamp = Date.now();
-    const randomId = Math.random().toString(36).substr(2, 9);
     
-    console.log('🎲 랜덤 ID:', randomId);
-    console.log('⏰ 타임스탬프:', timestamp);
+    // 오행 기반 성격 분석
+    const birthMonth = parseInt(userData.birthMonth);
+    const seasonElement = birthMonth <= 2 || birthMonth === 12 ? '수(水)' : 
+                         birthMonth <= 5 ? '목(木)' : 
+                         birthMonth <= 8 ? '화(火)' : 
+                         birthMonth <= 11 ? '금(金)' : '토(土)';
     
-    // 현실적인 학교 유형들 (새로운 위계 반영)
-    const realSchoolTypes = {
-        // 학구열 후끈 일반고 (35-40% 비중) - 입시 명문 일반고
-        competitive_regular: [
-            '학구열 후끈 일반고(남고)', 
-            '학구열 후끈 일반고(여고)', 
-            '학구열 후끈 일반고(남녀공학)',
-            '명문 일반고(남고)', 
-            '명문 일반고(여고)', 
-            '명문 일반고(남녀공학)',
-            '입시명문 일반고(남고)', 
-            '입시명문 일반고(여고)', 
-            '입시명문 일반고(남녀공학)'
-        ],
-        // 내신받기 좋은 일반고 (35-40% 비중) - 일반적인 평범한 일반고
-        grade_friendly_regular: [
-            '내신받기 좋은 일반고(남고)', 
-            '내신받기 좋은 일반고(여고)', 
-            '내신받기 좋은 일반고(남녀공학)',
-            '평범한 일반고(남고)', 
-            '평범한 일반고(여고)', 
-            '평범한 일반고(남녀공학)',
-            '안정적인 일반고(남고)', 
-            '안정적인 일반고(여고)', 
-            '안정적인 일반고(남녀공학)'
-        ],
-        // 자율형사립고 (12-20% 비중)
-        autonomous: [
-            '자율형사립고', '자율형공립고'
-        ],
-        // 특목고 (3-7% 비중)
-        special: [
-            '과학고', '외국어고', '국제고'
-        ]
-    };
-    
-    // 성별에 따른 학교 유형 필터링
-    const filterSchoolsByGender = (schoolArray, userGender) => {
-        return schoolArray.filter(school => {
-            if (userGender === '남성') {
-                // 남성의 경우 여고 배제
-                return !school.includes('(여고)');
-            } else if (userGender === '여성') {
-                // 여성의 경우 남고 배제
-                return !school.includes('(남고)');
-            }
-            return true; // 성별 정보가 없는 경우 모든 학교 포함
+    // 성별에 맞는 학교 유형 생성
+    const getGenderAppropriateSchools = (types, gender) => {
+        return types.filter(type => {
+            if (gender === '남성') return !type.includes('여고');
+            if (gender === '여성') return !type.includes('남고');
+            return true;
         });
     };
     
-    // 성별에 맞는 학교 유형들로 필터링
-    const filteredSchoolTypes = {
-        competitive_regular: filterSchoolsByGender(realSchoolTypes.competitive_regular, userData.gender),
-        grade_friendly_regular: filterSchoolsByGender(realSchoolTypes.grade_friendly_regular, userData.gender),
-        autonomous: realSchoolTypes.autonomous, // 자율형사립고는 대부분 남녀공학
-        special: realSchoolTypes.special // 특목고도 대부분 남녀공학
+    const schoolTypes = {
+        competitive: ['교육열 일반고'],
+        gradeGood: ['내신따기 좋은 일반고'],
+        autonomous: ['자율형 사립고'],
+        special: ['영재고', '외국어고']
     };
     
-    console.log('🔍 성별 필터링 결과:');
-    console.log('사용자 성별:', userData.gender);
-    console.log('필터링된 학구열 후끈 일반고:', filteredSchoolTypes.competitive_regular);
-    console.log('필터링된 내신받기 좋은 일반고:', filteredSchoolTypes.grade_friendly_regular);
+    const filteredTypes = {
+        competitive: getGenderAppropriateSchools(schoolTypes.competitive, userData.gender),
+        gradeGood: getGenderAppropriateSchools(schoolTypes.gradeGood, userData.gender),
+        autonomous: schoolTypes.autonomous,
+        special: schoolTypes.special
+    };
     
-    const reasons = [
-        '사주에서 수(水)의 기운이 강해 창의적이고 유연한 사고를 가지고 있습니다.',
-        '목(木)의 기운이 왕성하여 성장 지향적이고 도전적인 성격입니다.',
-        '화(火)의 에너지가 넘쳐 열정적이고 활동적인 특성을 보입니다.',
-        '토(土)의 안정성이 강해 차분하고 신중한 판단력을 가지고 있습니다.',
-        '금(金)의 날카로움으로 분석적이고 정확한 사고를 선호합니다.',
-        '음양의 조화가 뛰어나 균형 잡힌 사고와 행동을 보입니다.',
-        '천간과 지지의 배치가 특별하여 독특한 재능을 가지고 있습니다.',
-        '사주 구조상 경쟁적 환경에서 실력을 발휘하는 타입입니다.',
-        '차분한 환경에서 꾸준히 실력을 쌓아가는 것이 적합합니다.'
-    ];
+    // 랜덤 선택으로 1, 2순위 결정
+    const rank1Random = Math.random();
+    let rank1Type, rank2Type;
     
-    // 현실적인 추천 (1순위는 반드시 일반고, 빈도 고려)
-    const schoolTypeSelection = Math.random();
-    let firstChoice, secondChoice, thirdChoice;
-    
-    if (schoolTypeSelection < 0.4) {
-        // 40% 확률로 내신받기 좋은 일반고를 1순위로
-        firstChoice = {
-            rank: 1,
-            type: filteredSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * filteredSchoolTypes.grade_friendly_regular.length)],
-            reason: `${reasons[0]} 안정적인 내신 관리가 가능한 환경에서 꾸준히 성장하며 대학 진학을 준비할 수 있어 가장 적합합니다.`
-        };
-        
-        if (Math.random() < 0.7) {
-            secondChoice = {
-                rank: 2,
-                type: filteredSchoolTypes.competitive_regular[Math.floor(Math.random() * filteredSchoolTypes.competitive_regular.length)],
-                reason: `${reasons[1]} 학구열이 높은 환경에서 자극을 받으며 더 높은 목표를 향해 도전할 수 있을 것입니다.`
-            };
-        } else {
-            secondChoice = {
-                rank: 2,
-                type: filteredSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * filteredSchoolTypes.grade_friendly_regular.length)],
-                reason: `${reasons[1]} 비슷한 성향의 환경에서 안정적으로 학업에 집중할 수 있습니다.`
-            };
-        }
-        
-    } else if (schoolTypeSelection < 0.8) {
-        // 40% 확률로 학구열 후끈 일반고를 1순위로
-        firstChoice = {
-            rank: 1,
-            type: filteredSchoolTypes.competitive_regular[Math.floor(Math.random() * filteredSchoolTypes.competitive_regular.length)],
-            reason: `${reasons[0]} 높은 학구열과 경쟁적 분위기에서 자신의 잠재력을 최대한 발휘할 수 있어 가장 적합합니다.`
-        };
-        
-        secondChoice = {
-            rank: 2,
-            type: filteredSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * filteredSchoolTypes.grade_friendly_regular.length)],
-            reason: `${reasons[1]} 보다 안정적인 환경에서 내신 관리를 하며 꾸준히 실력을 키워갈 수 있습니다.`
-        };
-        
+    if (rank1Random < 0.5) {
+        rank1Type = filteredTypes.competitive[Math.floor(Math.random() * filteredTypes.competitive.length)];
+        rank2Type = filteredTypes.gradeGood[Math.floor(Math.random() * filteredTypes.gradeGood.length)];
     } else {
-        // 20% 확률로 자율형사립고를 1순위로 (경제적 여건 고려)
-        firstChoice = {
-            rank: 1,
-            type: filteredSchoolTypes.autonomous[Math.floor(Math.random() * filteredSchoolTypes.autonomous.length)],
-            reason: `${reasons[0]} 다양한 교육 프로그램과 우수한 교육 환경에서 전인적 성장이 가능하여 가장 적합합니다. (단, 경제적 여건을 고려해야 합니다)`
-        };
-        
-        secondChoice = {
-            rank: 2,
-            type: filteredSchoolTypes.competitive_regular[Math.floor(Math.random() * filteredSchoolTypes.competitive_regular.length)],
-            reason: `${reasons[1]} 높은 학구열 속에서 우수한 동료들과 함께 성장할 수 있는 환경입니다.`
-        };
+        rank1Type = filteredTypes.gradeGood[Math.floor(Math.random() * filteredTypes.gradeGood.length)];
+        rank2Type = filteredTypes.competitive[Math.floor(Math.random() * filteredTypes.competitive.length)];
     }
     
-    // 3순위는 다양하게
-    const thirdChoiceRandom = Math.random();
-    if (thirdChoiceRandom < 0.4) {
-        thirdChoice = {
-            rank: 3,
-            type: filteredSchoolTypes.grade_friendly_regular[Math.floor(Math.random() * filteredSchoolTypes.grade_friendly_regular.length)],
-            reason: `${reasons[2]} 무난하고 안정적인 학교 생활을 통해 기본기를 탄탄히 다질 수 있습니다.`
-        };
-    } else if (thirdChoiceRandom < 0.7) {
-        thirdChoice = {
-            rank: 3,
-            type: filteredSchoolTypes.competitive_regular[Math.floor(Math.random() * filteredSchoolTypes.competitive_regular.length)],
-            reason: `${reasons[2]} 학업 분위기가 좋은 환경에서 목표 의식을 가지고 공부할 수 있습니다.`
-        };
-    } else if (thirdChoiceRandom < 0.9) {
-        thirdChoice = {
-            rank: 3,
-            type: filteredSchoolTypes.autonomous[Math.floor(Math.random() * filteredSchoolTypes.autonomous.length)],
-            reason: `${reasons[2]} 특별한 교육과정과 다양한 기회를 통해 개성을 살릴 수 있습니다.`
-        };
-    } else {
-        thirdChoice = {
-            rank: 3,
-            type: filteredSchoolTypes.special[Math.floor(Math.random() * filteredSchoolTypes.special.length)],
-            reason: `${reasons[2]} 특정 분야의 심화 교육을 통해 전문성을 기를 수 있습니다. (단, 높은 경쟁률 고려 필요)`
-        };
-    }
+    console.log('🎯 성별 필터링 결과:', {
+        gender: userData.gender,
+        rank1Type,
+        rank2Type,
+        filteredCompetitive: filteredTypes.competitive,
+        filteredGradeGood: filteredTypes.gradeGood
+    });
     
-    const recommendedSchools = [firstChoice, secondChoice, thirdChoice];
+    // 남고/여고/공학 추천 (더 다양한 패턴)
+    const genderSchoolOptions = {
+        male: ['남녀공학', '남고', '남녀공학'], // 70% 확률로 남녀공학
+        female: ['남녀공학', '여고', '남녀공학'], // 70% 확률로 남녀공학
+        other: ['남녀공학']
+    };
     
-    // 비추천 학교 (현실적으로 맞지 않는 유형)
-    const notRecommendedSchools = [
-        {
-            rank: 1,
-            type: filteredSchoolTypes.special[Math.floor(Math.random() * filteredSchoolTypes.special.length)],
-            reason: '매우 특출한 재능과 높은 경쟁률이 요구되며, 특목고 입시 준비에 드는 시간과 노력 대비 일반고에서의 안정적 성장이 더 유리할 수 있습니다.'
-        },
-        {
-            rank: 2,
-            type: '예술고',
-            reason: '현재 사주 특성상 예술적 감각보다는 체계적이고 논리적인 학습이 더 적합하며, 일반적인 대학 진학 경로가 유리합니다.'
-        }
-    ];
+    const genderOptions = genderSchoolOptions[userData.gender === '남성' ? 'male' : userData.gender === '여성' ? 'female' : 'other'] || ['남녀공학'];
+    const genderRecommendation = genderOptions[Math.floor(Math.random() * genderOptions.length)];
     
-    const directions = ['북쪽', '남쪽', '동쪽', '서쪽', '북동쪽', '남동쪽', '북서쪽', '남서쪽'];
-    const randomDirection = directions[Math.floor(Math.random() * directions.length)];
+    // 적합도 점수도 랜덤하게 (75-95% 범위)
+    const suitabilityScore = 75 + Math.floor(Math.random() * 21);
     
-    // 개인화된 문과/이과 적합도 생성 (생년월일 기반)
-    const generatePersonalizedAcademicTrack = () => {
-        const birthMonth = parseInt(userData.birthMonth);
-        const birthDay = parseInt(userData.birthDay);
-        const birthYear = parseInt(userData.birthYear);
-        const gender = userData.gender;
+    console.log('👥 성별 구성 추천 생성:', {
+        gender: userData.gender,
+        recommendation: genderRecommendation,
+        suitabilityScore: suitabilityScore
+    });
+    
+    // 문과/이과 점수 (오행 기반 + 랜덤성 추가)
+    const isScience = seasonElement === '금(金)' || seasonElement === '수(水)';
+    const baseScience = isScience ? 70 : 50;
+    const baseLliberal = isScience ? 50 : 70;
+    
+    // 더 다양한 점수 범위 (30-95)
+    const scienceScore = Math.min(95, Math.max(30, baseScience + Math.floor(Math.random() * 30) - 10));
+    const liberalScore = Math.min(95, Math.max(30, baseLliberal + Math.floor(Math.random() * 30) - 10));
+    
+    console.log('📊 문과/이과 점수 생성:', {
+        seasonElement,
+        isScience,
+        scienceScore,
+        liberalScore
+    });
+    
+    // 방향 결정
+    const directions = ['북', '북동', '동', '남동', '남', '남서', '서', '북서'];
+    const directionAngles = { '북': 0, '북동': 45, '동': 90, '남동': 135, '남': 180, '남서': 225, '서': 270, '북서': 315 };
+    const selectedDirection = directions[Math.floor(Math.random() * directions.length)];
+    
+    // 3년간 운세 생성 (더 다양한 패턴)
+    const generateFortuneData = () => {
+        const patterns = [
+            // 패턴 1: 점진적 상승
+            { base: [65, 80, 92], variance: 10 },
+            // 패턴 2: 2학년 피크
+            { base: [70, 95, 85], variance: 8 },
+            // 패턴 3: 안정적 고점
+            { base: [85, 88, 90], variance: 5 },
+            // 패턴 4: 변동 패턴
+            { base: [75, 70, 95], variance: 12 }
+        ];
         
-        // 출생월에 따른 계절별 기본 성향
-        let baseLiberal = 50;
-        let baseScience = 50;
+        const selectedPattern = patterns[Math.floor(Math.random() * patterns.length)];
         
-        // 봄(3-5월): 목의 기운 - 문과 성향
-        if (birthMonth >= 3 && birthMonth <= 5) {
-            baseLiberal += 15;
-            baseScience -= 5;
-        }
-        // 여름(6-8월): 화의 기운 - 문과 성향 
-        else if (birthMonth >= 6 && birthMonth <= 8) {
-            baseLiberal += 10;
-            baseScience -= 3;
-        }
-        // 가을(9-11월): 금의 기운 - 이과 성향
-        else if (birthMonth >= 9 && birthMonth <= 11) {
-            baseScience += 15;
-            baseLiberal -= 5;
-        }
-        // 겨울(12-2월): 수의 기운 - 이과 성향
-        else {
-            baseScience += 12;
-            baseLiberal -= 3;
-        }
+        const examScores = selectedPattern.base.map(base => 
+            Math.min(98, Math.max(50, base + Math.floor(Math.random() * selectedPattern.variance * 2) - selectedPattern.variance))
+        );
         
-        // 출생일에 따른 추가 조정
-        const dayMod = (birthDay % 10);
-        if (dayMod <= 3) {
-            baseLiberal += Math.floor(Math.random() * 10) + 5;
-        } else if (dayMod >= 7) {
-            baseScience += Math.floor(Math.random() * 10) + 5;
-        }
+        const romanceScores = examScores.map(score => 
+            Math.min(95, Math.max(40, 100 - score + Math.floor(Math.random() * 20) - 10))
+        );
         
-        // 출생년에 따른 미세 조정
-        const yearMod = birthYear % 12;
-        if (yearMod % 3 === 0) {
-            baseLiberal += Math.floor(Math.random() * 8) + 2;
-        } else if (yearMod % 3 === 1) {
-            baseScience += Math.floor(Math.random() * 8) + 2;
-        }
+        // 다양한 설명 패턴
+        const examDescriptions = [
+            [
+                "새로운 환경 적응 과정에서 초기에는 다소 불안정하지만, 꾸준한 노력으로 확실한 향상을 이룰 것입니다",
+                "학습 패턴이 완전히 안정화되고 자신감이 생기면서 실력이 크게 향상되는 전환점이 될 것입니다",
+                "수능과 대학 입시에서 그간의 모든 노력이 결실을 맺어 최상의 성과를 반드시 거둘 것입니다"
+            ],
+            [
+                "뛰어난 적응력으로 새로운 환경에서도 안정적인 성과를 확실히 보일 것입니다",
+                "학업에 대한 집중도가 최고조에 달하며 놀라운 성장을 보이는 황금기가 될 것입니다",
+                "입시 스트레스가 있지만 체계적인 준비로 목표를 반드시 달성할 것입니다"
+            ],
+            [
+                "차분한 성격으로 고등학교 생활에 빠르게 적응하며 확실히 좋은 출발을 할 것입니다",
+                "학습 능력이 정점에 달하며 모든 과목에서 균형잡힌 성과를 확실히 거둘 것입니다",
+                "마지막 스퍼트에서 집중력을 최대로 발휘하여 최고의 결과를 반드시 만들어낼 것입니다"
+            ]
+        ];
         
-        // 성별에 따른 미세 조정 (통계적 경향 반영)
-        if (gender === '여성') {
-            baseLiberal += Math.floor(Math.random() * 6) + 2;
-        } else {
-            baseScience += Math.floor(Math.random() * 6) + 2;
-        }
+        const romanceDescriptions = [
+            [
+                "새로운 환경에서 만나는 사람들과의 관계 형성에 적극적으로 집중하는 시기가 될 것입니다",
+                "자신감과 매력이 최고조에 달하며 좋은 인연을 반드시 만날 것입니다",
+                "입시에 집중하면서도 진정한 마음을 나눌 수 있는 특별한 인연을 확실히 만날 것입니다"
+            ],
+            [
+                "학교 적응에 집중하느라 이성에 대한 관심은 상대적으로 낮을 것입니다",
+                "활발한 학교 생활과 함께 자연스러운 이성 관계를 확실히 경험할 것입니다",
+                "학업과 이성 관계의 균형을 완벽하게 맞춰나가며 성숙한 관계를 형성할 것입니다"
+            ]
+        ];
         
-        // 최종 점수 계산 (30-95% 범위, 최소 5점 차이)
-        let liberalScore = Math.max(30, Math.min(95, baseLiberal + Math.floor(Math.random() * 20) - 10));
-        let scienceScore = Math.max(30, Math.min(95, baseScience + Math.floor(Math.random() * 20) - 10));
-        
-        // 최소 5점 차이 보장
-        if (Math.abs(liberalScore - scienceScore) < 5) {
-            if (liberalScore > scienceScore) {
-                liberalScore = Math.min(95, liberalScore + 5);
-                scienceScore = Math.max(30, liberalScore - 8);
-            } else {
-                scienceScore = Math.min(95, scienceScore + 5);
-                liberalScore = Math.max(30, scienceScore - 8);
-            }
-        }
-        
-        // 강점 분야와 추천 과목 (점수에 따라 결정)
-        const liberalStrengths = liberalScore > scienceScore ? 
-            ["창의적 글쓰기", "언어 감각", "인문학적 사고", "소통 능력", "문화 이해력"] :
-            ["기초 언어 능력", "암기 학습", "문학 감상"];
-            
-        const scienceStrengths = scienceScore > liberalScore ?
-            ["논리적 사고", "수리 능력", "과학적 탐구", "분석 능력", "체계적 학습"] :
-            ["기초 수학", "과학 실험", "컴퓨터 활용"];
-            
-        const liberalSubjects = liberalScore > scienceScore ?
-            ["문학", "역사", "사회문화", "윤리와 사상", "제2외국어"] :
-            ["국어", "사회", "도덕"];
-            
-        const scienceSubjects = scienceScore > liberalScore ?
-            ["수학", "물리", "화학", "생명과학", "지구과학"] :
-            ["수학I", "통합과학", "정보"];
-        
-        const recommendation = liberalScore > scienceScore ? "문과" : "이과";
-        const reasoning = liberalScore > scienceScore ? 
-            `출생월(${birthMonth}월)과 생년월일 분석 결과, 언어적 감수성과 인문학적 사고력이 뛰어납니다. 문과 과목에서 ${liberalScore}%의 높은 적합도를 보여 문과 진학을 추천합니다.` :
-            `출생월(${birthMonth}월)과 생년월일 분석 결과, 논리적 사고력과 수리 능력이 우수합니다. 이과 과목에서 ${scienceScore}%의 높은 적합도를 보여 이과 진학을 추천합니다.`;
+        const descIndex = Math.floor(Math.random() * examDescriptions.length);
+        const romanceIndex = Math.floor(Math.random() * romanceDescriptions.length);
         
         return {
-            liberalArts: liberalScore,
-            science: scienceScore,
-            recommendation: recommendation,
-            reasoning: reasoning,
-            liberalStrengths: liberalStrengths.slice(0, 3),
-            scienceStrengths: scienceStrengths.slice(0, 3),
-            liberalSubjects: liberalSubjects.slice(0, 3),
-            scienceSubjects: scienceSubjects.slice(0, 3)
+            grade1: {
+                year: "2024년",
+                phase: "적응기",
+                examLuck: examScores[0],
+                romanceLuck: romanceScores[0],
+                examDescription: examDescriptions[descIndex][0],
+                romanceDescription: romanceDescriptions[romanceIndex][0]
+            },
+            grade2: {
+                year: "2025년",
+                phase: "발전기",
+                examLuck: examScores[1],
+                romanceLuck: romanceScores[1],
+                examDescription: examDescriptions[descIndex][1],
+                romanceDescription: romanceDescriptions[romanceIndex][1]
+            },
+            grade3: {
+                year: "2026년",
+                phase: "완성기",
+                examLuck: examScores[2],
+                romanceLuck: romanceScores[2],
+                examDescription: examDescriptions[descIndex][2],
+                romanceDescription: romanceDescriptions[romanceIndex][2]
+            }
         };
     };
     
-    const personalizedAcademicTrack = generatePersonalizedAcademicTrack();
-    const personalizedFortuneFlow = generatePersonalizedFortune();
+    const fortuneData = generateFortuneData();
     
-    const demoResult = {
-        // 데모임을 명확히 표시
-        isDemoData: true,
-        demoTimestamp: timestamp,
-        demoRandomId: randomId,
+    // 성별 구성 추천 이유 생성 함수
+    const generateGenderSchoolReasons = (element, recommendation, gender) => {
+        const elementTraits = {
+            '목(木)': { trait: '성장 지향적', social: '협력적', learning: '탐구적' },
+            '화(火)': { trait: '열정적', social: '활발한 소통', learning: '표현 중심' },
+            '토(土)': { trait: '안정 추구', social: '조화로운', learning: '체계적' },
+            '금(金)': { trait: '논리적', social: '분석적', learning: '집중적' },
+            '수(水)': { trait: '지혜로운', social: '깊은 사고', learning: '성찰적' }
+        };
         
-        summary: `🚨 데모 데이터 🚨 ${userData.name} 님은 ${userData.birthTime}에 태어나신 ${userData.gender}으로, 이 분석은 실제 AI가 아닌 테스트용 랜덤 데이터입니다. 타임스탬프: ${new Date(timestamp).toLocaleString()}`,
+        const trait = elementTraits[element] || elementTraits['토(土)'];
         
-        recommendedSchools: recommendedSchools,
+        if (recommendation === '남녀공학') {
+            return [
+                `${element} 기운의 ${trait.trait} 성향: 사주에서 ${element}의 조화로운 에너지가 다양한 성별과의 상호작용을 통해 더욱 발전할 것입니다`,
+                `${trait.social} 소통 능력: ${element} 사주는 균형잡힌 관계 형성을 선호하며, 남녀공학에서 이 능력이 최대로 발휘될 것입니다`,
+                `${trait.learning} 학습 스타일: 당신의 사주는 다양한 관점을 수용하는 특성이 강해 남녀공학의 다양성이 학습 효과를 크게 높일 것입니다`,
+                `음양 조화의 완성: ${element} 기운은 음양의 균형을 중시하므로 남녀공학 환경에서 자연스러운 에너지 순환을 이룰 것입니다`
+            ];
+        } else if (recommendation === '남고' && gender === '남성') {
+            return [
+                `${element} 기운의 집중력 극대화: 사주에서 ${element}의 강한 에너지가 남성들끼리의 경쟁 환경에서 더욱 집중된 학습력을 발휘할 것입니다`,
+                `동성 간 깊은 유대감: ${element} 사주는 진정한 우정을 중시하는 특성이 있어 남고의 형제애적 분위기에서 확실한 성장을 이룰 것입니다`,
+                `${trait.learning} 특성 강화: 당신의 사주는 깊이 있는 탐구를 선호하므로 남고의 집중적 학습 환경이 완벽하게 맞을 것입니다`,
+                `리더십 발현: ${element} 기운은 남성적 에너지와 조화되어 남고에서 자연스러운 리더십을 확실히 발휘할 것입니다`
+            ];
+        } else if (recommendation === '여고' && gender === '여성') {
+            return [
+                `${element} 기운의 섬세함 발달: 사주에서 ${element}의 정교한 에너지가 여성들만의 세심한 환경에서 더욱 정밀하게 발전할 것입니다`,
+                `${trait.social} 깊이 있는 관계: ${element} 사주는 진심어린 소통을 중시하므로 여고의 친밀한 분위기에서 평생 우정을 확실히 쌓을 것입니다`,
+                `학업 집중도 향상: 당신의 ${trait.learning} 성향이 여고의 차분한 학습 환경과 완벽하게 조화되어 최상의 성과를 낼 것입니다`,
+                `내적 성장 촉진: ${element} 기운은 내면의 성찰을 중시하므로 여고의 안정적 환경에서 확실한 자아 발견을 이룰 것입니다`
+            ];
+        }
         
-        notRecommendedSchools: notRecommendedSchools,
-        
-        direction: {
-            bestDirection: randomDirection,
-            title: `${randomDirection}이 길한 방향 (데모)`,
-            explanation: `${randomDirection} 방향은 현재 시점 ${new Date().toLocaleString()}에 생성된 랜덤 데이터입니다. 실제 사주 분석이 아닙니다.`
-        },
-        
-        fortuneFlow: personalizedFortuneFlow,
-        
-        personalTraits: {
-            learningStyle: '체계적이고 논리적인 학습을 선호하며, 단계별 접근을 통해 깊이 있는 이해를 추구합니다.',
-            socialTendency: '신중하면서도 따뜻한 성격으로 진실한 우정을 중시하며, 필요시 리더십을 발휘할 수 있습니다.',
-            specialTalent: '분석적 사고와 창의적 문제해결 능력이 뛰어나며, 특히 과학과 수학 분야에서 재능이 돋보입니다.',
-            cautions: '완벽주의 성향이 강해 스트레스를 받을 수 있으니, 적절한 휴식과 취미 활동을 통해 균형을 유지하는 것이 중요합니다.'
-        },
-        
-        academicTrack: personalizedAcademicTrack,
-        
-        sajuElements: `데모 데이터: 오행 분석이 실행되지 않았습니다. 랜덤ID: ${randomId}`,
-        studyTips: `데모 데이터: 실제 학습법 분석이 아닙니다. 타임스탬프: ${timestamp}`,
-        careerDirection: `데모 데이터: 실제 진로 분석이 아닙니다. API 호출이 실패했음을 의미합니다.`
+        // 기본값 (남녀공학)
+        return [
+            `${element} 기운의 균형 추구: 사주 분석 결과 다양한 에너지의 조화를 통해 성장하는 특성이 뚜렷합니다`,
+            `사회적 적응력 강화: ${element} 사주는 실제 사회와 유사한 환경에서 더욱 자연스러운 발전을 이룰 것입니다`,
+            `${trait.learning} 능력 향상: 다양한 관점의 학습 자극이 당신의 사주 특성과 완벽하게 맞아떨어질 것입니다`,
+            `전인적 성장: ${element} 기운은 편중되지 않은 균형잡힌 환경에서 최고의 잠재력을 발휘할 것입니다`
+        ];
     };
     
-    console.log('🚨 [경고] 데모 분석 데이터 생성 완료 - 이것은 실제 AI 분석이 아닙니다!');
-    console.log('📊 생성된 데모 결과:', JSON.stringify(demoResult, null, 2));
+    // 다른 성별 구성 옵션에 대한 사주 기반 평가 생성 함수
+    const generateAlternativeGenderOptions = (recommendation, gender, element) => {
+        const elementTraits = {
+            '목(木)': '성장 지향적',
+            '화(火)': '열정적',
+            '토(土)': '안정 추구',
+            '금(金)': '논리적',
+            '수(水)': '지혜로운'
+        };
+        
+        const trait = elementTraits[element] || '균형잡힌';
+        
+        if (recommendation === '남녀공학') {
+            if (gender === '남성') {
+                return `남고는 ${element} 기운의 ${trait} 특성을 집중적으로 발전시킬 수 있으나, 당신의 사주는 다양성을 통한 성장을 더 선호하는 구조입니다.`;
+            } else {
+                return `여고는 ${element} 기운의 ${trait} 특성을 심화시킬 수 있으나, 당신의 사주는 균형잡힌 환경에서 더 큰 발전을 이룰 운명입니다.`;
+            }
+        } else if (recommendation === '남고') {
+            return `남녀공학도 좋지만, 당신의 ${element} 사주는 동성 간의 깊은 유대와 집중적 학습 환경에서 더욱 확실한 성과를 거둘 것입니다.`;
+        } else if (recommendation === '여고') {
+            return `남녀공학도 괜찮지만, 당신의 ${element} 사주는 차분하고 섬세한 여성들만의 환경에서 더욱 뛰어난 잠재력을 발휘할 것입니다.`;
+        }
+        
+        return `다른 옵션들도 나쁘지 않으나, 당신의 ${element} 사주 특성상 추천된 환경이 가장 적합합니다.`;
+    };
     
-    // 데모 데이터임을 콘솔에 표시
-    console.log(`🚨 경고: 실제 AI API 호출이 실패했습니다!`);
-    console.log(`이것은 테스트용 데모 데이터입니다.`);
-    console.log(`생성 시간: ${new Date().toLocaleString()}`);
-    console.log(`랜덤 ID: ${randomId}`);
-    
-    return demoResult;
+    // 새로운 5섹션 구조로 반환
+    return {
+        requestId: randomId,
+        promptVariation: "demo",
+        sajuElements: `${seasonElement} 기운이 강한 사주로, ${seasonElement === '목(木)' ? '성장과 창의성' :
+                      seasonElement === '화(火)' ? '열정과 적극성' :
+                      seasonElement === '토(土)' ? '안정과 신중함' :
+                      seasonElement === '금(金)' ? '논리와 분석력' : '지혜와 탐구심'}이 뛰어납니다.`,
+        
+        section1_schoolTypes: {
+            rank1: {
+                type: rank1Type,
+                reason: `사주에서 ${seasonElement} 기운이 강하여 ${rank1Type.includes('교육열') ? '경쟁적인 환경에서 탁월한 성과를 발휘하는 성격' : '안정적인 환경에서 꾸준히 성장하는 확실한 성향'}입니다. ${rank1Type}이 당신에게 최적의 선택이며, ${rank1Type.includes('교육열') ? '우수한 친구들과 함께 공부하며 학업 동기를 극대화하고, 체계적인 입시 시스템을 통해 목표 대학에 반드시 진학할 것' : '내신 관리를 안정적으로 하며 자신만의 속도로 확실한 학업 성취를 이룰 것'}입니다.`
+            },
+            rank2: {
+                type: rank2Type,
+                reason: `사주의 보조적 특성으로 ${rank2Type}도 당신에게 잘 맞습니다. ${rank2Type.includes('자율형') ? '다양한 교육과정과 우수한 교육 환경을 통해 잠재력을 확실히 발휘할 수 있으나, 경제적 부담을 반드시 고려해야 합니다.' : rank2Type.includes('교육열') ? '경쟁적인 환경에서 강한 동기부여를 받으며 성장할 수 있는 확실한 대안입니다.' : '안정적인 학습 환경에서 꾸준한 성장을 도모할 수 있는 현실적이고 확실한 선택입니다.'}`
+            },
+            specialNote: "특목고는 진학 확률과 선택 비중이 10%밖에 되지 않으므로, 일반고 옵션을 충분히 고려하시고 현실적인 대안을 반드시 준비하시기 바랍니다."
+        },
+        
+        section2_genderSchool: {
+            recommendation: genderRecommendation,
+            suitabilityScore: suitabilityScore,
+            reasons: generateGenderSchoolReasons(seasonElement, genderRecommendation, userData.gender),
+            alternatives: {
+                otherOptions: generateAlternativeGenderOptions(genderRecommendation, userData.gender, seasonElement)
+            }
+        },
+        
+        section3_academicTrack: {
+            liberalArtsScore: liberalScore,
+            scienceScore: scienceScore,
+            recommendation: scienceScore > liberalScore ? "이과" : "문과",
+            liberalStrengths: [
+                "언어적 사고력: 표현력과 소통 능력이 매우 우수합니다",
+                "인문학적 소양: 사회 현상에 대한 관심과 이해도가 탁월합니다", 
+                "창의적 사고: 새로운 아이디어를 창출하는 능력이 뛰어납니다",
+                "비판적 분석: 복합적 상황을 종합적으로 판단하는 능력이 확실합니다"
+            ],
+            scienceStrengths: [
+                "논리적 사고력: 체계적이고 분석적인 사고에서 탁월한 능력을 발휘합니다",
+                "수리 능력: 복잡한 수학적 개념을 이해하고 응용하는 능력이 매우 우수합니다",
+                "과학적 탐구심: 호기심이 많고 원리를 파헤치는 것을 확실히 좋아합니다", 
+                "체계적 접근: 문제를 단계별로 해결하는 방법론적 사고력이 뛰어납니다"
+            ],
+            liberalSubjects: ["국어", "영어", "사회", "역사"],
+            scienceSubjects: ["수학", "물리", "화학", "생명과학"],
+            finalRecommendation: `${scienceScore > liberalScore ? '이과를 강력히 추천' : '문과를 확실히 추천'}합니다. 사주 분석 결과 ${seasonElement} 기운으로 ${scienceScore > liberalScore ? '논리적 사고와 체계적 접근을 확실히 선호하는 성향이 강하며, 수학과 과학 분야에서 탁월한 성과를 반드시 거둘 것입니다.' : '언어적 표현력과 창의적 사고가 매우 뛰어나며, 인문학과 사회과학 분야에서 확실한 재능을 발휘할 것입니다.'} 다만 ${scienceScore > liberalScore ? '문과 영역의 국어와 영어 실력도 꾸준히 기르시어' : '이과 영역의 수학과 과학 기초도 탄탄히 하여'} 균형잡힌 학습 능력을 반드시 갖추시기 바랍니다.`
+        },
+        
+        section4_direction: {
+            bestDirection: selectedDirection,
+            directionTitle: `${selectedDirection}쪽이 당신에게 가장 길한 방향입니다`,
+            explanation: `사주에서 ${seasonElement} 기운이 ${selectedDirection} 방향과 완벽하게 조화됩니다. 이 방향은 학업운과 성장운을 크게 향상시키며, 새로운 시작과 발전에 매우 유리한 기운을 확실히 가지고 있습니다.`,
+            benefits: [
+                "학업운 상승: 집중력과 이해력이 크게 향상될 것입니다",
+                "대인관계 개선: 좋은 친구들과 선생님들을 반드시 만날 것입니다",
+                "성장 동력: 지속적인 발전과 성취를 확실히 이룰 수 있는 환경이 조성될 것입니다", 
+                "건강운: 신체적, 정신적 건강이 안정적으로 유지될 것입니다"
+            ],
+            practicalAdvice: `집에서 ${selectedDirection}쪽 방향에 위치한 고등학교를 반드시 우선적으로 고려하세요. 통학 거리나 교통편도 함께 고려하되, 가능한 범위 내에서 ${selectedDirection}쪽 학교를 선택하시면 확실히 더욱 좋은 학교생활을 할 수 있을 것입니다.`
+        },
+        
+        section5_fortune: {
+            ...fortuneData,
+            summary: {
+                examTrend: "시간이 지날수록 꾸준히 상승하여 3학년에 최고조에 달할 것입니다. 특히 2-3학년 시기가 학업적 성취를 위한 확실한 황금기가 될 것입니다.",
+                romanceTrend: "2학년이 가장 활발한 시기가 될 것이며, 1학년과 3학년은 상대적으로 차분한 편일 것입니다. 학업과 이성관계의 적절한 균형을 반드시 유지하는 것이 중요합니다."
+            }
+        },
+        
+        summary: `${userData.name} 님은 ${seasonElement} 기운이 강한 사주로, ${genderRecommendation}에서 ${scienceScore > liberalScore ? '이과' : '문과'} 과정을 선택하시어 ${selectedDirection}쪽 방향의 ${rank1Type}에 반드시 진학하시는 것을 강력히 추천드립니다.`
+    };
 }
 
 // Result page initialization
@@ -899,31 +956,22 @@ function initializeResultPage() {
     console.log('=== 결과 페이지 초기화 시작 ===');
     
     let userData = localStorage.getItem('sajuUserData');
-    let analysisResult = localStorage.getItem('sajuAnalysisResult');
+    let analysisResult = null; // 항상 새로운 분석 결과 생성하도록 변경
     
-    console.log('📦 localStorage에서 가져온 원본 데이터:');
-    console.log('userData (raw):', userData);
-    console.log('analysisResult (raw):', analysisResult);
+    console.log('📦 localStorage에서 가져온 사용자 데이터:', userData);
     
-    // 데이터 파싱
+    // 사용자 데이터 파싱
     try {
         userData = userData ? JSON.parse(userData) : null;
-        analysisResult = analysisResult ? JSON.parse(analysisResult) : null;
-        
-        console.log('✅ 데이터 파싱 성공');
-        console.log('userData (parsed):', userData);
-        console.log('analysisResult (parsed):', analysisResult);
-        
+        console.log('✅ 사용자 데이터 파싱 성공:', userData);
     } catch (e) {
-        console.error('❌ 데이터 파싱 실패:', e);
+        console.error('❌ 사용자 데이터 파싱 실패:', e);
         userData = null;
-        analysisResult = null;
     }
     
-    // 데이터가 없거나 문제가 있으면 강제로 데모 데이터 생성
-    if (!userData || !analysisResult) {
-        console.log('⚠️ 데이터가 없거나 문제 발생 - 강제 데모 데이터 생성');
-        
+    // 사용자 데이터가 없으면 기본값 설정
+    if (!userData) {
+        console.log('⚠️ 사용자 데이터가 없음 - 기본 데이터 생성');
         userData = {
             name: '홍길동',
             birthYear: '2008',
@@ -932,71 +980,16 @@ function initializeResultPage() {
             birthTime: '오시',
             gender: '남성'
         };
-        
-        analysisResult = {
-            summary: `${userData.name} 님은 ${userData.birthTime}에 태어나신 ${userData.gender}으로, 차분하고 성실한 성격으로 꾸준한 학습을 통해 좋은 성과를 얻을 수 있을 것으로 예상됩니다. 안정적인 환경에서 내신 관리를 하며 대학 진학을 준비하는 것이 가장 적합합니다.`,
-            recommendedSchools: [
-                {
-                    rank: 1,
-                    type: '내신받기 좋은 일반고(남녀공학)',
-                    reason: '사주에서 토(土)의 기운이 안정적이어서 차분하고 꾸준한 학습 환경을 선호합니다. 내신 관리가 용이한 일반고에서 체계적으로 대학 진학을 준비할 수 있어 가장 적합합니다.'
-                },
-                {
-                    rank: 2,
-                    type: '학구열 후끈 일반고(남녀공학)',
-                    reason: '목(木)의 성장 에너지가 있어 적절한 자극과 경쟁 환경에서도 좋은 성과를 낼 수 있습니다. 학구열이 높은 환경에서 더 높은 목표를 향해 도전할 수 있을 것입니다.'
-                },
-                {
-                    rank: 3,
-                    type: '자율형사립고',
-                    reason: '화(火)의 기운이 조화되어 있어 다양한 교육 프로그램과 활동에 적극적으로 참여할 수 있습니다. 다만 경제적 여건을 충분히 고려해야 합니다.'
-                }
-            ],
-            notRecommendedSchools: [
-                {
-                    rank: 1,
-                    type: '과학고',
-                    reason: '특목고 입시 준비에 필요한 극도의 집중력과 특출한 과학적 재능이 요구되며, 높은 경쟁률 대비 일반고에서의 안정적 성장이 더 유리할 수 있습니다.'
-                },
-                {
-                    rank: 2,
-                    type: '예술고',
-                    reason: '현재 사주 특성상 예술적 감각보다는 체계적이고 논리적인 학습이 더 적합하며, 일반적인 대학 진학 경로가 유리합니다.'
-                }
-            ],
-            direction: {
-                bestDirection: '북쪽',
-                explanation: '북쪽 방향은 오행에서 학업운과 대인관계운을 상승시키는 길한 방위입니다. 이 방향에 위치한 학교에서 더욱 안정적이고 발전적인 학교생활을 할 수 있을 것입니다.'
-            },
-            fortuneFlow: {
-                grade1: {academic: 85, social: 70, romance: 80},
-                grade2: {academic: 90, social: 75, romance: 85},
-                grade3: {academic: 80, social: 85, romance: 90}
-            },
-            personalTraits: {
-                learningStyle: '체계적이고 논리적인 학습을 선호하며, 단계별 접근을 통해 깊이 있는 이해를 추구합니다.',
-                socialTendency: '신중하면서도 따뜻한 성격으로 진실한 우정을 중시하며, 필요시 리더십을 발휘할 수 있습니다.',
-                specialTalent: '분석적 사고와 창의적 문제해결 능력이 뛰어나며, 특히 과학과 수학 분야에서 재능이 돋보입니다.',
-                cautions: '완벽주의 성향이 강해 스트레스를 받을 수 있으니, 적절한 휴식과 취미 활동을 통해 균형을 유지하는 것이 중요합니다.'
-            },
-            academicTrack: {
-                liberalArts: 75,
-                science: 85,
-                recommendation: '이과',
-                reasoning: '사주 분석 결과, 이과 계열이 더 적합합니다. 특히 금(金)의 기운이 강해 정밀하고 체계적인 사고를 선호하며, 수학과 과학 분야에서 뛰어난 성과를 보일 것으로 예상됩니다.',
-                liberalStrengths: ['언어 이해력', '문학 감상', '역사적 사고'],
-                scienceStrengths: ['논리적 사고', '수리 능력', '과학적 탐구'],
-                liberalSubjects: ['국어', '사회', '윤리'],
-                scienceSubjects: ['수학', '물리', '화학']
-            }
-        };
-        
-        // localStorage에 저장
-        localStorage.setItem('sajuUserData', JSON.stringify(userData));
-        localStorage.setItem('sajuAnalysisResult', JSON.stringify(analysisResult));
-        
-        console.log('💾 강제 생성된 데이터를 localStorage에 저장 완료');
     }
+    
+    // 매번 새로운 분석 결과 생성
+    console.log('🔄 새로운 분석 결과 생성 중...');
+    analysisResult = generateDemoAnalysis(userData);
+    console.log('✅ 새로운 분석 결과 생성 완료:', analysisResult);
+    
+    // localStorage에 새로운 결과 저장
+    localStorage.setItem('sajuAnalysisResult', JSON.stringify(analysisResult));
+    console.log('💾 새로운 분석 결과를 localStorage에 저장 완료');
     
     console.log('📊 최종 사용할 데이터:');
     console.log('userData:', userData);
@@ -1027,80 +1020,344 @@ function displayAnalysisResult(userData, result) {
     console.log('📝 분석 요약 표시 시작');
     const analysisDescElement = document.getElementById('analysisDescription');
     if (analysisDescElement) {
-        analysisDescElement.textContent = result.summary;
-        console.log('✅ 분석 요약 설정:', result.summary);
+        analysisDescElement.textContent = result.summary || '사주팔자 분석을 통해 가장 적합한 고등학교 유형과 진로 방향을 제시해드립니다.';
+        console.log('✅ 분석 요약 설정');
     } else {
         console.error('❌ analysisDescription 엘리먼트를 찾을 수 없음');
     }
     
-    // 학교 추천 순위 표시
-    console.log('🏫 학교 추천 순위 표시 시작');
-    displaySchoolRecommendations(result.recommendedSchools, result.notRecommendedSchools);
-    
-    // 방향 분석 표시 (API와 데모 형식 통일 처리)
-    console.log('🧭 방향 분석 표시 시작');
-    const directionData = result.direction || result.favorableDirection;
-    if (directionData) {
-        console.log('방향 데이터:', directionData);
-        displayDirectionAnalysis(directionData);
-    } else {
-        console.error('❌ 방향 데이터가 없음');
+    // 새로운 5개 섹션 구조에 맞게 표시
+    if (result.section1_schoolTypes) {
+        console.log('🏫 섹션 1: 학교 유형 추천 표시');
+        displaySection1SchoolTypes(result.section1_schoolTypes);
     }
     
-    // 운세 차트 표시 (API와 데모 형식 통일 처리)
-    console.log('📈 운세 차트 표시 시작');
-    const fortuneData = result.fortuneFlow || result.fortuneTimeline;
-    if (fortuneData) {
-        console.log('운세 데이터:', fortuneData);
-        displayFortuneChart(fortuneData);
-    } else {
-        console.error('❌ 운세 데이터가 없음');
+    if (result.section2_genderSchool) {
+        console.log('👥 섹션 2: 남고/여고/공학 추천 표시');
+        displaySection2GenderSchool(result.section2_genderSchool);
     }
     
-    // 개인 특성 표시
-    console.log('👥 개인 특성 표시 시작');
-    if (result.personalTraits) {
-        console.log('개인 특성 데이터:', result.personalTraits);
-        displayPersonalTraits(result.personalTraits);
-    } else {
-        console.error('❌ 개인 특성 데이터가 없음');
+    if (result.section3_academicTrack) {
+        console.log('📚 섹션 3: 문과/이과 적성 표시');
+        displaySection3AcademicTrack(result.section3_academicTrack);
     }
     
-    // 문과/이과 적합도 표시
-    console.log('📚 문과/이과 적합도 표시 시작');
-    if (result.academicTrack) {
-        console.log('문과/이과 데이터:', result.academicTrack);
-        displayAcademicTrack(result.academicTrack);
-    } else {
-        console.log('⚠️ 문과/이과 데이터가 없음 - 기본값 사용');
-        // 기본값 설정
-        const defaultTrack = {
-            liberalArts: 75,
-            science: 85,
-            recommendation: '이과',
-            reasoning: '사주 분석 결과, 이과 계열이 더 적합합니다. 특히 금(金)의 기운이 강해 정밀하고 체계적인 사고를 선호하며, 수학과 과학 분야에서 뛰어난 성과를 보일 것으로 예상됩니다.'
-        };
-        displayAcademicTrack(defaultTrack);
+    if (result.section4_direction) {
+        console.log('🧭 섹션 4: 길한 방향 표시');
+        displaySection4Direction(result.section4_direction);
     }
     
-    // 추가 정보 표시 (새로운 필드들)
-    console.log('📚 추가 분석 정보 표시 시작');
-    if (result.sajuElements) {
-        console.log('🔮 사주 오행 정보:', result.sajuElements);
-        displayAdditionalInfo('사주 오행 분석', result.sajuElements);
+    if (result.section5_fortune) {
+        console.log('📊 섹션 5: 3년간 운세 표시');
+        displaySection5Fortune(result.section5_fortune);
     }
     
-    if (result.studyTips) {
-        console.log('📖 학습법 조언:', result.studyTips);
-        displayAdditionalInfo('맞춤 학습법', result.studyTips);
-    }
-    
-    if (result.careerDirection) {
-        console.log('🎯 진로 방향:', result.careerDirection);
-        displayAdditionalInfo('장기 진로 방향', result.careerDirection);
+    // 기존 구조 호환성 유지 (API가 기존 구조로 응답할 경우)
+    if (!result.section1_schoolTypes && result.recommendedSchools) {
+        console.log('🔄 기존 구조 호환 모드로 표시');
+        displaySchoolRecommendations(result.recommendedSchools, result.notRecommendedSchools);
+        
+        if (result.direction) {
+            displayDirectionAnalysis(result.direction);
+        }
+        
+        if (result.fortuneFlow) {
+            displayFortuneChart(result.fortuneFlow);
+        }
+        
+        if (result.personalTraits) {
+            displayPersonalTraits(result.personalTraits);
+        }
+        
+        if (result.academicTrack) {
+            displayAcademicTrack(result.academicTrack);
+        }
     }
     
     console.log('✅ 분석 결과 표시 완료');
+}
+
+// 섹션 1: 학교 유형 추천 표시
+function displaySection1SchoolTypes(data) {
+    console.log('=== 섹션 1: 학교 유형 추천 표시 ===', data);
+    
+    // 1순위 추천 업데이트
+    const rank1Card = document.querySelector('.recommendation-card.gold-card');
+    if (rank1Card && data.rank1) {
+        const nameEl = rank1Card.querySelector('.school-type-title');
+        const reasonEl = rank1Card.querySelector('.recommendation-reason');
+        
+        if (nameEl) nameEl.textContent = data.rank1.type;
+        if (reasonEl) reasonEl.textContent = data.rank1.reason;
+        console.log('✅ 1순위 업데이트:', data.rank1.type);
+    }
+    
+    // 2순위 추천 업데이트
+    const rank2Card = document.querySelector('.recommendation-card.silver-card');
+    if (rank2Card && data.rank2) {
+        const nameEl = rank2Card.querySelector('.school-type-title');
+        const reasonEl = rank2Card.querySelector('.recommendation-reason');
+        
+        if (nameEl) nameEl.textContent = data.rank2.type;
+        if (reasonEl) reasonEl.textContent = data.rank2.reason;
+        console.log('✅ 2순위 업데이트:', data.rank2.type);
+    }
+    
+    // 특목고 참고사항 업데이트
+    const noticeText = document.querySelector('.notice-text');
+    if (noticeText && data.specialNote) {
+        noticeText.textContent = data.specialNote;
+        console.log('✅ 참고사항 업데이트');
+    }
+    
+    console.log('✅ 섹션 1 표시 완료');
+}
+
+// 섹션 2: 남고/여고/공학 추천 표시
+function displaySection2GenderSchool(data) {
+    console.log('=== 섹션 2: 남고/여고/공학 추천 표시 ===', data);
+    
+    // 추천 성별 구성 업데이트
+    const recommendedTypeEl = document.getElementById('recommendedGenderType');
+    if (recommendedTypeEl && data.recommendation) {
+        recommendedTypeEl.textContent = `🎯 추천: ${data.recommendation}`;
+        console.log('✅ 추천 성별 구성 업데이트:', data.recommendation);
+    }
+    
+    // 적합도 점수 업데이트
+    const suitabilityScoreEl = document.getElementById('genderSuitabilityScore');
+    if (suitabilityScoreEl && data.suitabilityScore) {
+        suitabilityScoreEl.textContent = `적합도 ${data.suitabilityScore}%`;
+        console.log('✅ 적합도 점수 업데이트:', data.suitabilityScore);
+    }
+    
+    // 추천 이유 업데이트
+    const reasonsList = document.getElementById('genderRecommendationReasons');
+    if (reasonsList && data.reasons) {
+        reasonsList.innerHTML = '';
+        data.reasons.forEach(reason => {
+            const li = document.createElement('li');
+            li.innerHTML = reason; // 이미 <strong> 태그가 포함되어 있음
+            reasonsList.appendChild(li);
+        });
+        console.log('✅ 추천 이유 업데이트:', data.reasons.length, '개');
+    }
+    
+    // 기타 고려사항 업데이트
+    const alternativesEl = document.getElementById('alternativeOptions');
+    if (alternativesEl && data.alternatives && data.alternatives.otherOptions) {
+        alternativesEl.innerHTML = `<p>${data.alternatives.otherOptions}</p>`;
+        console.log('✅ 기타 고려사항 업데이트');
+    }
+    
+    console.log('✅ 섹션 2 표시 완료');
+}
+
+// 섹션 3: 문과/이과 적성 표시
+function displaySection3AcademicTrack(data) {
+    console.log('=== 섹션 3: 문과/이과 적성 표시 ===', data);
+    
+    // 점수 업데이트 - ID 기반으로 정확하게
+    const liberalScore = document.getElementById('liberalScore');
+    const scienceScore = document.getElementById('scienceScore');
+    
+    if (liberalScore) liberalScore.textContent = `${data.liberalArtsScore}%`;
+    if (scienceScore) scienceScore.textContent = `${data.scienceScore}%`;
+    
+    // 추천 여부에 따라 카드 스타일 조정
+    const liberalCard = document.querySelector('.track-card.liberal-arts');
+    const scienceCard = document.querySelector('.track-card.science');
+    
+    if (data.recommendation === '이과' && scienceCard) {
+        scienceCard.classList.add('recommended-track');
+        if (liberalCard) liberalCard.classList.remove('recommended-track');
+        
+        // 이과 헤더 업데이트
+        const scienceHeader = scienceCard.querySelector('.track-header h4');
+        if (scienceHeader) scienceHeader.textContent = '🔬 이과 (추천)';
+        
+        // 문과 헤더에서 추천 제거
+        const liberalHeader = liberalCard?.querySelector('.track-header h4');
+        if (liberalHeader) liberalHeader.textContent = '📖 문과';
+        
+    } else if (data.recommendation === '문과' && liberalCard) {
+        liberalCard.classList.add('recommended-track');
+        if (scienceCard) scienceCard.classList.remove('recommended-track');
+        
+        // 문과 헤더 업데이트
+        const liberalHeader = liberalCard.querySelector('.track-header h4');
+        if (liberalHeader) liberalHeader.textContent = '📖 문과 (추천)';
+        
+        // 이과 헤더에서 추천 제거
+        const scienceHeader = scienceCard?.querySelector('.track-header h4');
+        if (scienceHeader) scienceHeader.textContent = '🔬 이과';
+    }
+    
+    // 강점 업데이트
+    if (data.liberalStrengths) {
+        const liberalStrengthsList = liberalCard?.querySelector('ul');
+        if (liberalStrengthsList) {
+            liberalStrengthsList.innerHTML = '';
+            data.liberalStrengths.forEach(strength => {
+                const li = document.createElement('li');
+                li.innerHTML = strength; // 이미 <strong> 태그가 포함되어 있음
+                liberalStrengthsList.appendChild(li);
+            });
+        }
+    }
+    
+    if (data.scienceStrengths) {
+        const scienceStrengthsList = scienceCard?.querySelector('ul');
+        if (scienceStrengthsList) {
+            scienceStrengthsList.innerHTML = '';
+            data.scienceStrengths.forEach(strength => {
+                const li = document.createElement('li');
+                li.innerHTML = strength; // 이미 <strong> 태그가 포함되어 있음
+                scienceStrengthsList.appendChild(li);
+            });
+        }
+    }
+    
+    // 문과 특성 업데이트
+    const trackNote = liberalCard?.querySelector('.track-note');
+    if (trackNote && data.recommendation === '이과') {
+        trackNote.textContent = "문과도 충분히 적합하나, 이과에서 더 큰 잠재력을 발휘할 수 있을 것으로 예상됩니다.";
+    } else if (trackNote && data.recommendation === '문과') {
+        trackNote.textContent = "문과에서 뛰어난 재능을 발휘할 수 있을 것으로 예상됩니다.";
+    }
+    
+    // 최종 추천 업데이트
+    const finalRecommendationEl = document.getElementById('finalRecommendationText');
+    if (finalRecommendationEl && data.finalRecommendation) {
+        finalRecommendationEl.innerHTML = data.finalRecommendation;
+    }
+    
+    console.log('✅ 섹션 3 표시 완료 - 점수 업데이트됨:', {
+        liberal: data.liberalArtsScore,
+        science: data.scienceScore,
+        recommendation: data.recommendation
+    });
+}
+
+// 섹션 4: 길한 방향 표시
+function displaySection4Direction(data) {
+    console.log('=== 섹션 4: 길한 방향 표시 ===', data);
+    
+    // 방향 제목 업데이트
+    const titleEl = document.getElementById('directionTitle');
+    if (titleEl && data.directionTitle) {
+        titleEl.textContent = data.directionTitle;
+        console.log('✅ 방향 제목 업데이트:', data.directionTitle);
+    }
+    
+    // 방향 설명 업데이트
+    const explanationEl = document.getElementById('directionExplanation');
+    if (explanationEl && data.explanation) {
+        explanationEl.textContent = data.explanation;
+        console.log('✅ 방향 설명 업데이트');
+    }
+    
+    // 나침반 포인터 업데이트
+    const compassPointer = document.getElementById('compassPointer');
+    if (compassPointer && data.bestDirection) {
+        const directionAngles = {
+            '북': 0, '북동': 45, '동': 90, '남동': 135,
+            '남': 180, '남서': 225, '서': 270, '북서': 315
+        };
+        const angle = directionAngles[data.bestDirection] || 0;
+        compassPointer.style.transform = `rotate(${angle}deg)`;
+        console.log('✅ 나침반 포인터 회전:', `${data.bestDirection} -> ${angle}도`);
+    }
+    
+    console.log('✅ 섹션 4 표시 완료');
+}
+
+// 섹션 5: 3년간 운세 표시
+function displaySection5Fortune(data) {
+    console.log('=== 섹션 5: 3년간 운세 표시 ===', data);
+    
+    const grades = ['grade1', 'grade2', 'grade3'];
+    
+    grades.forEach((grade, index) => {
+        const gradeData = data[grade];
+        if (!gradeData) {
+            console.error(`❌ ${grade} 데이터가 없음`);
+            return;
+        }
+        
+        const gradeNum = index + 1;
+        
+        // 제목과 년도 업데이트
+        const titleEl = document.getElementById(`${grade}Title`);
+        const yearEl = document.getElementById(`${grade}Year`);
+        
+        if (titleEl && gradeData.phase) {
+            const phaseIcon = index === 0 ? '🌱' : index === 1 ? '🚀' : '🎯';
+            titleEl.textContent = `${phaseIcon} ${gradeNum}학년 (${gradeData.phase})`;
+        }
+        
+        if (yearEl && gradeData.year) {
+            yearEl.textContent = gradeData.year;
+        }
+        
+        // 시험운 업데이트
+        const examBar = document.getElementById(`${grade}ExamBar`);
+        const examScore = document.getElementById(`${grade}ExamScore`);
+        const examDesc = document.getElementById(`${grade}ExamDesc`);
+        
+        if (examBar && gradeData.examLuck) {
+            examBar.style.width = `${gradeData.examLuck}%`;
+            console.log(`✅ ${grade} 시험운 바 업데이트: ${gradeData.examLuck}%`);
+        }
+        
+        if (examScore && gradeData.examLuck) {
+            examScore.textContent = `${gradeData.examLuck}점`;
+            console.log(`✅ ${grade} 시험운 점수 업데이트: ${gradeData.examLuck}점`);
+        }
+        
+        if (examDesc && gradeData.examDescription) {
+            examDesc.textContent = gradeData.examDescription;
+            console.log(`✅ ${grade} 시험운 설명 업데이트`);
+        }
+        
+        // 이성운 업데이트
+        const romanceBar = document.getElementById(`${grade}RomanceBar`);
+        const romanceScore = document.getElementById(`${grade}RomanceScore`);
+        const romanceDesc = document.getElementById(`${grade}RomanceDesc`);
+        
+        if (romanceBar && gradeData.romanceLuck) {
+            romanceBar.style.width = `${gradeData.romanceLuck}%`;
+            console.log(`✅ ${grade} 이성운 바 업데이트: ${gradeData.romanceLuck}%`);
+        }
+        
+        if (romanceScore && gradeData.romanceLuck) {
+            romanceScore.textContent = `${gradeData.romanceLuck}점`;
+            console.log(`✅ ${grade} 이성운 점수 업데이트: ${gradeData.romanceLuck}점`);
+        }
+        
+        if (romanceDesc && gradeData.romanceDescription) {
+            romanceDesc.textContent = gradeData.romanceDescription;
+            console.log(`✅ ${grade} 이성운 설명 업데이트`);
+        }
+    });
+    
+    // 종합 분석 업데이트
+    if (data.summary) {
+        const examTrendEl = document.getElementById('examTrendSummary');
+        const romanceTrendEl = document.getElementById('romanceTrendSummary');
+        
+        if (examTrendEl && data.summary.examTrend) {
+            examTrendEl.textContent = data.summary.examTrend;
+            console.log('✅ 시험운 종합 분석 업데이트');
+        }
+        
+        if (romanceTrendEl && data.summary.romanceTrend) {
+            romanceTrendEl.textContent = data.summary.romanceTrend;
+            console.log('✅ 이성운 종합 분석 업데이트');
+        }
+    }
+    
+    console.log('✅ 섹션 5 표시 완료');
 }
 
 // Display school recommendations
