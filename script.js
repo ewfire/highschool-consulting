@@ -287,15 +287,19 @@ async function performSajuAnalysis(userData) {
     console.log('🔮 사주 분석 시작');
     console.log('입력 데이터:', userData);
     
-    // API 키 검증
-    if (GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY') {
-        console.error('❌ API 키가 설정되지 않았습니다');
-        console.log('🎭 API 키 미설정으로 데모 데이터 사용');
+    // 실제 서버에서는 바로 데모 데이터 사용 (API 키 보안 및 CORS 문제 방지)
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        console.log('🌐 실제 서버 환경 감지 - 보안을 위해 데모 데이터 사용');
         return generateDemoAnalysis(userData);
     }
     
-    console.log('✅ API 키 확인됨, Gemini API 호출 시작');
-    console.log('🔑 API 키 마지막 4자리:', GEMINI_API_KEY.slice(-4));
+    // API 키 검증
+    if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY' || GEMINI_API_KEY.length < 10) {
+        console.log('🔑 API 키 미설정 또는 무효 - 데모 데이터 사용');
+        return generateDemoAnalysis(userData);
+    }
+    
+    console.log('✅ 로컬 환경에서 API 키 확인됨, Gemini API 호출 시작');
     
     // 기본 요청 ID 생성
     const requestId = Math.random().toString(36).substr(2, 16);
@@ -454,78 +458,75 @@ async function performSajuAnalysis(userData) {
   "summary": "전체 분석 종합 요약"
 }`;
 
-    // 실제 API 호출 시작 로그
-    console.log(`🤖 실제 Gemini API 호출을 시작합니다!`);
-    console.log(`사용자: ${userData.name}`);
-    console.log(`API 키 끝자리: ${GEMINI_API_KEY.slice(-4)}`);
-    console.log(`요청 ID: ${requestId.substr(0, 8)}...`);
-
-    // debug-api.html과 동일한 요청 구성
-    const requestBody = {
-        contents: [{
-            parts: [{
-                text: basePrompt
-            }]
-        }],
-        generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 4096,
-            stopSequences: [],
-            candidateCount: 1
-        },
-        safetySettings: [
-            {
-                category: "HARM_CATEGORY_HARASSMENT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                category: "HARM_CATEGORY_HATE_SPEECH", 
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            }
-        ]
-    };
-
     try {
         console.log('📤 사주 분석 요청 준비...');
         console.log(`프롬프트 길이: ${basePrompt.length} 문자`);
+        
+        const requestBody = {
+            contents: [{
+                parts: [{
+                    text: basePrompt
+                }]
+            }],
+            generationConfig: {
+                temperature: 0.7,
+                topK: 40,
+                topP: 0.95,
+                maxOutputTokens: 4096,
+                stopSequences: [],
+                candidateCount: 1
+            },
+            safetySettings: [
+                {
+                    category: "HARM_CATEGORY_HARASSMENT",
+                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                },
+                {
+                    category: "HARM_CATEGORY_HATE_SPEECH", 
+                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                },
+                {
+                    category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                },
+                {
+                    category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                    threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                }
+            ]
+        };
+        
         console.log(`요청 본문 크기: ${JSON.stringify(requestBody).length} bytes`);
         
         const startTime = Date.now();
         console.log('🌐 Fetch 요청 시작...');
         
-        // debug-api.html과 동일한 fetch 호출
+        // 타임아웃 설정 (10초)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        
         const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'User-Agent': 'HighSchool-Recommender/1.0'
             },
-            body: JSON.stringify(requestBody)
+            body: JSON.stringify(requestBody),
+            signal: controller.signal
         });
         
+        clearTimeout(timeoutId);
         const endTime = Date.now();
         console.log(`📥 응답 받음 - 상태: ${response.status}, 시간: ${endTime - startTime}ms`);
         
         if (response.ok) {
             const data = await response.json();
             console.log('✅ API 호출 성공!');
-            console.log(`📊 전체 응답: ${JSON.stringify(data, null, 2)}`);
             
             if (data.candidates && data.candidates.length > 0) {
                 const generatedText = data.candidates[0].content.parts[0].text;
-                console.log(`📝 생성된 텍스트: ${generatedText}`);
+                console.log(`📝 생성된 텍스트 길이: ${generatedText.length} 문자`);
                 
-                // JSON 파싱 시도 (debug-api.html과 동일)
                 try {
                     let cleanedText = generatedText
                         .replace(/```json\s*/g, '')
@@ -536,8 +537,6 @@ async function performSajuAnalysis(userData) {
                     
                     const analysisResult = JSON.parse(cleanedText);
                     console.log('✅ JSON 파싱 성공!');
-                    console.log(`📊 파싱된 결과: ${JSON.stringify(analysisResult, null, 2)}`);
-                    
                     return analysisResult;
                 } catch (parseError) {
                     console.error(`❌ JSON 파싱 실패: ${parseError.message}`);
@@ -553,46 +552,17 @@ async function performSajuAnalysis(userData) {
             const errorText = await response.text();
             console.error(`❌ API 호출 실패 - 상태: ${response.status}`);
             console.error(`❌ 에러 응답: ${errorText}`);
-            
-            // 에러 데이터 파싱 시도 (debug-api.html과 동일)
-            try {
-                const errorData = JSON.parse(errorText);
-                console.log(`📋 파싱된 에러 데이터: ${JSON.stringify(errorData, null, 2)}`);
-                
-                // 할당량 초과 확인
-                if ((response.status === 429 || response.status === 403) && 
-                    errorData.error && (
-                        errorData.error.message.includes('quota') || 
-                        errorData.error.message.includes('Quota') ||
-                        errorData.error.message.includes('limit') ||
-                        errorData.error.status === 'RESOURCE_EXHAUSTED' ||
-                        errorData.error.status === 'QUOTA_EXCEEDED'
-                    )) {
-                    console.log('🚨 할당량 초과 에러 감지!');
-                    console.log(`상태 코드: ${response.status}`);
-                    console.log(`에러 타입: ${errorData.error.status}`);
-                    console.log(`메시지: ${errorData.error.message}`);
-                    console.log('지금은 데모 데이터로 테스트합니다.');
-                    return generateDemoAnalysis(userData);
-                } else {
-                    console.log(`🚨 API 에러 - ${response.status}`);
-                    console.log(`에러 메시지: ${errorData.error ? errorData.error.message : errorText}`);
-                    console.log('데모 데이터로 테스트합니다.');
-                    return generateDemoAnalysis(userData);
-                }
-            } catch (parseError) {
-                console.log(`⚠️ 에러 응답 파싱 실패: ${parseError.message}`);
-                console.log(`🚨 API 호출 실패! 상태 코드: ${response.status}`);
-                console.log('데모 데이터로 테스트합니다.');
-                return generateDemoAnalysis(userData);
-            }
+            console.log('🎭 API 호출 실패로 데모 데이터 사용');
+            return generateDemoAnalysis(userData);
         }
         
     } catch (error) {
-        console.error(`❌ 네트워크 에러: ${error.message}`);
-        console.error(`❌ 에러 스택: ${error.stack}`);
-        console.log('API 호출 중 오류가 발생하여 데모 데이터로 테스트합니다.');
-        console.log(`오류: ${error.message}`);
+        if (error.name === 'AbortError') {
+            console.error('❌ API 호출 타임아웃 (10초 초과)');
+        } else {
+            console.error(`❌ 네트워크 에러: ${error.message}`);
+        }
+        console.log('🎭 API 호출 실패로 데모 데이터 사용');
         return generateDemoAnalysis(userData);
     }
 }
@@ -955,49 +925,92 @@ function generateDemoAnalysis(userData) {
 function initializeResultPage() {
     console.log('=== 결과 페이지 초기화 시작 ===');
     
-    let userData = localStorage.getItem('sajuUserData');
-    let analysisResult = null; // 항상 새로운 분석 결과 생성하도록 변경
-    
-    console.log('📦 localStorage에서 가져온 사용자 데이터:', userData);
-    
-    // 사용자 데이터 파싱
     try {
-        userData = userData ? JSON.parse(userData) : null;
-        console.log('✅ 사용자 데이터 파싱 성공:', userData);
-    } catch (e) {
-        console.error('❌ 사용자 데이터 파싱 실패:', e);
-        userData = null;
+        let userData = localStorage.getItem('sajuUserData');
+        let analysisResult = null; // 항상 새로운 분석 결과 생성하도록 변경
+        
+        console.log('📦 localStorage에서 가져온 사용자 데이터:', userData);
+        
+        // 사용자 데이터 파싱
+        try {
+            userData = userData ? JSON.parse(userData) : null;
+            console.log('✅ 사용자 데이터 파싱 성공:', userData);
+        } catch (e) {
+            console.error('❌ 사용자 데이터 파싱 실패:', e);
+            userData = null;
+        }
+        
+        // 사용자 데이터가 없으면 기본값 설정
+        if (!userData) {
+            console.log('⚠️ 사용자 데이터가 없음 - 기본 데이터 생성');
+            userData = {
+                name: '홍길동',
+                birthYear: '2008',
+                birthMonth: '3',
+                birthDay: '15',
+                birthTime: '오시',
+                gender: '남성'
+            };
+        }
+        
+        // 매번 새로운 분석 결과 생성
+        console.log('🔄 새로운 분석 결과 생성 중...');
+        analysisResult = generateDemoAnalysis(userData);
+        console.log('✅ 새로운 분석 결과 생성 완료:', analysisResult);
+        
+        // localStorage에 새로운 결과 저장 (안전하게)
+        try {
+            localStorage.setItem('sajuAnalysisResult', JSON.stringify(analysisResult));
+            console.log('💾 새로운 분석 결과를 localStorage에 저장 완료');
+        } catch (storageError) {
+            console.warn('⚠️ localStorage 저장 실패:', storageError);
+            // 저장 실패해도 계속 진행
+        }
+        
+        console.log('📊 최종 사용할 데이터:');
+        console.log('userData:', userData);
+        console.log('analysisResult type:', typeof analysisResult);
+        
+        console.log('🎨 결과 표시 시작');
+        displayAnalysisResult(userData, analysisResult);
+        console.log('✅ 결과 페이지 초기화 완료');
+        
+    } catch (error) {
+        console.error('❌ 결과 페이지 초기화 중 오류 발생:', error);
+        
+        // 최후의 수단: 기본 데이터로 다시 시도
+        try {
+            const fallbackUserData = {
+                name: '홍길동',
+                birthYear: '2008',
+                birthMonth: '3',
+                birthDay: '15',
+                birthTime: '오시',
+                gender: '남성'
+            };
+            
+            const fallbackResult = generateDemoAnalysis(fallbackUserData);
+            displayAnalysisResult(fallbackUserData, fallbackResult);
+            console.log('✅ 폴백 데이터로 복구 완료');
+            
+        } catch (fallbackError) {
+            console.error('❌ 폴백 데이터로도 복구 실패:', fallbackError);
+            
+            // 페이지에 에러 메시지 표시
+            const container = document.querySelector('.main-content');
+            if (container) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px; color: #666;">
+                        <h2>🔄 분석 결과를 불러오는 중입니다...</h2>
+                        <p>잠시만 기다려주세요.</p>
+                        <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            새로고침
+                        </button>
+                    </div>
+                `;
+            }
+        }
     }
-    
-    // 사용자 데이터가 없으면 기본값 설정
-    if (!userData) {
-        console.log('⚠️ 사용자 데이터가 없음 - 기본 데이터 생성');
-        userData = {
-            name: '홍길동',
-            birthYear: '2008',
-            birthMonth: '3',
-            birthDay: '15',
-            birthTime: '오시',
-            gender: '남성'
-        };
-    }
-    
-    // 매번 새로운 분석 결과 생성
-    console.log('🔄 새로운 분석 결과 생성 중...');
-    analysisResult = generateDemoAnalysis(userData);
-    console.log('✅ 새로운 분석 결과 생성 완료:', analysisResult);
-    
-    // localStorage에 새로운 결과 저장
-    localStorage.setItem('sajuAnalysisResult', JSON.stringify(analysisResult));
-    console.log('💾 새로운 분석 결과를 localStorage에 저장 완료');
-    
-    console.log('📊 최종 사용할 데이터:');
-    console.log('userData:', userData);
-    console.log('analysisResult:', analysisResult);
-    
-    console.log('🎨 결과 표시 시작');
-    displayAnalysisResult(userData, analysisResult);
-    console.log('✅ 결과 페이지 초기화 완료');
 }
 
 // Display analysis result
