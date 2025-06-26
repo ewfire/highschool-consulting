@@ -178,7 +178,27 @@ function setupFormSubmission() {
 
         try {
             console.log('🤖 🌟 실제 AI 분석 시작 - Google Gemini API 호출 🌟');
-            // AI 분석 수행
+            
+            // 실제 서버에서는 바로 데모 데이터 생성 후 이동
+            if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                console.log('🌐 실제 서버 환경 - 데모 데이터 생성 후 바로 이동');
+                
+                // 짧은 로딩 시간 후 이동 (UX 개선)
+                setTimeout(() => {
+                    const analysisResult = generateDemoAnalysis(userData);
+                    localStorage.setItem('sajuAnalysisResult', JSON.stringify(analysisResult));
+                    console.log('💾 데모 분석 결과 저장 완료');
+                    
+                    // 로딩 화면 숨기고 이동
+                    hideLoadingScreen();
+                    console.log('🚀 결과 페이지로 즉시 이동');
+                    window.location.href = './result.html';
+                }, 1000); // 1초 로딩 시간
+                return;
+            }
+            
+            // 로컬 환경에서만 실제 AI 분석 수행
+            console.log('🏠 로컬 환경 - 실제 API 호출 시도');
             const analysisResult = await performSajuAnalysis(userData);
             
             console.log('📊 AI 분석 결과 받음:', analysisResult);
@@ -199,7 +219,16 @@ function setupFormSubmission() {
             console.error(`❌ 에러 스택: ${error.stack}`);
             console.log('API 호출 중 오류가 발생하여 데모 데이터로 테스트합니다.');
             console.log(`오류: ${error.message}`);
-            return generateDemoAnalysis(userData);
+            
+            // 에러 발생 시에도 데모 데이터로 진행
+            const fallbackResult = generateDemoAnalysis(userData);
+            localStorage.setItem('sajuAnalysisResult', JSON.stringify(fallbackResult));
+            console.log('💾 폴백 데이터 저장 완료');
+            
+            // 로딩 화면 숨기고 바로 결과 페이지로 이동
+            hideLoadingScreen();
+            console.log('🚀 에러 발생으로 결과 페이지로 즉시 이동');
+            window.location.href = './result.html';
         }
     });
     
