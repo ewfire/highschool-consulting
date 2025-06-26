@@ -3,7 +3,7 @@ const GEMINI_API_KEY = 'AIzaSyBY1aPCt5gkJr7m8BCuTRUjtLl5PWHO4Dg'; // 실제 사�
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 // 버전 관리 및 데이터 클리어
-const SCRIPT_VERSION = '3.8';
+const SCRIPT_VERSION = '3.9';
 const STORAGE_VERSION_KEY = 'sajuApp_version';
 
 // Global variables
@@ -36,9 +36,12 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('- userAgent:', navigator.userAgent);
     
     const currentPage = window.location.pathname.split('/').pop();
+    const pathname = window.location.pathname;
     console.log('현재 페이지:', currentPage);
+    console.log('현재 경로:', pathname);
     
-    if (currentPage === 'input.html' || currentPage === '') {
+    // 입력 페이지 체크 (input.html 또는 루트 경로)
+    if (currentPage === 'input.html' || currentPage === '' || pathname === '/' || pathname === '/input') {
         console.log('📄 입력 페이지 감지 - initializeInputPage 호출');
         try {
             initializeInputPage();
@@ -46,7 +49,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('❌ initializeInputPage 호출 중 오류:', error);
         }
-    } else if (currentPage === 'result.html') {
+    } 
+    // 결과 페이지 체크 (result.html 또는 /result 경로)
+    else if (currentPage === 'result.html' || pathname === '/result' || currentPage === 'result') {
         console.log('📊 결과 페이지 감지 - initializeResultPage 호출');
         try {
             initializeResultPage();
@@ -55,7 +60,15 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('❌ initializeResultPage 호출 중 오류:', error);
         }
     } else {
-        console.log('⚠️ 알 수 없는 페이지:', currentPage);
+        console.log('⚠️ 알 수 없는 페이지:', currentPage, '경로:', pathname);
+        // 기본적으로 결과 페이지로 처리 (많은 경우 결과 페이지 접근)
+        console.log('🔄 기본값으로 결과 페이지 초기화 시도');
+        try {
+            initializeResultPage();
+            console.log('✅ 기본값 결과 페이지 초기화 완료');
+        } catch (error) {
+            console.error('❌ 기본값 결과 페이지 초기화 실패:', error);
+        }
     }
 });
 
